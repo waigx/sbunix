@@ -1,2 +1,2 @@
-PS1="\\u@debian:\\w $"
+PS1="\\u@\h:\\w$"
 PATH=
