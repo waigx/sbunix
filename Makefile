@@ -17,6 +17,7 @@ all: $(BINS)
 
 $(BINS): $(shell find bin/ -type f -name *.c) $(wildcard include/*.h include/*/*.h)
 	@$(MAKE) --no-print-directory BIN=$@ binary
+	@cp -r etc $(ROOTFS)
 
 binary: $(patsubst %.c,obj/%.o,$(wildcard $(BIN:rootfs/%=%)/*.c))
 	$(LD) $(LDLAGS) -o $(BIN) $^

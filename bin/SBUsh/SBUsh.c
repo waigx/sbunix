@@ -25,37 +25,37 @@
 
 #define PS_MAX_LEN		512
 
-char * getopt(const char *, char **);
-char * parse_ps1(char *, char **);
-char * getabbrcwd(char **);
+char * getopt(char *, const char *, char **);
+char * parse_ps1(char *, char *, char **);
+char * getabbrcwd(char *, char **);
 
-int
-main(int argc, char * argv[], char * envp[])
+int 
+main(int argc, char *argv[], char *envp[]) 
 {
-	
 	return 0;
 }
 
 
 char *
-parse_ps1(char *ps1, char *opt_ptr[])
+parse_ps1(char *buf, char *ps1, char *opt_ptr[])
 {
 	int i;
 	size_t ps1_len = strlen(ps1);
-	size_t ps_len = 0;
+	size_t buf_len = 0;
 	char temp_info[PS_MAX_LEN];
-	char *ps = malloc(PS_MAX_LEN);
-
 
 	for (i = 0; i < ps1_len; i++){
 		if (ps1[i] == '\\') {
 			i += 1;
 			switch (ps1[i]) {
 			case 'u':
-				strcpy(temp_info, getopt("USER", opt_ptr));
+				getopt(temp_info, "USER", opt_ptr);
 				break;
 			case 'w':
-				strcpy(temp_info, getabbrcwd(opt_ptr));
+				getabbrcwd(temp_info, opt_ptr);
+				break;
+			case 'W':
+				getcwd(temp_info, PS_MAX_LEN);
 				break;
 			default:
 				return NULL;
@@ -66,26 +66,25 @@ parse_ps1(char *ps1, char *opt_ptr[])
 			temp_info[1] = '\0';
 		}
 
-		if (strlen(temp_info) + ps_len > PS_MAX_LEN - 4) {
-			strcpy(ps + ps_len, "...");
-			ps_len += 3;
+		if (strlen(temp_info) + buf_len > PS_MAX_LEN - 4) {
+			strcpy(buf + buf_len, "...");
+			buf_len += 3;
 			break;
 		} else {
-			strcpy(ps + ps_len, temp_info);
-			ps_len += strlen(temp_info);
+			strcpy(buf + buf_len, temp_info);
+			buf_len += strlen(temp_info);
 		}
 	}
 
-	return ps;
+	return buf;
 }
 
 
 char *
-getopt(const char *name, char *opt_ptr[])
+getopt(char *buf, const char *name, char *opt_ptr[])
 {
 	int i, opt_index;
 	int failure;
-	char *opt;
 	char *current_opt;
 	size_t name_len;
 
@@ -111,9 +110,8 @@ getopt(const char *name, char *opt_ptr[])
 			i = 0;
 			continue;
 		} else{
-			opt = malloc(strlen(current_opt) - name_len);
-			strcpy(opt, current_opt + i + 1);
-			return opt;
+			strcpy(buf, current_opt + i + 1);
+			return buf;
 		}
 	}
 	return NULL;
@@ -122,28 +120,27 @@ getopt(const char *name, char *opt_ptr[])
 
 
 char *
-getabbrcwd(char *opt_ptr[])
+getabbrcwd(char *buf, char *opt_ptr[])
 {
-	char *home_ptr;
+	char home[PS_MAX_LEN];
 	char cwd_ptr[PS_MAX_LEN];
-	char *acwd = malloc(PS_MAX_LEN);
 	size_t home_len;
 
-	home_ptr = getopt("HOME", opt_ptr);
-	home_len = strlen(home_ptr);
+	getopt(home, "HOME", opt_ptr);
+	home_len = strlen(home);
 
 	getcwd(cwd_ptr, PS_MAX_LEN);
 
 	if (home_len > strlen(cwd_ptr)) {
-		return strcpy(acwd, cwd_ptr);
+		return strcpy(buf, cwd_ptr);
 	}
 
-	if ( strncmp(home_ptr, cwd_ptr, home_len) == 0 ) {
-		acwd[0] = '~';
-		strcpy(acwd + 1, cwd_ptr + home_len);
-		return acwd;
+	if ( strncmp(home, cwd_ptr, home_len) == 0 ) {
+		buf[0] = '~';
+		strcpy(buf + 1, cwd_ptr + home_len);
+		return buf;
 	}
 	
-	return strcpy(acwd, cwd_ptr);
+	return strcpy(buf, cwd_ptr);
 
 }
