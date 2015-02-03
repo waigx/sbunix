@@ -1,6 +1,10 @@
 /*
  *
  *  This file is part of SBUsh.
+ *        SBUsh is a simple shell implementation, basically, it is
+ *  an academic project of CSE506 of Stony Brook University in Spring 
+ *  2015. For more details, please refer to README.md.
+ *
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *

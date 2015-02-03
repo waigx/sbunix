@@ -1,6 +1,10 @@
 /*
  *
  *  This file is part of SBUsh.
+ *        SBUsh is a simple shell implementation, basically, it is
+ *  an academic project of CSE506 of Stony Brook University in Spring 
+ *  2015. For more details, please refer to README.md.
+ *
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -19,15 +23,16 @@
  *
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
 
-#define PS_MAX_LEN		512
-#define DIR_MAX_DEPTH	255
-#define MAXLINE			1024
-#define HOSTNAME_FILE	"/proc/sys/kernel/hostname"
+#define PS_MAX_LEN 512
+#define DIR_MAX_DEPTH 255
+#define MAXLINE 1024
+#define HOSTNAME_FILE "/proc/sys/kernel/hostname"
 
 
 char * readline(char *, int); 
@@ -335,7 +340,6 @@ getabbrhostname(char *buf)
 
 	if ((dot_ptr = strstr(buf, ".")) == NULL)
 		return buf;
-
 	*dot_ptr = '\0';
 
 	return buf;
