@@ -25,18 +25,24 @@
 
 
 #define PS_MAX_LEN		512
+#define DIR_MAX_DEPTH	255
 #define MAXLINE			1024
 #define HOSTNAME_FILE	"/proc/sys/kernel/hostname"
 
+
 char * readline(char *, int); 
 char * getopt(char *, const char *, char **);
-char ** splitstr(char **, char *, const char *);
+char ** splitstr(char *, const char *);
 char * joinstrlst(char *, char **, const char *);
 
 char * parse_ps1(char *, char *, char **);
 char * getabbrcwd(char *, char **);
 char * gethostname(char *);
 char * getabbrhostname(char *);
+
+char * parse_dir(char *, char *, char **);
+
+char * freestrarr(char **);
 
 
 int 
@@ -67,17 +73,63 @@ readline(char *buf, int fd)
 char *
 parse_dir(char *buf, char *cd_arg, char *opt_ptr[])
 {
+	char **cwd_lst;
+	char **cd_lst;
+	char **path_lst = malloc(sizeof(char *) * DIR_MAX_DEPTH);
+	char cwd[PS_MAX_LEN];
+	int cwd_lst_index = 0;
+	int cd_lst_index = 0;
+	int path_lst_index = 0;
+
 	if (strlen(cd_arg) == 0)
 		return getopt(buf, "HOME", opt_ptr);
+	
+	cd_lst = splitstr(cd_arg, "/");
 
-	return NULL;
+	if (strcmp(cd_lst[0], "~") == 0) {
+		getopt(cwd, "HOME", opt_ptr);
+		cd_lst_index += 1;
+	} else {
+		getcwd(cwd, PS_MAX_LEN);
+	}
+
+	cwd_lst = splitstr(cwd, "/");
+
+	if (strlen(cd_lst[0]) != 0) {
+		for (; cwd_lst[cwd_lst_index] != NULL; cwd_lst_index++) {
+			path_lst[path_lst_index] = cwd_lst[cwd_lst_index];
+			path_lst_index += 1;
+		}
+	}
+
+	for (; cd_lst[cd_lst_index] != NULL; cd_lst_index++) {
+		if (strcmp(cd_lst[cd_lst_index], ".") == 0)
+			continue;
+		if (strcmp(cd_lst[cd_lst_index], "..") == 0) {
+			if (path_lst_index != 0)
+				path_lst_index -= 1;
+			continue;
+		}
+		path_lst[path_lst_index] = cd_lst[cd_lst_index];
+		path_lst_index += 1;
+	} 
+
+	path_lst[path_lst_index] = NULL;
+	joinstrlst(buf, path_lst, "/");
+
+	freestrarr(cwd_lst);
+	freestrarr(cd_lst);
+	freestrarr(path_lst);
+
+	return buf;
 }
 
 
 char **
-splitstr(char **buf_ptr, char *haystack, const char *needle)
+splitstr(char *haystack, const char *needle)
 {
-	char **current_buf_ptr = buf_ptr;
+	char **buf_ptr_ptr = malloc(sizeof(char *) * (strlen(haystack) + 2));
+	char **current_buf_ptr = buf_ptr_ptr;
 	char *last_ptr = haystack;
 	char *current_ptr = haystack;
 	size_t needle_len = strlen(needle);
@@ -85,9 +137,11 @@ splitstr(char **buf_ptr, char *haystack, const char *needle)
 	while (1) {
 		current_ptr = strstr(last_ptr, needle);
 		if (current_ptr == NULL) {
+			*current_buf_ptr = malloc(strlen(last_ptr));
 			strcpy(*current_buf_ptr, last_ptr);
 			break;
 		}
+		*current_buf_ptr = malloc(current_ptr - last_ptr);
 		strncpy(*current_buf_ptr, last_ptr, current_ptr - last_ptr);
 		(*current_buf_ptr)[current_ptr - last_ptr] = '\0';
 		last_ptr = current_ptr + needle_len;
@@ -96,8 +150,21 @@ splitstr(char **buf_ptr, char *haystack, const char *needle)
 	current_buf_ptr += 1;
 	*current_buf_ptr = NULL;
 
-	return buf_ptr;
+	return buf_ptr_ptr;
 
+}
+
+
+char *
+freestrarr(char **buf_ptr_ptr)
+{
+	char **ptr_ptr = buf_ptr_ptr;
+	while (*ptr_ptr != NULL) {
+		free(*ptr_ptr);
+		ptr_ptr += 1;
+	}
+	free(buf_ptr_ptr);
+	return NULL;
 }
 
 
