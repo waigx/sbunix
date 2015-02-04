@@ -27,27 +27,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "libstr.h"
+#include "libio.h"
+#include "libcommon.h"
 
+#define SHELL_NAME "SBUsh"
 
-#define PS_MAX_LEN 512
-#define DIR_MAX_DEPTH 255
-#define MAXLINE 1024
-#define HOSTNAME_FILE "/proc/sys/kernel/hostname"
-
-
-char * readline(char *, int); 
-char * getopt(char *, const char *, char **);
-char ** splitstr(char *, const char *);
-char * joinstrlst(char *, char **, const char *);
 
 char * parse_ps1(char *, char *, char **);
 char * getabbrcwd(char *, char **);
 char * gethostname(char *);
 char * getabbrhostname(char *);
 
-char * parse_dir(char *, char *, char **);
-
-char * freestrarr(char **);
 
 
 int 
@@ -56,146 +47,6 @@ main(int argc, char *argv[], char *envp[])
 	return 0;
 }
 
-
-char *
-readline(char *buf, int fd)
-{
-	int n;
-	int buf_index = 0;
-
-	while ((n = read(fd, buf + buf_index, 1)) != 0) {
-		if ( buf[buf_index] == 0 || buf[buf_index] == 10 || buf[buf_index] == 13) {
-			buf[buf_index] = '\0';
-			return buf;
-		}
-		buf_index += 1;
-	}
-
-	return NULL;
-}
-
-
-char *
-parse_dir(char *buf, char *cd_arg, char *opt_ptr[])
-{
-	char **cwd_lst;
-	char **cd_lst;
-	char **path_lst = malloc(sizeof(char *) * DIR_MAX_DEPTH);
-	char cwd[PS_MAX_LEN];
-	int cwd_lst_index = 0;
-	int cd_lst_index = 0;
-	int path_lst_index = 0;
-
-	if (strlen(cd_arg) == 0)
-		return getopt(buf, "HOME", opt_ptr);
-	
-	cd_lst = splitstr(cd_arg, "/");
-
-	if (strcmp(cd_lst[0], "~") == 0) {
-		getopt(cwd, "HOME", opt_ptr);
-		cd_lst_index += 1;
-	} else {
-		getcwd(cwd, PS_MAX_LEN);
-	}
-
-	cwd_lst = splitstr(cwd, "/");
-
-	if (strlen(cd_lst[0]) != 0) {
-		for (; cwd_lst[cwd_lst_index] != NULL; cwd_lst_index++) {
-			path_lst[path_lst_index] = cwd_lst[cwd_lst_index];
-			path_lst_index += 1;
-		}
-	}
-
-	for (; cd_lst[cd_lst_index] != NULL; cd_lst_index++) {
-		if (strcmp(cd_lst[cd_lst_index], ".") == 0)
-			continue;
-		if (strcmp(cd_lst[cd_lst_index], "..") == 0) {
-			if (path_lst_index != 0)
-				path_lst_index -= 1;
-			continue;
-		}
-		path_lst[path_lst_index] = cd_lst[cd_lst_index];
-		path_lst_index += 1;
-	} 
-
-	path_lst[path_lst_index] = NULL;
-	joinstrlst(buf, path_lst, "/");
-
-	freestrarr(cwd_lst);
-	freestrarr(cd_lst);
-	freestrarr(path_lst);
-
-	return buf;
-}
-
-
-char **
-splitstr(char *haystack, const char *needle)
-{
-	char **buf_ptr_ptr = malloc(sizeof(char *) * (strlen(haystack) + 2));
-	char **current_buf_ptr = buf_ptr_ptr;
-	char *last_ptr = haystack;
-	char *current_ptr = haystack;
-	size_t needle_len = strlen(needle);
-
-	while (1) {
-		current_ptr = strstr(last_ptr, needle);
-		if (current_ptr == NULL) {
-			*current_buf_ptr = malloc(strlen(last_ptr));
-			strcpy(*current_buf_ptr, last_ptr);
-			break;
-		}
-		*current_buf_ptr = malloc(current_ptr - last_ptr);
-		strncpy(*current_buf_ptr, last_ptr, current_ptr - last_ptr);
-		(*current_buf_ptr)[current_ptr - last_ptr] = '\0';
-		last_ptr = current_ptr + needle_len;
-		current_buf_ptr += 1;
-	}
-	current_buf_ptr += 1;
-	*current_buf_ptr = NULL;
-
-	return buf_ptr_ptr;
-
-}
-
-
-char *
-freestrarr(char **buf_ptr_ptr)
-{
-	char **ptr_ptr = buf_ptr_ptr;
-	while (*ptr_ptr != NULL) {
-		free(*ptr_ptr);
-		ptr_ptr += 1;
-	}
-	free(buf_ptr_ptr);
-	return NULL;
-}
-
-
-char *
-joinstrlst(char *buf, char **str_ptr, const char *salt)
-{
-	char *buf_ptr = buf;
-	int salt_len = strlen(salt);
-
-	if (str_ptr == NULL) {
-		buf[0] = '\0';
-		return buf;
-	}
-
-	while (*(str_ptr + 1) != NULL) {
-		strcpy(buf_ptr, *str_ptr);
-		buf_ptr += strlen(*str_ptr);
-		strcpy(buf_ptr, salt);
-		buf_ptr += salt_len;
-		str_ptr += 1;
-	}
-	strcpy(buf_ptr, *str_ptr);
-
-	return buf;
-	
-}
 
 
 char *
@@ -225,6 +76,9 @@ parse_ps1(char *buf, char *ps1, char *opt_ptr[])
 			case 'W':
 				getcwd(temp_info, PS_MAX_LEN);
 				break;
+			case 's':
+				strcpy(temp_info, SHELL_NAME);
+				break;
 			default:
 				return NULL;
 				break;
@@ -245,45 +99,6 @@ parse_ps1(char *buf, char *ps1, char *opt_ptr[])
 	}
 
 	return buf;
-}
-
-
-char *
-getopt(char *buf, const char *name, char *opt_ptr[])
-{
-	int i, opt_index;
-	int failure;
-	char *current_opt;
-	size_t name_len;
-
-	opt_index = 0;
-	current_opt = opt_ptr[opt_index];
-	name_len = strlen(name);
-
-	i = 0;
-	while (current_opt != NULL) {
-		failure = 0;
-		while (i < name_len) {
-			if (current_opt[i] != name[i]){
-				failure = 1;
-				break;
-			} else {
-				i += 1;
-			}
-		}
-
-		if (failure == 1 || (failure == 0 && current_opt[i] != '=' )){
-			opt_index += 1;
-			current_opt = opt_ptr[opt_index];
-			i = 0;
-			continue;
-		} else{
-			strcpy(buf, current_opt + i + 1);
-			return buf;
-		}
-	}
-	return NULL;
-
 }
 
 

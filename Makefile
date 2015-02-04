@@ -15,16 +15,26 @@ BINS:=$(addprefix $(ROOTFS)/,$(wildcard bin/*))
 
 all: $(BINS)
 
-$(BINS): $(shell find bin/ -type f -name *.c) $(wildcard include/*.h include/*/*.h)
+$(BINS): $(shell find bin/ -type f -name *.c) $(wildcard include/*.h include/*/*.h) libstr.o libio.o
 	@$(MAKE) --no-print-directory BIN=$@ binary
 	@cp -r etc $(ROOTFS)
 
 binary: $(patsubst %.c,obj/%.o,$(wildcard $(BIN:rootfs/%=%)/*.c))
-	$(LD) $(LDLAGS) -o $(BIN) $^
+	$(LD) $(LDLAGS) -o $(BIN) $^ obj/lib/*.o
 
 obj/%.o: %.c $(wildcard include/*.h include/*/*.h)
 	@mkdir -p $(dir $@)
 	$(CC) -c $(CFLAGS) -o $@ $<
+
+libstr.o: lib/libstr.c
+	@mkdir -p obj/lib
+	$(CC) -c $(CFLAGS) -o obj/lib/libstr.o lib/libstr.c
+
+libio.o: lib/libio.c
+	@mkdir -p obj/lib
+	$(CC) -c $(CFLAGS) -o obj/lib/libio.o lib/libio.c
+
+
 
 .PHONY: submit clean
 
