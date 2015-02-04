@@ -30,28 +30,29 @@
 #include "libio.h"
 #include "libcommon.h"
 
-
 #define SHELL_NAME "SBUsh"
 #define ROOT_PATH "/home/waigx/Documents/CSE506/SBUsh/rootfs" // directory without last "/";
 #define CONFIG_FILE {"/etc/SBUsh.SBUshrc", "~/.SBUshrc", ""}
+#define DEFAULT_PATH "/bin"
 #define DEFAULT_PS1 "\\s:$"
 
 
 int excute(char *);
-
-void initshell();
-
-char * parse_ps1(char *, char *);
-char * getabbrcwd(char *);
-char * gethostname(char *);
-char * getabbrhostname(char *);
-
 char * parse_dir(char *, char *);
+
+int _excute_1(char *);
+
+void _initshell();
+
+char * _parse_ps1(char *, char *);
+char * _getabbrcwd(char *);
+char * _gethostname(char *);
+char * _getabbrhostname(char *);
 
 
 char **g_opt_ptr;
-char *g_ps1[PS_MAX_LEN];
-char *g_path[PS_MAX_LEN];
+char g_ps1[PS_MAX_LEN];
+char g_path[PS_MAX_LEN];
 
 
 
@@ -62,7 +63,6 @@ main(int argc, char *argv[], char *envp[])
 }
 
 
-
 int
 excute(char *line)
 {
@@ -71,16 +71,25 @@ excute(char *line)
 }
 
 
+int
+_excute_1(char *line)
+{
+	return 0;
+}
+
+
 void
-initshell()
+_initshell()
 {
 	char **basenconfig = malloc(sizeof(char *) * 3);
 	char config_path[PS_MAX_LEN];
-//	char config_parsed_path[PS_MAX_LEN];
 	char commandline[MAXLINE];
 	char *config_lst[] = CONFIG_FILE;
 	int config_lst_i = 0;
 	int config_fd;
+
+	strcpy(g_ps1, DEFAULT_PS1);
+	strcpy(g_path, ROOT_PATH DEFAULT_PATH);
 
 	basenconfig[0] = malloc(strlen(ROOT_PATH)+1);
 	strcpy(basenconfig[0], ROOT_PATH);
@@ -167,7 +176,7 @@ parse_dir(char *buf, char *cd_arg)
 
 
 char *
-parse_ps1(char *buf, char *ps1)
+_parse_ps1(char *buf, char *ps1)
 {
 	int i;
 	size_t ps1_len = strlen(ps1);
@@ -179,16 +188,16 @@ parse_ps1(char *buf, char *ps1)
 			i += 1;
 			switch (ps1[i]) {
 			case 'h':
-				getabbrhostname(temp_info);
+				_getabbrhostname(temp_info);
 				break;
 			case 'H':
-				gethostname(temp_info);
+				_gethostname(temp_info);
 				break;
 			case 'u':
 				getopt(temp_info, "USER", g_opt_ptr);
 				break;
 			case 'w':
-				getabbrcwd(temp_info);
+				_getabbrcwd(temp_info);
 				break;
 			case 'W':
 				getcwd(temp_info, PS_MAX_LEN);
@@ -220,7 +229,7 @@ parse_ps1(char *buf, char *ps1)
 
 
 char *
-getabbrcwd(char *buf)
+_getabbrcwd(char *buf)
 {
 	char home[PS_MAX_LEN];
 	char cwd_ptr[PS_MAX_LEN];
@@ -247,7 +256,7 @@ getabbrcwd(char *buf)
 
 
 char *
-gethostname(char *buf)
+_gethostname(char *buf)
 {
 	int hostname_fd;
 	
@@ -263,11 +272,11 @@ gethostname(char *buf)
 
 
 char *
-getabbrhostname(char *buf)
+_getabbrhostname(char *buf)
 {
 	char *dot_ptr;
 
-	if (gethostname(buf) == NULL)
+	if (_gethostname(buf) == NULL)
 		return NULL;
 
 	if ((dot_ptr = strstr(buf, ".")) == NULL)
@@ -281,7 +290,7 @@ getabbrhostname(char *buf)
 
 
 int
-cd(int argc, char *argv[])
+_cd(int argc, char *argv[])
 {
 	char abs_path[PS_MAX_LEN];
 	int is_success;
