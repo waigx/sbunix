@@ -27,6 +27,7 @@
 #ifndef _LIBSTR_H
 #define _LIBSTR_H
 
+
 char ** splitstr(char *, const char *);
 char * joinstrlst(char *, char **, const char *);
 

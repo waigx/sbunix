@@ -23,7 +23,6 @@
  *
  */
 
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,13 +30,28 @@
 #include "libio.h"
 #include "libcommon.h"
 
+
 #define SHELL_NAME "SBUsh"
+#define ROOT_PATH "/home/waigx/Documents/CSE506/SBUsh/rootfs" // directory without last "/";
+#define CONFIG_FILE {"/etc/SBUsh.SBUshrc", "~/.SBUshrc", ""}
+#define DEFAULT_PS1 "\\s:$"
 
 
-char * parse_ps1(char *, char *, char **);
-char * getabbrcwd(char *, char **);
+int excute(char *);
+
+void initshell();
+
+char * parse_ps1(char *, char *);
+char * getabbrcwd(char *);
 char * gethostname(char *);
 char * getabbrhostname(char *);
+
+char * parse_dir(char *, char *);
+
+
+char **g_opt_ptr;
+char *g_ps1[PS_MAX_LEN];
+char *g_path[PS_MAX_LEN];
 
 
 
@@ -49,8 +63,111 @@ main(int argc, char *argv[], char *envp[])
 
 
 
+int
+excute(char *line)
+{
+	printf("%s\n", line);
+	return 0;
+}
+
+
+void
+initshell()
+{
+	char **basenconfig = malloc(sizeof(char *) * 3);
+	char config_path[PS_MAX_LEN];
+//	char config_parsed_path[PS_MAX_LEN];
+	char commandline[MAXLINE];
+	char *config_lst[] = CONFIG_FILE;
+	int config_lst_i = 0;
+	int config_fd;
+
+	basenconfig[0] = malloc(strlen(ROOT_PATH)+1);
+	strcpy(basenconfig[0], ROOT_PATH);
+	basenconfig[1] = malloc(PS_MAX_LEN);
+	basenconfig[2] = NULL;
+	while (strlen(config_lst[config_lst_i]) != 0) {
+		parse_dir(basenconfig[1], config_lst[config_lst_i]);
+		joinstrlst(config_path, basenconfig, "");
+		
+		if ((config_fd = open(config_path, O_RDONLY)) < 0) {
+			config_lst_i += 1;
+			continue;
+		}
+
+		while (readline(commandline, config_fd) != NULL)
+			excute(commandline);
+
+		close(config_fd);
+		config_lst_i += 1;
+	}
+
+	freestrarr(basenconfig);
+	return;
+
+}
+
+
 char *
-parse_ps1(char *buf, char *ps1, char *opt_ptr[])
+parse_dir(char *buf, char *cd_arg)
+{
+	char **cwd_lst;
+	char **cd_lst;
+	char **path_lst = malloc(sizeof(char *) * DIR_MAX_DEPTH);
+	char cwd[PS_MAX_LEN];
+	int cwd_lst_index = 0;
+	int cd_lst_index = 0;
+	int path_lst_index = 0;
+
+	if (strlen(cd_arg) == 0)
+		return getopt(buf, "HOME", g_opt_ptr);
+	
+	cd_lst = splitstr(cd_arg, "/");
+
+
+	if (strcmp(cd_lst[0], "~") == 0) {
+		getopt(cwd, "HOME", g_opt_ptr);
+		cd_lst_index += 1;
+	} else {
+		getcwd(cwd, PS_MAX_LEN);
+	}
+
+	cwd_lst = splitstr(cwd, "/");
+
+	if (strlen(cd_lst[0]) != 0) {
+		for (; cwd_lst[cwd_lst_index] != NULL; cwd_lst_index++) {
+			path_lst[path_lst_index] = malloc(strlen(cwd_lst[cwd_lst_index]) + 1);
+			strcpy(path_lst[path_lst_index], cwd_lst[cwd_lst_index]);
+			path_lst_index += 1;
+		}
+	}
+
+	for (; cd_lst[cd_lst_index] != NULL; cd_lst_index++) {
+		if (strcmp(cd_lst[cd_lst_index], ".") == 0)
+			continue;
+		if (strcmp(cd_lst[cd_lst_index], "..") == 0) {
+			if (path_lst_index != 0)
+				path_lst_index -= 1;
+			continue;
+		}
+		path_lst[path_lst_index] = malloc(strlen(cd_lst[cd_lst_index]) + 1);
+		strcpy(path_lst[path_lst_index], cd_lst[cd_lst_index]);
+		path_lst_index += 1;
+	} 
+
+	path_lst[path_lst_index] = NULL;
+	joinstrlst(buf, path_lst, "/");
+
+	freestrarr(cwd_lst);
+	freestrarr(cd_lst);
+	freestrarr(path_lst);
+
+	return buf;
+}
+
+
+char *
+parse_ps1(char *buf, char *ps1)
 {
 	int i;
 	size_t ps1_len = strlen(ps1);
@@ -68,10 +185,10 @@ parse_ps1(char *buf, char *ps1, char *opt_ptr[])
 				gethostname(temp_info);
 				break;
 			case 'u':
-				getopt(temp_info, "USER", opt_ptr);
+				getopt(temp_info, "USER", g_opt_ptr);
 				break;
 			case 'w':
-				getabbrcwd(temp_info, opt_ptr);
+				getabbrcwd(temp_info);
 				break;
 			case 'W':
 				getcwd(temp_info, PS_MAX_LEN);
@@ -103,13 +220,13 @@ parse_ps1(char *buf, char *ps1, char *opt_ptr[])
 
 
 char *
-getabbrcwd(char *buf, char *opt_ptr[])
+getabbrcwd(char *buf)
 {
 	char home[PS_MAX_LEN];
 	char cwd_ptr[PS_MAX_LEN];
 	size_t home_len;
 
-	getopt(home, "HOME", opt_ptr);
+	getopt(home, "HOME", g_opt_ptr);
 	home_len = strlen(home);
 
 	getcwd(cwd_ptr, PS_MAX_LEN);
@@ -155,8 +272,28 @@ getabbrhostname(char *buf)
 
 	if ((dot_ptr = strstr(buf, ".")) == NULL)
 		return buf;
+
 	*dot_ptr = '\0';
 
 	return buf;
 
+}
+
+
+int
+cd(int argc, char *argv[])
+{
+	char abs_path[PS_MAX_LEN];
+	int is_success;
+	
+	if (argc == 1) {
+		parse_dir(abs_path, "");
+	} else {
+		parse_dir(abs_path, argv[1]);
+	}
+	if ( (is_success = chdir(abs_path))<0 ) {
+		printf("%s: %s: No such directory\n", SHELL_NAME, abs_path);
+		return -1;
+	}
+	return 0;
 }
