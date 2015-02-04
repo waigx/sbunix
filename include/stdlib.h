@@ -91,8 +91,5 @@ int connect(int sockfd, const struct sockaddr *serv_addr, socklen_t addrlen);
 int listen(int sockfd, int backlog);
 int accept(int sockfd, struct sockaddr *addr, socklen_t *addrlen);
 
-// define some constants
-#define NULL 0x0
-
 
 #endif

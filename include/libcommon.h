@@ -33,4 +33,6 @@
 #define MAXLINE 1024
 #define HOSTNAME_FILE "/proc/sys/kernel/hostname"
 
+#define NULL 0x0
+
 #endif

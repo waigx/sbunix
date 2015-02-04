@@ -35,4 +35,8 @@ char * getopt(char *, const char *, char **);
 
 char * freestrarr(char **);
 
+size_t lenstrarr(char **);
+
+char ** cpynstrarr(char **, char **, size_t);
+
 #endif

@@ -27,6 +27,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "libcommon.h"
 
 
 char *
@@ -133,4 +134,35 @@ joinstrlst(char *buf, char **str_ptr, const char *salt)
 
 	return buf;
 	
+}
+
+
+size_t
+lenstrarr(char **ptr_ptr)
+{
+	size_t i = 0;
+	
+	while ( ptr_ptr[i] != 0 ) {
+		i += 1;
+	}
+
+	return i;
+}
+
+
+char **
+cpynstrarr(char **dest, char **source, size_t n)
+{
+	char **dest_ptr = dest;
+
+	while (n > 0 && *source != NULL) {
+		*dest_ptr = malloc(strlen(*source) + 1);
+		strcpy(*dest_ptr, *source);
+		dest_ptr += 1;
+		source += 1;
+		n -= 1;
+	}
+	*dest_ptr = NULL;
+
+	return dest;
 }

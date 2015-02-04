@@ -27,6 +27,9 @@
 #ifndef _LIBIO_H
 #define _LIBIO_H
 
+#define STDIN_FD 0
+#define STDOUT_FD 1
+
 
 char * readline(char *, int); 
 

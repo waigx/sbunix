@@ -1,2 +1,2 @@
-PS1="\\u@\h:\\w$"
-PATH=
+export PS1="\\u@\h:\\w$"
+export PATH="/bin"

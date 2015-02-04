@@ -37,10 +37,10 @@
 #define DEFAULT_PS1 "\\s:$"
 
 
-int excute(char *);
+int execute(char *);
 char * parse_dir(char *, char *);
 
-int _excute_1(char *);
+int _execute_1(char *);
 
 void _initshell();
 
@@ -55,7 +55,6 @@ char g_ps1[PS_MAX_LEN];
 char g_path[PS_MAX_LEN];
 
 
-
 int 
 main(int argc, char *argv[], char *envp[]) 
 {
@@ -64,16 +63,37 @@ main(int argc, char *argv[], char *envp[])
 
 
 int
-excute(char *line)
+execute(char *line)
 {
 	printf("%s\n", line);
 	return 0;
 }
 
 
+// Current version of SBUsh does not yet support quotation mark("") and escape sequences space(\ )
 int
-_excute_1(char *line)
+_execute_1(char *line)
 {
+	char **raw_argv = splitstr(line, " ");
+	char **argv = malloc(sizeof(char *) * (1 + lenstrarr(raw_argv)));
+	char **raw_argv_ptr = raw_argv;
+	char **argv_ptr = argv;
+	char exe_path[NAME_MAX + 1];
+
+	while (*raw_argv_ptr != NULL) {
+		if (strlen(*raw_argv_ptr) != 0)
+			cpynstrarr(argv_ptr, raw_argv_ptr, 1);
+		raw_argv_ptr += 1;
+		argv_ptr += 1;
+	}
+
+	parse_dir(exe_path, argv[0]);
+	if (execve(exe_path, argv, g_opt_ptr) < 0) {
+		printf("%s: %s: execve function fault\n", SHELL_NAME, exe_path);
+	}
+
+	free(raw_argv);
+	free(argv);
 	return 0;
 }
 
@@ -105,7 +125,7 @@ _initshell()
 		}
 
 		while (readline(commandline, config_fd) != NULL)
-			excute(commandline);
+			execute(commandline);
 
 		close(config_fd);
 		config_lst_i += 1;
