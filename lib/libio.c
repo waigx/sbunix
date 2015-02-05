@@ -46,3 +46,46 @@ readline(char *buf, int fd)
 
 	return NULL;
 }
+
+
+char *
+writeline(const char *buf, int fd)
+{
+	int buf_len = strlen(buf);
+	write(fd, buf, buf_len);
+
+	return NULL;
+}
+
+
+int
+pathtype(const char *path)
+{
+	int fd;
+	void * fd_d;
+	int is_dir, is_fil;
+
+	if ((fd = open(path, O_RDONLY)) < 0) {
+		is_fil = 0;
+	} else {
+		is_fil = 1;
+		close(fd);
+	}
+
+	if ((fd_d = opendir(path)) == NULL ) {
+		is_dir = 0;
+	} else {
+		is_dir = 1;
+		closedir(fd_d);
+	}
+
+	if (is_fil + is_dir == 0) {
+		return PATH_TYPE_NON;
+	} else if (is_fil == 1 && is_dir == 0) {
+		return PATH_TYPE_FIL;
+	} else if (is_fil == 1 && is_dir == 1) {
+		return PATH_TYPE_DIR;
+	}
+
+	return PATH_TYPE_NON;
+}

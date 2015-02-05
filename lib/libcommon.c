@@ -24,16 +24,23 @@
  */
 
 
-#ifndef _LIBIO_H
-#define _LIBIO_H
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "libio.h"
+#include "libcommon.h"
 
-#define STDIN_FD 0
-#define STDOUT_FD 1
 
+void
+echoerr(const char *app, const char *operate, const char *error)
+{
+	writeline("-", STDOUT_FD);
+	writeline(app, STDOUT_FD);
+	writeline(": ", STDOUT_FD);
+	writeline(operate, STDOUT_FD);
+	writeline(": ", STDOUT_FD);
+	writeline(error, STDOUT_FD);
+	writeline("\n", STDOUT_FD);
 
-char * readline(char *, int); 
-char * writeline(const char *, int);
-
-int pathtype(char *);
-
-#endif
+	return;
+}

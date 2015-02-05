@@ -35,4 +35,14 @@
 
 #define NULL 0x0
 
+#define EXIT_SUCCESS 0
+#define EXIT_FAILURE 1
+
+#define PATH_TYPE_NON -1
+#define PATH_TYPE_FIL 0
+#define PATH_TYPE_DIR 1
+
+
+void echoerr(const char *, const char *, const char *);
+
 #endif

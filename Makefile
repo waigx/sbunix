@@ -15,7 +15,7 @@ BINS:=$(addprefix $(ROOTFS)/,$(wildcard bin/*))
 
 all: $(BINS)
 
-$(BINS): $(shell find bin/ -type f -name *.c) $(wildcard include/*.h include/*/*.h) libstr.o libio.o
+$(BINS): $(shell find bin/ -type f -name *.c) $(wildcard include/*.h include/*/*.h) libstr.o libcommon.o libio.o
 	@$(MAKE) --no-print-directory BIN=$@ binary
 	@cp -r etc $(ROOTFS)
 
@@ -34,6 +34,9 @@ libio.o: lib/libio.c
 	@mkdir -p obj/lib
 	$(CC) -c $(CFLAGS) -o obj/lib/libio.o lib/libio.c
 
+libcommon.o: lib/libcommon.c
+	@mkdir -p obj/lib
+	$(CC) -c $(CFLAGS) -o obj/lib/libcommon.o lib/libcommon.c
 
 
 .PHONY: submit clean
