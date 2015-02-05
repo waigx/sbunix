@@ -23,6 +23,7 @@
  *
  */
 
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -34,17 +35,20 @@
 #define ROOT_PATH "/home/waigx/Documents/CSE506/SBUsh/rootfs" // directory without last "/";
 #define CONFIG_FILE {"/etc/SBUsh.SBUshrc", "~/.SBUshrc", ""}
 #define DEFAULT_PATH "/bin"
-#define DEFAULT_PS1 "\\s:$"
+#define DEFAULT_PS1 "\\u@\\h:\\w$ "
 
 
 int execute(char *);
 char * parse_dir(char *, char *);
 
 int _execute_1(char *);
+int _cd(int, char **);
+int _logout();
 
 void _initshell();
 
 char * _parse_ps1(char *, char *);
+char * _parse_command_path(char *, char *);
 char * _getabbrcwd(char *);
 char * _gethostname(char *);
 char * _getabbrhostname(char *);
@@ -55,11 +59,13 @@ char g_ps1[PS_MAX_LEN];
 char g_path[PS_MAX_LEN];
 
 
+
 int 
 main(int argc, char *argv[], char *envp[]) 
 {
 	return 0;
 }
+
 
 
 int
@@ -79,7 +85,11 @@ _execute_1(char *line)
 	char **raw_argv_ptr = raw_argv;
 	char **argv_ptr = argv;
 	char exe_path[NAME_MAX + 1];
+	int child_pid;
+	int child_status;
+	int execute_status = 1;
 
+	argv[0] = NULL;
 	while (*raw_argv_ptr != NULL) {
 		if (strlen(*raw_argv_ptr) != 0)
 			cpynstrarr(argv_ptr, raw_argv_ptr, 1);
@@ -87,14 +97,61 @@ _execute_1(char *line)
 		argv_ptr += 1;
 	}
 
-	parse_dir(exe_path, argv[0]);
-	if (execve(exe_path, argv, g_opt_ptr) < 0) {
-		printf("%s: %s: execve function fault\n", SHELL_NAME, exe_path);
+	if (lenstrarr(argv) == 0) {
+		execute_status = 1;
+		goto end;
+	}
+	
+	if (strcmp(argv[0], "cd") == 0) {
+		execute_status = _cd(lenstrarr(argv), argv);
+		if (execute_status < 0)
+			execute_status = 1;
+		else
+			execute_status = 0;
+		goto end;
+	}
+	if (strcmp(argv[0], "logout") == 0 || strcmp(argv[0], "exit") == 0) {
+		execute_status = _logout();
+		if (execute_status < 0)
+			execute_status = 1;
+		else
+			execute_status = 0;
+		goto end;
 	}
 
+
+	parse_dir(exe_path, argv[0]);
+
+	child_pid = fork();
+	if (child_pid == 0) {
+		if (execve(exe_path, argv, g_opt_ptr) < 0) {
+			printf("%s: %s: execve function fault\n", SHELL_NAME, exe_path);
+			exit(EXIT_FAILURE);
+		}
+	} else if (child_pid < 0) {
+		printf("%s: %s: fork error\n", SHELL_NAME, exe_path);
+		execute_status = 2;
+	} else {
+		waitpid(-1, &child_status, 0);
+		if (child_status == EXIT_SUCCESS) {
+			execute_status = 0;
+		} else {
+			printf("%s: %s: execute command error\n", SHELL_NAME, exe_path);
+			execute_status = 2;
+		}
+	}
+
+end:
 	free(raw_argv);
 	free(argv);
-	return 0;
+	return execute_status;
+}
+
+
+char *
+_parse_command_path(char *buf, char *command)
+{
+	return NULL;
 }
 
 
@@ -313,6 +370,7 @@ int
 _cd(int argc, char *argv[])
 {
 	char abs_path[PS_MAX_LEN];
+	int path_type;
 	int is_success;
 	
 	if (argc == 1) {
@@ -320,9 +378,32 @@ _cd(int argc, char *argv[])
 	} else {
 		parse_dir(abs_path, argv[1]);
 	}
-	if ( (is_success = chdir(abs_path))<0 ) {
-		printf("%s: %s: No such directory\n", SHELL_NAME, abs_path);
+
+	path_type = pathtype(abs_path);
+
+	if (path_type == PATH_TYPE_NON) {
+		echoerr(SHELL_NAME, abs_path, "No such file or directory");
 		return -1;
 	}
+
+	if (path_type == PATH_TYPE_FIL) {
+		echoerr(SHELL_NAME, abs_path, "Not a directory");
+		return -1;
+	}
+
+	if ((is_success = chdir(abs_path)) < 0) {
+		echoerr(SHELL_NAME, abs_path, "Unknown error");
+		return -1;
+	}
+
 	return 0;
+}
+
+
+int
+_logout()
+{
+	echoerr(SHELL_NAME, "exit", "Now closing SBUsh, see you.");
+	exit(EXIT_SUCCESS);
+	return -1;
 }
