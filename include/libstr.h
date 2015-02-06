@@ -28,15 +28,18 @@
 #define _LIBSTR_H
 
 
+#define FREE_ALL 1
+#define FREE_LEAF 0
+
 char ** splitstr(char *, const char *);
 char * joinstrlst(char *, char **, const char *);
 
-char * getopt(char *, const char *, char **);
 
-char * freestrarr(char **);
+char * freestrarr(char **, int);
 
 size_t lenstrarr(char **);
 
+char ** cpystrarr(char **, char **);
 char ** cpynstrarr(char **, char **, size_t);
 
 #endif

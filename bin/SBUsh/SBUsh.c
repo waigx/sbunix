@@ -34,19 +34,22 @@
 #define SHELL_NAME "SBUsh"
 #define ROOT_PATH "/home/waigx/Documents/CSE506/SBUsh/rootfs" // directory without last "/";
 #define CONFIG_FILE {"/etc/SBUsh.SBUshrc", "~/.SBUshrc", ""}
-#define DEFAULT_PATH "/bin"
-#define DEFAULT_PS1 "\\u@\\h:\\w$ "
+#define DEFAULT_PS1 "\\u@\\h$ "
 
 
 int execute(char *);
 char * parse_dir(char *, char *);
 
-int _execute_1(char *);
 int _cd(int, char **);
+int _export(int, char **);
+int _setenv(int, char **);
 int _logout();
+int _echo();
 
 void _initshell();
+void _update_ps1_path();
 
+int _execute_1(char *);
 char * _parse_ps1(char *, char *);
 char * _parse_command_path(char *, char *);
 char * _getabbrcwd(char *);
@@ -54,24 +57,35 @@ char * _gethostname(char *);
 char * _getabbrhostname(char *);
 
 
-char **g_opt_ptr;
+char *g_opt_ptr[PS_MAX_LEN];
 char g_ps1[PS_MAX_LEN];
 char g_path[PS_MAX_LEN];
+char g_root[PS_MAX_LEN];
 
 
 
 int 
 main(int argc, char *argv[], char *envp[]) 
 {
+	char buf[PS_MAX_LEN];
+	_update_ps1_path();
+	cpystrarr(g_opt_ptr, envp);
+	_initshell();
+	while (1){
+		_parse_ps1(buf, g_ps1);
+		writeline(buf, STDOUT_FD);
+		readline(buf, STDIN_FD);
+		_execute_1(buf);
+	}
+
 	return 0;
 }
-
 
 
 int
 execute(char *line)
 {
-	printf("%s\n", line);
+	_execute_1(line);
 	return 0;
 }
 
@@ -118,9 +132,31 @@ _execute_1(char *line)
 			execute_status = 0;
 		goto end;
 	}
+	if (strcmp(argv[0], "export") == 0) {
+		_export(lenstrarr(argv), argv);
+		goto end;
+	}
+	if (strcmp(argv[0], "setenv") == 0) {
+		_setenv(lenstrarr(argv), argv);
+		goto end;
+	}
+	if (strcmp(argv[0], "echo") == 0) {
+		_echo();
+	}
+	if (strcmp(argv[0], "") == 0) {
+		execute_status = _cd(lenstrarr(argv), argv);
+		if (execute_status < 0)
+			execute_status = 1;
+		else
+			execute_status = 0;
+		goto end;
+	}
 
 
-	parse_dir(exe_path, argv[0]);
+	if (_parse_command_path(exe_path, argv[0]) == NULL) {
+		echoerr(SHELL_NAME, argv[0], "command not found");
+		goto end;
+	}
 
 	child_pid = fork();
 	if (child_pid == 0) {
@@ -151,6 +187,33 @@ end:
 char *
 _parse_command_path(char *buf, char *command)
 {
+	char **path_lst;
+	char **path_lst_ptr;
+	char tempbuf[PS_MAX_LEN];
+	char *tempbuf_ptr = tempbuf + strlen(g_root);
+
+	if (pathtype(parse_dir(buf, command)) == PATH_TYPE_FIL) {
+		return buf;
+	}
+
+	strcpy(tempbuf, g_root);
+	
+	path_lst = splitstr(g_path, ":");
+	path_lst_ptr = path_lst;
+
+	while (*path_lst_ptr != NULL) {
+		strcpy(tempbuf_ptr, *path_lst_ptr);
+		strcpy(tempbuf_ptr + strlen(*path_lst_ptr), "/");
+		strcpy(tempbuf_ptr + strlen(*path_lst_ptr) + 1, command);
+		if (pathtype(tempbuf) == PATH_TYPE_FIL) {
+			strcpy(buf, tempbuf);
+			freestrarr(path_lst, FREE_ALL);
+			return buf;
+		}
+		path_lst_ptr += 1;
+	}
+
+	freestrarr(path_lst, FREE_ALL);
 	return NULL;
 }
 
@@ -166,9 +229,10 @@ _initshell()
 	int config_fd;
 
 	strcpy(g_ps1, DEFAULT_PS1);
-	strcpy(g_path, ROOT_PATH DEFAULT_PATH);
+	strcpy(g_path, getopt(config_path, "PATH", g_opt_ptr));
+	strcpy(g_root, ROOT_PATH);
 
-	basenconfig[0] = malloc(strlen(ROOT_PATH)+1);
+	basenconfig[0] = malloc(strlen(g_root)+1);
 	strcpy(basenconfig[0], ROOT_PATH);
 	basenconfig[1] = malloc(PS_MAX_LEN);
 	basenconfig[2] = NULL;
@@ -188,7 +252,7 @@ _initshell()
 		config_lst_i += 1;
 	}
 
-	freestrarr(basenconfig);
+	freestrarr(basenconfig, FREE_ALL);
 	return;
 
 }
@@ -244,9 +308,9 @@ parse_dir(char *buf, char *cd_arg)
 	path_lst[path_lst_index] = NULL;
 	joinstrlst(buf, path_lst, "/");
 
-	freestrarr(cwd_lst);
-	freestrarr(cd_lst);
-	freestrarr(path_lst);
+	freestrarr(cwd_lst, FREE_ALL);
+	freestrarr(cd_lst, FREE_ALL);
+	freestrarr(path_lst, FREE_ALL);
 
 	return buf;
 }
@@ -302,6 +366,23 @@ _parse_ps1(char *buf, char *ps1)
 	}
 
 	return buf;
+}
+
+
+void
+_update_ps1_path()
+{
+	char buf[PS_MAX_LEN];
+	if (getopt(buf, "PS1", g_opt_ptr) != NULL) {
+		strcpy(g_ps1, buf);
+	}
+	if (getopt(buf, "PATH", g_opt_ptr) != NULL) {
+		strcpy(g_path, buf);
+	}
+	if (getopt(buf, "ROOT", g_opt_ptr) != NULL) {
+		strcpy(g_root, buf);
+	}
+	return;
 }
 
 
@@ -404,6 +485,46 @@ int
 _logout()
 {
 	echoerr(SHELL_NAME, "exit", "Now closing SBUsh, see you.");
+	freestrarr(g_opt_ptr, FREE_LEAF);
 	exit(EXIT_SUCCESS);
 	return -1;
+}
+
+
+int
+_echo(int argc, char *argv[])
+{
+	
+	return 0;
+}
+
+
+int
+_setenv(int argc, char *argv[])
+{
+	if (argc < 3) {
+		echoerr(SHELL_NAME, "setenv", "missing arguments");
+		return 0;
+	}
+	setopt(argv[2], argv[1], g_opt_ptr);
+	_update_ps1_path();
+	return 0;
+}
+
+
+int
+_export(int argc, char *argv[])
+{
+	char **new_opt;
+	if (argc < 2) {
+		echoerr(SHELL_NAME, "export", "missing arguments");
+		return 0;
+	}
+
+	new_opt = splitstr(argv[1], "=");
+	setopt(new_opt[1], new_opt[0], g_opt_ptr);
+	freestrarr(new_opt, FREE_ALL);
+
+	_update_ps1_path();
+	return 0;
 }

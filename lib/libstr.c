@@ -30,45 +30,6 @@
 #include "libcommon.h"
 
 
-char *
-getopt(char *buf, const char *name, char *opt_ptr[])
-{
-	int i, opt_index;
-	int failure;
-	char *current_opt;
-	size_t name_len;
-
-	opt_index = 0;
-	current_opt = opt_ptr[opt_index];
-	name_len = strlen(name);
-
-	i = 0;
-	while (current_opt != NULL) {
-		failure = 0;
-		while (i < name_len) {
-			if (current_opt[i] != name[i]){
-				failure = 1;
-				break;
-			} else {
-				i += 1;
-			}
-		}
-
-		if (failure == 1 || (failure == 0 && current_opt[i] != '=' )){
-			opt_index += 1;
-			current_opt = opt_ptr[opt_index];
-			i = 0;
-			continue;
-		} else{
-			strcpy(buf, current_opt + i + 1);
-			return buf;
-		}
-	}
-	return NULL;
-
-}
-
-
 char **
 splitstr(char *haystack, const char *needle)
 {
@@ -100,14 +61,16 @@ splitstr(char *haystack, const char *needle)
 
 
 char *
-freestrarr(char **buf_ptr_ptr)
+freestrarr(char **buf_ptr_ptr, int isfreeall)
 {
 	char **ptr_ptr = buf_ptr_ptr;
 	while (*ptr_ptr != NULL) {
 		free(*ptr_ptr);
 		ptr_ptr += 1;
 	}
-	free(buf_ptr_ptr);
+	if (isfreeall == 1) {
+		free(buf_ptr_ptr);
+	}
 	return NULL;
 }
 
@@ -164,5 +127,22 @@ cpynstrarr(char **dest, char **source, size_t n)
 	}
 	*dest_ptr = NULL;
 
+	return dest;
+}
+
+
+char **
+cpystrarr(char **dest, char **source)
+{
+	char **dest_ptr = dest;
+
+	while (*source != NULL) {
+		*dest_ptr = malloc(strlen(*source) + 1);
+		strcpy(*dest_ptr, *source);
+		dest_ptr += 1;
+		source += 1;
+	}
+	*dest_ptr = NULL;
+	
 	return dest;
 }

@@ -43,6 +43,8 @@
 #define PATH_TYPE_DIR 1
 
 
+char ** setopt(const char *, const char *, char **);
+char * getopt(char *, const char *, char **);
 void echoerr(const char *, const char *, const char *);
 
 #endif

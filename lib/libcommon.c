@@ -28,7 +28,80 @@
 #include <stdlib.h>
 #include <string.h>
 #include "libio.h"
+#include "libstr.h"
 #include "libcommon.h"
+
+
+char **
+setopt(const char *opt, const char *name, char *opt_ptr[])
+{
+	char buf[PS_MAX_LEN];
+	char newopt[PS_MAX_LEN];
+	char **current_opt = opt_ptr;
+	int optarrlen = lenstrarr(opt_ptr);
+
+	strcpy(newopt, name);
+	strcpy(newopt + strlen(name), "=");
+	strcpy(newopt + strlen(name) + 1, opt);
+
+	if (getopt(buf, name, opt_ptr) == NULL) {
+		opt_ptr[optarrlen] = malloc(strlen(newopt) + 1);
+		strcpy(opt_ptr[optarrlen], newopt);
+		opt_ptr[optarrlen + 1] = NULL;
+		return opt_ptr;
+	}
+
+	while (*current_opt != NULL){
+		if (strncmp(*current_opt, name, strlen(name) - 1) == 0) {
+			free(*current_opt);
+			*current_opt = malloc(strlen(newopt) + 1);
+			strcpy(*current_opt, newopt);
+			return opt_ptr;
+		}
+		current_opt += 1;
+	}
+	
+	return NULL;
+}
+
+
+char *
+getopt(char *buf, const char *name, char *opt_ptr[])
+{
+	int i, opt_index;
+	int failure;
+	char *current_opt;
+	size_t name_len;
+
+	opt_index = 0;
+	current_opt = opt_ptr[opt_index];
+	name_len = strlen(name);
+
+	i = 0;
+	while (current_opt != NULL) {
+		failure = 0;
+		while (i < name_len) {
+			if (current_opt[i] != name[i]){
+				failure = 1;
+				break;
+			} else {
+				i += 1;
+			}
+		}
+
+		if (failure == 1 || (failure == 0 && current_opt[i] != '=' )){
+			opt_index += 1;
+			current_opt = opt_ptr[opt_index];
+			i = 0;
+			continue;
+		} else{
+			strcpy(buf, current_opt + i + 1);
+			return buf;
+		}
+	}
+	return NULL;
+
+}
 
 
 void

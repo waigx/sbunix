@@ -10,12 +10,14 @@ ROOTBIN=$(ROOTFS)/bin
 
 BIN_SRCS:=$(wildcard bin/*/*.c)
 BINS:=$(addprefix $(ROOTFS)/,$(wildcard bin/*))
+#LIBS:=$(wildcard obj/lib/*.o)
+
 
 .PHONY: all binary
 
-all: $(BINS)
+all: *.o $(BINS)
 
-$(BINS): $(shell find bin/ -type f -name *.c) $(wildcard include/*.h include/*/*.h) libstr.o libcommon.o libio.o
+$(BINS): $(shell find bin/ -type f -name *.c) $(wildcard include/*.h include/*/*.h) obj/lib/libstr.o obj/lib/libio.o obj/lib/libcommon.o
 	@$(MAKE) --no-print-directory BIN=$@ binary
 	@cp -r etc $(ROOTFS)
 
@@ -26,18 +28,22 @@ obj/%.o: %.c $(wildcard include/*.h include/*/*.h)
 	@mkdir -p $(dir $@)
 	$(CC) -c $(CFLAGS) -o $@ $<
 
-libstr.o: lib/libstr.c
+obj/lib/%.o: $(shell find lib/ -type f -name *.c)
 	@mkdir -p obj/lib
-	$(CC) -c $(CFLAGS) -o obj/lib/libstr.o lib/libstr.c
+	$(CC) -c $(CFLAGS) -o obj/lib/%.o lib/%.c
 
-libio.o: lib/libio.c
-	@mkdir -p obj/lib
-	$(CC) -c $(CFLAGS) -o obj/lib/libio.o lib/libio.c
-
-libcommon.o: lib/libcommon.c
-	@mkdir -p obj/lib
-	$(CC) -c $(CFLAGS) -o obj/lib/libcommon.o lib/libcommon.c
-
+#libstr.o: lib/libstr.c
+#	@mkdir -p obj/lib
+#	$(CC) -c $(CFLAGS) -o obj/lib/libstr.o lib/libstr.c
+#
+#libio.o: lib/libio.c
+#	@mkdir -p obj/lib
+#	$(CC) -c $(CFLAGS) -o obj/lib/libio.o lib/libio.c
+#
+#libcommon.o: lib/libcommon.c
+#	@mkdir -p obj/lib
+#	$(CC) -c $(CFLAGS) -o obj/lib/libcommon.o lib/libcommon.c
+#
 
 .PHONY: submit clean
 

@@ -1,2 +1,2 @@
-export PS1="\\u@\h:\\w$"
-export PATH="/bin"
+export PS1=\u@\h:$
+export ROOT=
