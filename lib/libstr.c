@@ -31,15 +31,13 @@
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * splitstr - split a string by given string
+ * @haystack: the string to be splited
+ * @needle: use this string to split @haystack
  *
- * Returns and brief discription
+ * Returns a pointer of char *, point to a string array
  *
- * Details of this function
- * ...
- * ...
+ * REMEMBER TO FREE the returned result by freestrarr(char **, FREE_ALL)
  */
 char **
 splitstr(char *haystack, const char *needle)
@@ -72,15 +70,15 @@ splitstr(char *haystack, const char *needle)
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * freestrarr - free a string array
+ * @buf_ptr_ptr: the pointer points to char * array
+ * @isfreeall: Free the char * array or not
  *
- * Returns and brief discription
+ * Returns NULL
  *
- * Details of this function
- * ...
- * ...
+ * Using parameter FREE_ALL to free the memory root @buf_ptr_ptr 
+ * points to, and using FREE_LEAF to free all leaves which char *
+ * array pointed
  */
 char *
 freestrarr(char **buf_ptr_ptr, int isfreeall)
@@ -98,15 +96,12 @@ freestrarr(char **buf_ptr_ptr, int isfreeall)
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * joinstrlst - concatenate a string array with another string
+ * @buf: The result buffer
+ * @str_ptr: A string array to be concatenated
+ * @salt: A string to be added to strings
  *
- * Returns and brief discription
- *
- * Details of this function
- * ...
- * ...
+ * Returns a pointer points to the first char of @buf
  */
 char *
 joinstrlst(char *buf, char **str_ptr, const char *salt)
@@ -134,15 +129,13 @@ joinstrlst(char *buf, char **str_ptr, const char *salt)
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * lenstrarr - get the length of a string array
+ * @ptr_ptr: A string array
  *
- * Returns and brief discription
+ * Returns the length of @ptr_ptr
  *
- * Details of this function
- * ...
- * ...
+ * The string array should end by a NULL pointer, this pointer will not
+ * take into the length of @ptr_ptr
  */
 size_t
 lenstrarr(char **ptr_ptr)
@@ -158,15 +151,18 @@ lenstrarr(char **ptr_ptr)
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * cpynstrarr - copy n strings from an string array to another
+ * @dest: Destination string array
+ * @source: Source string array
+ * @n: String number to be copied
  *
- * Returns and brief discription
+ * Returns dest
  *
- * Details of this function
- * ...
- * ...
+ * The @dest should be allocated memories before use this function,
+ * if the @source is shorter than @n, just copy all @source.
+ * NOTE:
+ *     * Unlike strncpy, this function will AUTOMATICALLY APPEND AN
+ *       NULL POINTER to the end of @dest
  */
 char **
 cpynstrarr(char **dest, char **source, size_t n)
@@ -187,15 +183,13 @@ cpynstrarr(char **dest, char **source, size_t n)
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * cpystrarr - copy a string array to new place
+ * @dest: Destination string array
+ * @source: Source string array
  *
- * Returns and brief discription
+ * Returns dest
  *
- * Details of this function
- * ...
- * ...
+ * The @dest should be allocated memories before use this function
  */
 char **
 cpystrarr(char **dest, char **source)
