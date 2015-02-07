@@ -33,15 +33,15 @@
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * setopt - set option into an option list
+ * @opt: The option to be set
+ * @name: The option name 
+ * @opt_ptr: The option list
  *
- * Returns and brief discription
+ * Returns @opt_ptr or NULL if error occurred 
  *
- * Details of this function
- * ...
- * ...
+ * This function will alter @opt if the @name exited in @opt_ptr,
+ * or appended a new opt as "@name=@opt" to @opt_ptr
  */
 char **
 setopt(const char *opt, const char *name, char *opt_ptr[])
@@ -77,15 +77,15 @@ setopt(const char *opt, const char *name, char *opt_ptr[])
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * getopt - get an option from an option list 
+ * @buf: The result buffer
+ * @name: The name of option to be got 
+ * @opt_ptr: The option list, should be a string array 
  *
- * Returns and brief discription
+ * Returns @buf, or NULL if the option is not found
  *
- * Details of this function
- * ...
- * ...
+ * Refer to printenv to see the struct of @opt_ptr, the
+ * result will not include @name and '='
  */
 char *
 getopt(char *buf, const char *name, char *opt_ptr[])
@@ -127,15 +127,10 @@ getopt(char *buf, const char *name, char *opt_ptr[])
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
- *
- * Returns and brief discription
- *
- * Details of this function
- * ...
- * ...
+ * echoerr - write a line of error infomation to standard out
+ * @app: Program name
+ * @operate: Operation name 
+ * @error: Detailed error infomation
  */
 void
 echoerr(const char *app, const char *operate, const char *error)
