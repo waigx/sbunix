@@ -632,15 +632,16 @@ _echo(int argc, char *argv[])
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * _setenv - set environment variables
+ * @argc: Arguments number
+ * @argv: Arguments vector
  *
- * Returns and brief discription
+ * Returns 0
  *
- * Details of this function
- * ...
- * ...
+ * This function will set environment variables and update global
+ * variables, the usage should like:
+ *     $ setenv NAME option
+ * Currently not support $NAME notation in option
  */
 int
 _setenv(int argc, char *argv[])
@@ -656,15 +657,16 @@ _setenv(int argc, char *argv[])
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * _export - set environment variables
+ * @argc: Arguments number
+ * @argv: Arguments vector
  *
- * Returns and brief discription
+ * Returns 0
  *
- * Details of this function
- * ...
- * ...
+ * This function will set environment variables and update global
+ * variables, the usage should like:
+ *     $ export NAME=option
+ * Currently not support $NAME notation in option
  */
 int
 _export(int argc, char *argv[])
