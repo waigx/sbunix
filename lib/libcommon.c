@@ -32,6 +32,17 @@
 #include "libcommon.h"
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 char **
 setopt(const char *opt, const char *name, char *opt_ptr[])
 {
@@ -65,6 +76,17 @@ setopt(const char *opt, const char *name, char *opt_ptr[])
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 char *
 getopt(char *buf, const char *name, char *opt_ptr[])
 {
@@ -104,6 +126,17 @@ getopt(char *buf, const char *name, char *opt_ptr[])
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 void
 echoerr(const char *app, const char *operate, const char *error)
 {

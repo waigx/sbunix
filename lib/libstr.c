@@ -30,6 +30,17 @@
 #include "libcommon.h"
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 char **
 splitstr(char *haystack, const char *needle)
 {
@@ -60,6 +71,17 @@ splitstr(char *haystack, const char *needle)
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 char *
 freestrarr(char **buf_ptr_ptr, int isfreeall)
 {
@@ -75,6 +97,17 @@ freestrarr(char **buf_ptr_ptr, int isfreeall)
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 char *
 joinstrlst(char *buf, char **str_ptr, const char *salt)
 {
@@ -100,6 +133,17 @@ joinstrlst(char *buf, char **str_ptr, const char *salt)
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 size_t
 lenstrarr(char **ptr_ptr)
 {
@@ -113,6 +157,17 @@ lenstrarr(char **ptr_ptr)
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 char **
 cpynstrarr(char **dest, char **source, size_t n)
 {
@@ -131,6 +186,17 @@ cpynstrarr(char **dest, char **source, size_t n)
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 char **
 cpystrarr(char **dest, char **source)
 {

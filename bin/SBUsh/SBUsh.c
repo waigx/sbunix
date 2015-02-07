@@ -31,13 +31,31 @@
 #include "libio.h"
 #include "libcommon.h"
 
+
 #define SHELL_NAME "SBUsh"
-#define ROOT_PATH "/home/waigx/Documents/CSE506/SBUsh/rootfs" // directory without last "/";
+
+/**
+ * This is the default root path of SBUsh for testing purpose.
+ * 
+ * ROOT_PATH append before every path-related operation in user
+ * interface.
+ * Note the directory without last "/";
+ */
+#define ROOT_PATH "/home/waigx/Documents/CSE506/SBUsh/rootfs" 
+
+/**
+ * This constant gives the config files' path, later config
+ * will overwrite the prevous one, path will be appended after
+ * ROOT_PATH
+ */
 #define CONFIG_FILE {"/etc/SBUsh.SBUshrc", "~/.SBUshrc", ""}
+
 #define DEFAULT_PS1 "\\u@\\h$ "
 
 
 int execute(char *);
+
+
 char * parse_dir(char *, char *);
 
 int _cd(int, char **);
@@ -48,6 +66,7 @@ int _echo();
 
 void _initshell();
 void _update_ps1_path();
+
 
 int _execute_1(char *);
 char * _parse_ps1(char *, char *);
@@ -82,6 +101,14 @@ main(int argc, char *argv[], char *envp[])
 }
 
 
+/**
+ * execute - execute a commandline
+ * @line: The commandline
+ *
+ * returns value indicates whether execution success or not
+ *
+ * This function supports pipeline.
+ */
 int
 execute(char *line)
 {
@@ -90,7 +117,15 @@ execute(char *line)
 }
 
 
-// Current version of SBUsh does not yet support quotation mark("") and escape sequences space(\ )
+/**
+ * _execute_1 - execute a commandline, and this function
+ * @line: The commandline
+ *
+ * Returns value indicates whether execution success or not
+ *
+ * Note: * This function DOES NOT support pipeline.
+ *       * Current version of SBUsh does not yet support quotation mark("") and escape sequences space(\ )
+ */
 int
 _execute_1(char *line)
 {
@@ -115,7 +150,8 @@ _execute_1(char *line)
 		execute_status = 1;
 		goto end;
 	}
-	
+
+	/* Begin of recognize internal functions */ 
 	if (strcmp(argv[0], "cd") == 0) {
 		execute_status = _cd(lenstrarr(argv), argv);
 		if (execute_status < 0)
@@ -152,7 +188,7 @@ _execute_1(char *line)
 		goto end;
 	}
 
-
+	/* Begin of envoke function in path*/
 	if (_parse_command_path(exe_path, argv[0]) == NULL) {
 		echoerr(SHELL_NAME, argv[0], "command not found");
 		goto end;
@@ -184,6 +220,18 @@ end:
 }
 
 
+/**
+ * _parse_command_path - Parse the full path of command (binary or script)
+ * @buf: The result full path
+ * @command: The command to be prased 
+ *
+ * Returns an char pointer, which point to the first char of @buf, If command 
+ * is not found or is a directory, return NULL.
+ *
+ * If the command exists as a absolute path or relevant path, then return
+ * the path. Or this function will search in the $PATH, return the first
+ * found file. 
+ */
 char *
 _parse_command_path(char *buf, char *command)
 {
@@ -218,6 +266,12 @@ _parse_command_path(char *buf, char *command)
 }
 
 
+/**
+ * _initshell - initialize the shell
+ *
+ * set g_ps1, g_path and g_root as their default value then 
+ * initialize the config in the order of CONFIG_FILE
+ */
 void
 _initshell()
 {
@@ -258,6 +312,16 @@ _initshell()
 }
 
 
+/**
+ * parse_dir - parse the absolute path based on working directory
+ * @buf: Result buffer
+ * @cd_arg: Inputed path of cd command
+ *
+ * Returns a pointer points to the first char of @buf
+ *
+ * This function is design for cd command style path parsing, 
+ * regardless the node exists or not.
+ */
 char *
 parse_dir(char *buf, char *cd_arg)
 {
@@ -316,6 +380,23 @@ parse_dir(char *buf, char *cd_arg)
 }
 
 
+/**
+ * _parse_ps1 - parse the PS1 string
+ * @buf: Result buffer
+ * @ps1: PS1 string 
+ *
+ * Returns a pointer points to the first char of @buf, NULL
+ * when escape sequence is not supported
+ *
+ * Limited support of PS1 escape sequences:
+ *     * \h hostname before first dot
+ *     * \H full hostname
+ *     * \u user name
+ *     * \w current working directory with replacement
+ *          of home by '~'
+ *     * \W full working directory
+ *     * \s shell name (SHELL_NAME)
+ */
 char *
 _parse_ps1(char *buf, char *ps1)
 {
@@ -369,6 +450,10 @@ _parse_ps1(char *buf, char *ps1)
 }
 
 
+/**
+ * _update_ps1_path - updates g_path, g_root, g_ps1 by g_opt_ptr
+ * 
+ */
 void
 _update_ps1_path()
 {
@@ -386,6 +471,14 @@ _update_ps1_path()
 }
 
 
+/**
+ * _getabbrcwd - brief discription
+ * @buf: Result buffer
+ *
+ * Returns a pointer points to the first char of @buf
+ * 
+ * The home folder based on environment variables
+ */
 char *
 _getabbrcwd(char *buf)
 {
@@ -413,6 +506,14 @@ _getabbrcwd(char *buf)
 }
 
 
+/**
+ * _gethostname - get the host name
+ * @buf: Result buffer
+ *
+ * Returns a pointer points to the first char of @buf, NULL if failed
+ *
+ * The mechanism is copy HOSTNAME_FILE directly to buf
+ */
 char *
 _gethostname(char *buf)
 {
@@ -429,6 +530,14 @@ _gethostname(char *buf)
 }
 
 
+/**
+ * _gethostname - get the host name before first dot
+ * @buf: Result buffer
+ *
+ * Returns a pointer points to the first char of @buf, NULL if failed
+ *
+ * The mechanism is copy HOSTNAME_FILE directly to buf
+ */
 char *
 _getabbrhostname(char *buf)
 {
@@ -447,6 +556,13 @@ _getabbrhostname(char *buf)
 }
 
 
+/**
+ * _cd - change directory
+ * @argc: Arguments number
+ * @argv: Arguments vector
+ *
+ * Returns an integer, 0 is success, -1 means failed
+ */
 int
 _cd(int argc, char *argv[])
 {
@@ -481,6 +597,11 @@ _cd(int argc, char *argv[])
 }
 
 
+/**
+ * _logout - logout or exit SBUsh
+ *
+ * Returns -1 if not successful
+ */
 int
 _logout()
 {
@@ -491,6 +612,17 @@ _logout()
 }
 
 
+/**
+ * _echo - TODO
+ * @argc: Arguments number
+ * @argv: Arguments vector
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 int
 _echo(int argc, char *argv[])
 {
@@ -499,6 +631,17 @@ _echo(int argc, char *argv[])
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 int
 _setenv(int argc, char *argv[])
 {
@@ -512,6 +655,17 @@ _setenv(int argc, char *argv[])
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 int
 _export(int argc, char *argv[])
 {

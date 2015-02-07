@@ -30,6 +30,17 @@
 #include "libcommon.h"
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 char *
 readline(char *buf, int fd)
 {
@@ -48,6 +59,17 @@ readline(char *buf, int fd)
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 char *
 writeline(const char *buf, int fd)
 {
@@ -58,6 +80,17 @@ writeline(const char *buf, int fd)
 }
 
 
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
 int
 pathtype(const char *path)
 {

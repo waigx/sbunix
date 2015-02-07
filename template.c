@@ -23,3 +23,15 @@
  *
  */
 
+
+/**
+ * function - brief discription
+ * @arg1: Discription
+ * @arg2: Discription
+ *
+ * Returns and brief discription
+ *
+ * Details of this function
+ * ...
+ * ...
+ */
