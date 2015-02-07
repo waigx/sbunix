@@ -31,15 +31,14 @@
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * readline - read a line end with ASCII 0, 10 or 13
+ * @buf: The result buffer
+ * @fd: The file to be read
  *
- * Returns and brief discription
+ * Returns @buf from @fd, NULL if @fd has nothing to read
  *
- * Details of this function
- * ...
- * ...
+ * If contents successfully read, function will replace  the last
+ * ASCII 10 or 13 to 0
  */
 char *
 readline(char *buf, int fd)
@@ -60,15 +59,11 @@ readline(char *buf, int fd)
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * writeline - write a string with \0
+ * @buf: The string
+ * @fd: The file to be wrote
  *
- * Returns and brief discription
- *
- * Details of this function
- * ...
- * ...
+ * Returns NULL
  */
 char *
 writeline(const char *buf, int fd)
@@ -81,15 +76,13 @@ writeline(const char *buf, int fd)
 
 
 /**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
+ * pathtype - return the type of a path
+ * @path: the path of a file or directory
  *
- * Returns and brief discription
- *
- * Details of this function
- * ...
- * ...
+ * Returns an integer:
+ *     * PATH_TYPE_NON if nothing exists
+ *     * PATH_TYPE_FIL if the @path is a file
+ *     * PATH_TYPE_DIR if the @path is a directory
  */
 int
 pathtype(const char *path)
