@@ -10,12 +10,11 @@ ROOTBIN=$(ROOTFS)/bin
 
 BIN_SRCS:=$(wildcard bin/*/*.c)
 BINS:=$(addprefix $(ROOTFS)/,$(wildcard bin/*))
-#LIBS:=$(wildcard obj/lib/*.o)
 
 
 .PHONY: all binary
 
-all: *.o $(BINS)
+all: $(BINS)
 
 $(BINS): $(shell find bin/ -type f -name *.c) $(wildcard include/*.h include/*/*.h) obj/lib/libstr.o obj/lib/libio.o obj/lib/libcommon.o
 	@$(MAKE) --no-print-directory BIN=$@ binary
@@ -32,18 +31,6 @@ obj/lib/%.o: $(shell find lib/ -type f -name *.c)
 	@mkdir -p obj/lib
 	$(CC) -c $(CFLAGS) -o obj/lib/%.o lib/%.c
 
-#libstr.o: lib/libstr.c
-#	@mkdir -p obj/lib
-#	$(CC) -c $(CFLAGS) -o obj/lib/libstr.o lib/libstr.c
-#
-#libio.o: lib/libio.c
-#	@mkdir -p obj/lib
-#	$(CC) -c $(CFLAGS) -o obj/lib/libio.o lib/libio.c
-#
-#libcommon.o: lib/libcommon.c
-#	@mkdir -p obj/lib
-#	$(CC) -c $(CFLAGS) -o obj/lib/libcommon.o lib/libcommon.c
-#
 
 .PHONY: submit clean
 
