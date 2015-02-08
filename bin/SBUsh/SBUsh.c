@@ -68,7 +68,7 @@ void _initshell();
 void _update_ps1_path();
 
 
-int _execute_1(char *);
+int _execute_1(char *, int, int *);
 char * _parse_ps1(char *, char *);
 char * _parse_command_path(char *, char *);
 char * _getabbrcwd(char *);
@@ -94,7 +94,7 @@ main(int argc, char *argv[], char *envp[])
 		_parse_ps1(buf, g_ps1);
 		writeline(buf, STDOUT_FD);
 		readline(buf, STDIN_FD);
-		_execute_1(buf);
+		execute(buf);
 	}
 
 	return 0;
@@ -112,7 +112,24 @@ main(int argc, char *argv[], char *envp[])
 int
 execute(char *line)
 {
-	_execute_1(line);
+	int pfd_out[2];
+	int pfd_in;
+	char **commands = splitstr(line, "|");
+	char **command_ptr = commands;
+
+	pfd_in = STDIN_FD;
+	while (*command_ptr != NULL) {
+		if (*(command_ptr + 1) == NULL) {
+			pfd_out[1] = STDOUT_FD;
+		} else {
+			pipe(pfd_out);
+		}
+		_execute_1(*command_ptr, pfd_in, pfd_out);
+		command_ptr += 1;
+		pfd_in = pfd_out[0];
+	}
+
+	freestrarr(commands, FREE_ALL);
 	return 0;
 }
 
@@ -120,6 +137,8 @@ execute(char *line)
 /**
  * _execute_1 - execute a commandline, and this function
  * @line: The commandline
+ * @pfd_in: The input file discriptor
+ * @pfd_out: The output file discriptor, result of dup2, or pfd_out[1] = STDOUT_FD
  *
  * Returns value indicates whether execution success or not
  *
@@ -127,7 +146,7 @@ execute(char *line)
  *       * Current version of SBUsh does not yet support quotation mark("") and escape sequences space(\ )
  */
 int
-_execute_1(char *line)
+_execute_1(char *line, int pfd_in, int *pfd_out)
 {
 	char **raw_argv = splitstr(line, " ");
 	char **argv = malloc(sizeof(char *) * (1 + lenstrarr(raw_argv)));
@@ -140,10 +159,11 @@ _execute_1(char *line)
 
 	argv[0] = NULL;
 	while (*raw_argv_ptr != NULL) {
-		if (strlen(*raw_argv_ptr) != 0)
+		if (strlen(*raw_argv_ptr) != 0) {
 			cpynstrarr(argv_ptr, raw_argv_ptr, 1);
+			argv_ptr += 1;
+		}
 		raw_argv_ptr += 1;
-		argv_ptr += 1;
 	}
 
 	if (lenstrarr(argv) == 0) {
@@ -176,17 +196,6 @@ _execute_1(char *line)
 		_setenv(lenstrarr(argv), argv);
 		goto end;
 	}
-	if (strcmp(argv[0], "echo") == 0) {
-		_echo();
-	}
-	if (strcmp(argv[0], "") == 0) {
-		execute_status = _cd(lenstrarr(argv), argv);
-		if (execute_status < 0)
-			execute_status = 1;
-		else
-			execute_status = 0;
-		goto end;
-	}
 
 	/* Begin of envoke function in path*/
 	if (_parse_command_path(exe_path, argv[0]) == NULL) {
@@ -196,19 +205,34 @@ _execute_1(char *line)
 
 	child_pid = fork();
 	if (child_pid == 0) {
+		if (pfd_in != STDIN_FD) {
+			dup2(pfd_in, STDIN_FD);
+			close(pfd_in);
+		}
+		if (pfd_out[1] != STDOUT_FD) {
+			close(pfd_out[0]);
+			dup2(pfd_out[1], STDOUT_FD);
+			close(pfd_out[1]);
+		}
 		if (execve(exe_path, argv, g_opt_ptr) < 0) {
-			printf("%s: %s: execve function fault\n", SHELL_NAME, exe_path);
+			echoerr(SHELL_NAME, exe_path, "execve function fault");
 			exit(EXIT_FAILURE);
 		}
 	} else if (child_pid < 0) {
-		printf("%s: %s: fork error\n", SHELL_NAME, exe_path);
+		echoerr(SHELL_NAME, exe_path, "fork error");
 		execute_status = 2;
 	} else {
+		if (pfd_in != STDIN_FD) {
+			close(pfd_in);
+		}
+		if (pfd_out[1] != STDOUT_FD) {
+			close(pfd_out[1]);
+		}
 		waitpid(-1, &child_status, 0);
 		if (child_status == EXIT_SUCCESS) {
 			execute_status = 0;
 		} else {
-			printf("%s: %s: execute command error\n", SHELL_NAME, exe_path);
+			echoerr(SHELL_NAME, exe_path, "execute command error");
 			execute_status = 2;
 		}
 	}
