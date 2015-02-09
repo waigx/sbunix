@@ -86,10 +86,30 @@ char g_root[PS_MAX_LEN];
 int 
 main(int argc, char *argv[], char *envp[]) 
 {
-	char buf[PS_MAX_LEN];
+	char buf[MAXLINE];
+	int script_fd;
+	int i;
 	_update_ps1_path();
 	cpystrarr(g_opt_ptr, envp);
 	_initshell();
+
+	if (argc > 1) {
+		for (i = 1; i < argc; i++) {
+			parse_dir(buf, argv[i]);
+			if ((script_fd = open(buf, O_RDONLY)) < 0) {
+				echoerr(SHELL_NAME, argv[i], "file does not exists");
+				continue;
+			}
+			while (readline(buf, script_fd) != NULL) {
+				if (buf[0] == '#')
+					continue;
+				execute(buf);
+			}
+			close(script_fd);
+		}
+		return 0;
+	}
+
 	while (1){
 		_parse_ps1(buf, g_ps1);
 		writeline(buf, STDOUT_FD);
