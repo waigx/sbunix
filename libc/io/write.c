@@ -24,14 +24,11 @@
  */
 
 
-/**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
- *
- * Returns and brief discription
- *
- * Details of this function
- * ...
- * ...
- */
+#include <syscall.h>
+#include <stdlib.h>
+
+ssize_t write(int fd, const void *buf, size_t count) {
+	ssize_t length;
+	length = syscall_3(SYS_write, fd, (uint64_t)buf, count);
+	return length;
+}
