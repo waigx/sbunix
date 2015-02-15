@@ -1,34 +1,32 @@
 /*
  *
- *  This file is part of SBUsh.
- *        SBUsh is a simple shell implementation, basically, it is
+ *  This file is part of sblibc.
+ *        sblibc is a simple libc implementation, basically, it is
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
- *  SBUsh is free software: you can redistribute it and/or modify
+ *  sblibc is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  * 
- *  SBUsh is distributed in the hope that it will be useful,
+ *  sblibc is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  * 
  *  You should have received a copy of the GNU General Public License
- *  along with SBUsh.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with sblibc.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 
-#ifndef _LIBCOMMON_H
-#define _LIBCOMMON_H
+int min(int n1, int n2) {
+	if (n1>n2)
+		return n2;
+	return n1;
+}
 
-char ** setopt(const char *, const char *, char **);
-char * getopt(char *, const char *, char **);
-void echoerr(const char *, const char *, const char *);
-
-#endif
