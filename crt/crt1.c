@@ -1,7 +1,7 @@
 /*
  *
  *  This file is part of sblibc.
- *        sblibc is a simple shell implementation, basically, it is
+ *        sblibc is a simple libc implementation, basically, it is
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
@@ -25,9 +25,7 @@
 
 
 #include <stdlib.h>
-#include <const.h>
 #include <sys/defs.h>
-
 
 void _start(void) {
 	void *rsp_ptr;
