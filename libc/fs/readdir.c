@@ -24,12 +24,31 @@
  */
 
 
-#include <syscall.h>
 #include <stdlib.h>
+#include <const.h>
+#include <sys/syscall.h>
+#include <syscall.h>
+#include <libsys.h>
 
-ssize_t write(int fd, const void *buf, size_t count)
+struct dirent *readdir(void *dir)
 {
-	ssize_t length;
-	length = syscall_3(SYS_write, fd, (uint64_t)buf, count);
-	return length;
+	DIR *dir_in = dir;
+	struct dirent *res_dirent;
+	uint64_t sys_call_res;
+
+	if ((char *)dir_in->dirent_next  - dir_in->buf + dir_in->dirent_next->d_reclen >= dir_in->size) {
+		sys_call_res = syscall_3(SYS_getdents, (uint64_t)dir_in->dir_fd, (uint64_t)dir_in->buf, (uint64_t)DIR_READ_BUF);
+		if ((ssize_t)sys_call_res < 0 || (ssize_t)sys_call_res == 0)
+			return NULL;
+
+		sbrk(0);
+
+		dir_in->size = sys_call_res;
+		dir_in->dirent_next = (struct sblib_dirent *)dir_in->buf;
+	}
+
+	res_dirent = (struct dirent *)dir_in->dirent_next;
+	dir_in->dirent_next = (struct sblib_dirent *)((char *)dir_in->dirent_next + dir_in->dirent_next->d_reclen);
+
+	return res_dirent;
 }

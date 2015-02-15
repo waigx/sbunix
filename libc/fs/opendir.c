@@ -24,12 +24,31 @@
  */
 
 
-#include <syscall.h>
 #include <stdlib.h>
+#include <sys/defs.h>
+#include <syscall.h>
+#include <const.h>
 
-ssize_t write(int fd, const void *buf, size_t count)
+
+
+void *opendir(const char *name)
 {
-	ssize_t length;
-	length = syscall_3(SYS_write, fd, (uint64_t)buf, count);
-	return length;
+	DIR *dir;
+	int fd = open(name, O_RDONLY);
+	char *buf = malloc(DIR_READ_BUF);
+	uint64_t sys_call_res;
+
+	sys_call_res = syscall_3(SYS_getdents, (uint64_t)fd, (uint64_t)buf, (uint64_t)DIR_READ_BUF);
+
+	if ((ssize_t)sys_call_res < 0)
+		return NULL;
+
+	dir = malloc(sizeof(DIR)); 
+
+	dir->dir_fd = fd;
+	dir->size = sys_call_res;
+	dir->dirent_next = (struct sblib_dirent *)buf;
+	dir->buf = buf;
+	
+	return dir;
 }

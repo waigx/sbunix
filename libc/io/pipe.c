@@ -27,9 +27,10 @@
 #include <syscall.h>
 #include <stdlib.h>
 
-ssize_t write(int fd, const void *buf, size_t count)
+
+int pipe(int *filedes)
 {
-	ssize_t length;
-	length = syscall_3(SYS_write, fd, (uint64_t)buf, count);
-	return length;
+	uint64_t res;
+	res = syscall_1(SYS_pipe, (uint64_t)filedes);
+	return (int)res;
 }

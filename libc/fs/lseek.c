@@ -24,12 +24,15 @@
  */
 
 
+#include <sys/defs.h>
 #include <syscall.h>
 #include <stdlib.h>
 
-ssize_t write(int fd, const void *buf, size_t count)
+
+off_t lseek(int fildes, off_t offset, int whence)
 {
-	ssize_t length;
-	length = syscall_3(SYS_write, fd, (uint64_t)buf, count);
-	return length;
+	uint64_t res;
+	res = syscall_3(SYS_lseek, (uint64_t)fildes, (uint64_t)offset, (uint64_t)whence);
+
+	return (off_t)res;
 }

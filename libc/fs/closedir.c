@@ -24,12 +24,16 @@
  */
 
 
-#include <syscall.h>
 #include <stdlib.h>
+#include <const.h>
 
-ssize_t write(int fd, const void *buf, size_t count)
+int closedir(void *dir)
 {
-	ssize_t length;
-	length = syscall_3(SYS_write, fd, (uint64_t)buf, count);
-	return length;
+	DIR *dir_in = dir;
+	int dir_fd = dir_in->dir_fd;
+
+	free(dir_in->buf);
+	free(dir);
+
+	return close(dir_fd);
 }

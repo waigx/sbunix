@@ -24,12 +24,13 @@
  */
 
 
+#include <sys/defs.h>
 #include <syscall.h>
-#include <stdlib.h>
 
-ssize_t write(int fd, const void *buf, size_t count)
+
+int execve(const char *filename, char *const argv[], char *const envp[])
 {
-	ssize_t length;
-	length = syscall_3(SYS_write, fd, (uint64_t)buf, count);
-	return length;
+	uint64_t res;
+	res = syscall_3(SYS_execve, (uint64_t)filename, (uint64_t)argv, (uint64_t)envp);
+	return (int)res;
 }

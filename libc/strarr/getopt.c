@@ -30,32 +30,50 @@
 
 
 /**
- * cpynstrarr - copy n strings from an string array to another
- * @dest: Destination string array
- * @source: Source string array
- * @n: String number to be copied
+ * getopt - get an option from an option list 
+ * @buf: The result buffer
+ * @name: The name of option to be got 
+ * @opt_ptr: The option list, should be a string array 
  *
- * Returns dest
+ * Returns @buf, or NULL if the option is not found
  *
- * The @dest should be allocated memories before use this function,
- * if the @source is shorter than @n, just copy all @source.
- * NOTE:
- *     * Unlike strncpy, this function will AUTOMATICALLY APPEND AN
- *       NULL POINTER to the end of @dest
+ * Refer to printenv to see the struct of @opt_ptr, the
+ * result will not include @name and '='
  */
-char **
-cpynstrarr(char **dest, char **source, size_t n)
+char *
+getopt(char *buf, const char *name, char *opt_ptr[])
 {
-	char **dest_ptr = dest;
+	int i, opt_index;
+	int failure;
+	char *current_opt;
+	size_t name_len;
 
-	while (n > 0 && *source != NULL) {
-		*dest_ptr = malloc(strlen(*source) + 1);
-		strcpy(*dest_ptr, *source);
-		dest_ptr += 1;
-		source += 1;
-		n -= 1;
+	opt_index = 0;
+	current_opt = opt_ptr[opt_index];
+	name_len = strlen(name);
+
+	i = 0;
+	while (current_opt != NULL) {
+		failure = 0;
+		while (i < name_len) {
+			if (current_opt[i] != name[i]){
+				failure = 1;
+				break;
+			} else {
+				i += 1;
+			}
+		}
+
+		if (failure == 1 || (failure == 0 && current_opt[i] != '=' )){
+			opt_index += 1;
+			current_opt = opt_ptr[opt_index];
+			i = 0;
+			continue;
+		} else{
+			strcpy(buf, current_opt + i + 1);
+			return buf;
+		}
 	}
-	*dest_ptr = NULL;
+	return NULL;
 
-	return dest;
 }

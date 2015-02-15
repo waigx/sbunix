@@ -24,12 +24,12 @@
  */
 
 
+#include <sys/defs.h>
 #include <syscall.h>
-#include <stdlib.h>
 
-ssize_t write(int fd, const void *buf, size_t count)
+int close(int fd)
 {
-	ssize_t length;
-	length = syscall_3(SYS_write, fd, (uint64_t)buf, count);
-	return length;
+	uint64_t res;
+	res = syscall_1(SYS_close, (uint64_t)fd);
+	return (int)res;
 }
