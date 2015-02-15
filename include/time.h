@@ -19,31 +19,29 @@
  *  GNU General Public License for more details.
  * 
  *  You should have received a copy of the GNU General Public License
- *  along with sblibc.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with SBUsh.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 
-#ifndef _CONST_H
-#define _CONST_H
+#ifndef _TIME_H
+#define _TIME_H
 
 
-#define STDIN_FD 0
-#define STDOUT_FD 1
+#include <sys/defs.h>
+
+typedef int64_t time_t;
+
+struct timespec {
+	time_t tv_sec;
+	int64_t tv_nsec;
+};
+
+struct timeval {
+	time_t tv_sec;
+	int64_t tv_usec;
+};
 
 
-#define EXIT_SUCCESS 0
-#define EXIT_FAILURE 1
-
-
-#define PS_MAX_LEN 512
-#define DIR_MAX_DEPTH 256
-#define DIR_READ_BUF 256
-
-#define MAXLINE 1024
-#define HOSTNAME_FILE "/proc/sys/kernel/hostname"
-
-#define MAX_ARGS 128
-#define MAX_ENVP 128
-
+int nanosleep(const struct timespec *req, struct timespec *rem);
 #endif

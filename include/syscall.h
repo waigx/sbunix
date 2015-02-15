@@ -1,7 +1,7 @@
 /*
  *
  *  This file is part of sblibc.
- *        sblibc is a simple shell implementation, basically, it is
+ *        sblibc is a simple libc implementation, basically, it is
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
@@ -91,7 +91,26 @@ static __inline uint64_t syscall_3(uint64_t n, uint64_t a1, uint64_t a2, uint64_
 		"movq %%rax, %0\n\t"
 		: "=r" (returned_value)
 		: "r" (n), "r" (a1), "r" (a2), "r" (a3)
-		: "%rax", "%rdi", "rsi", "rdx");
+		: "%rax", "%rdi", "%rsi", "%rdx");
+
+	return returned_value;
+}
+
+static __inline uint64_t syscall_4(uint64_t n, uint64_t a1, uint64_t a2, uint64_t a3, uint64_t a4)
+{
+	uint64_t returned_value;
+
+	__asm__ __volatile__(
+		"movq %1, %%rax\n\t"
+		"movq %2, %%rdi\n\t"
+		"movq %3, %%rsi\n\t"
+		"movq %4, %%rdx\n\t"
+		"movq %5, %%r10\n\t"
+		"syscall;"
+		"movq %%rax, %0\n\t"
+		: "=r" (returned_value)
+		: "r" (n), "r" (a1), "r" (a2), "r" (a3), "r" (a4)
+		: "%rax", "%rdi", "%rsi", "%rdx", "%r10");
 
 	return returned_value;
 }

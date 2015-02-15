@@ -19,31 +19,30 @@
  *  GNU General Public License for more details.
  * 
  *  You should have received a copy of the GNU General Public License
- *  along with sblibc.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with SBUsh.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 
-#ifndef _CONST_H
-#define _CONST_H
+#include <sys/defs.h>
+#include <time.h>
 
+struct  rusage {
+	struct timeval ru_utime;
+	struct timeval ru_stime;
+	int32_t ru_maxrss;
+	int32_t ru_ixrss;
+	int32_t ru_idrss;
+	int32_t ru_isrss;
+	int32_t ru_minflt;
+	int32_t ru_majflt;
+	int32_t ru_nswap;
+	int32_t ru_inblock;
+	int32_t ru_oublock;
+	int32_t ru_msgsnd;
+	int32_t ru_msgrcv;
+	int32_t ru_nsignals;
+	int32_t ru_nvcsw;
+	int32_t ru_nivcsw;
+};
 
-#define STDIN_FD 0
-#define STDOUT_FD 1
-
-
-#define EXIT_SUCCESS 0
-#define EXIT_FAILURE 1
-
-
-#define PS_MAX_LEN 512
-#define DIR_MAX_DEPTH 256
-#define DIR_READ_BUF 256
-
-#define MAXLINE 1024
-#define HOSTNAME_FILE "/proc/sys/kernel/hostname"
-
-#define MAX_ARGS 128
-#define MAX_ENVP 128
-
-#endif

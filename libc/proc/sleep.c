@@ -24,26 +24,17 @@
  */
 
 
-#ifndef _CONST_H
-#define _CONST_H
+#include <sys/syscall.h>
+#include <time.h>
+#include <syscall.h>
 
 
-#define STDIN_FD 0
-#define STDOUT_FD 1
+unsigned int sleep(unsigned int seconds)
+{
+	struct timespec treq = {.tv_sec = seconds, .tv_nsec = 0};
+	struct timespec trem = {.tv_sec = 0, .tv_nsec = 0};
 
+	nanosleep(&treq, &trem);
 
-#define EXIT_SUCCESS 0
-#define EXIT_FAILURE 1
-
-
-#define PS_MAX_LEN 512
-#define DIR_MAX_DEPTH 256
-#define DIR_READ_BUF 256
-
-#define MAXLINE 1024
-#define HOSTNAME_FILE "/proc/sys/kernel/hostname"
-
-#define MAX_ARGS 128
-#define MAX_ENVP 128
-
-#endif
+	return (unsigned int) trem.tv_sec;
+}

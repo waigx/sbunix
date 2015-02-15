@@ -11,6 +11,9 @@ typedef unsigned short uint16_t;
 typedef          short  int16_t;
 
 
+typedef unsigned char   uint8_t;
+
 typedef unsigned long    size_t;
+typedef          int   intptr_t;
 
 #endif

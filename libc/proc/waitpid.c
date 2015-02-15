@@ -24,26 +24,18 @@
  */
 
 
-#ifndef _CONST_H
-#define _CONST_H
+#include <sys/syscall.h>
+#include <syscall.h>
+#include <stdlib.h>
+#include <sys/resource.h>
 
 
-#define STDIN_FD 0
-#define STDOUT_FD 1
+pid_t waitpid(pid_t pid, int *status, int options)
+{
+	struct rusage ru;
+	uint64_t res;
 
+	res = syscall_4(SYS_wait4, (uint64_t)pid, (uint64_t)status, (uint64_t)options, (uint64_t)&ru);
 
-#define EXIT_SUCCESS 0
-#define EXIT_FAILURE 1
-
-
-#define PS_MAX_LEN 512
-#define DIR_MAX_DEPTH 256
-#define DIR_READ_BUF 256
-
-#define MAXLINE 1024
-#define HOSTNAME_FILE "/proc/sys/kernel/hostname"
-
-#define MAX_ARGS 128
-#define MAX_ENVP 128
-
-#endif
+	return (pid_t)res;
+}

@@ -51,6 +51,24 @@ struct dirent
 	unsigned short d_reclen;
 	char d_name [NAME_MAX+1];
 };
+
+struct sblib_dirent
+{
+	long d_ino;
+	off_t d_off;
+	unsigned short d_reclen;
+	char *d_name;
+};
+
+struct DIR
+{
+	int dir_fd;
+	size_t size;
+	struct sblib_dirent *dirent_next;
+	char *buf;
+};
+
+typedef struct DIR DIR;
 void *opendir(const char *name);
 struct dirent *readdir(void *dir);
 int closedir(void *dir);
