@@ -67,6 +67,7 @@ int _echo();
 
 void _initshell();
 void _update_ps1_path();
+void _welcome_info();
 
 
 int _execute_1(char *, int, int *);
@@ -111,6 +112,7 @@ main(int argc, char *argv[], char *envp[])
 		return 0;
 	}
 
+	_welcome_info();
 	while (1){
 		_parse_ps1(buf, g_ps1);
 		writeline(buf, STDOUT_FD);
@@ -728,4 +730,25 @@ _export(int argc, char *argv[])
 
 	_update_ps1_path();
 	return 0;
+}
+
+
+/**
+ * _welcome_info - write copyright info to STDOUT
+ */
+void
+_welcome_info()
+{
+	writeline("    ____  ____  _   _     _     \n", STDOUT_FD);
+	writeline("   / ___|| __ )| | | |___| |__  \n", STDOUT_FD);
+	writeline("   \\___ \\|  _ \\| | | / __| '_ \\ \n", STDOUT_FD);
+	writeline("    ___) | |_) | |_| \\__ | | | |\n", STDOUT_FD);
+	writeline("   |____/|____/ \\___/|___|_| |_|\n", STDOUT_FD);
+
+	writeline("\nWelcome to SBUsh.\n", STDOUT_FD);
+
+	writeline("\nCopyright (C) 2015, Yigong Wang\n\n", STDOUT_FD);
+	writeline("This program comes with ABSOLUTELY NO WARRANTY; for details see LICENSE.\n", STDOUT_FD);
+	writeline("This is free software, and you are welcome to redistribute it\n", STDOUT_FD);
+	writeline("under certain conditions; see LICENSE for details.\n\n", STDOUT_FD);
 }
