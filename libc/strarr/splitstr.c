@@ -50,11 +50,11 @@ splitstr(char *haystack, const char *needle)
 	while (1) {
 		current_ptr = strstr(last_ptr, needle);
 		if (current_ptr == NULL) {
-			*current_buf_ptr = malloc(strlen(last_ptr));
+			*current_buf_ptr = malloc(strlen(last_ptr) + 1);
 			strcpy(*current_buf_ptr, last_ptr);
 			break;
 		}
-		*current_buf_ptr = malloc(current_ptr - last_ptr);
+		*current_buf_ptr = malloc(current_ptr - last_ptr + 1);
 		strncpy(*current_buf_ptr, last_ptr, current_ptr - last_ptr);
 		(*current_buf_ptr)[current_ptr - last_ptr] = '\0';
 		last_ptr = current_ptr + needle_len;

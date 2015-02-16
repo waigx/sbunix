@@ -32,10 +32,12 @@
 
 pid_t waitpid(pid_t pid, int *status, int options)
 {
-	struct rusage ru;
+	struct rusage *ru = malloc(sizeof(struct rusage));
 	uint64_t res;
 
-	res = syscall_4(SYS_wait4, (uint64_t)pid, (uint64_t)status, (uint64_t)options, (uint64_t)&ru);
+	res = syscall_4(SYS_wait4, (uint64_t)pid, (uint64_t)status, (uint64_t)options, (uint64_t)ru);
+
+	free(ru);
 
 	return (pid_t)res;
 }

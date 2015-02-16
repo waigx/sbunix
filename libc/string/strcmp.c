@@ -32,5 +32,5 @@
 int strcmp(const char *s1, const char *s2)
 {
 	size_t min_len = min(strlen(s1), strlen(s2));
-	return strncmp(s1, s2, min_len);
+	return strncmp(s1, s2, min_len + 1);
 }

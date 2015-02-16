@@ -31,7 +31,7 @@
 char *strstr(const char *haystack, const char *needle)
 {
 	while (strlen(haystack) >= strlen(needle)) {
-		if (strcmp(haystack, needle) == 0) {
+		if (strncmp(haystack, needle, strlen(needle)) == 0) {
 			return (char *)haystack;
 		}
 		haystack += 1;

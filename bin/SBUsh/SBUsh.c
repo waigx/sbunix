@@ -51,7 +51,7 @@
  */
 #define CONFIG_FILE {"/etc/SBUsh.SBUshrc", "~/.SBUshrc", ""}
 
-#define DEFAULT_PS1 "\\u@\\h$ "
+#define DEFAULT_PS1 "\\u@\\h$\\w "
 
 
 int execute(char *);
