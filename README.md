@@ -7,7 +7,7 @@ sblibc is a simple libc implementation and SBUsh is a simple shell implementatio
 
 ## Source Codes and Compile
 
-- The source code is avaliable on [Github](https://github.com/waigx/sblibc).
+- The source code is avaliable on [GitHub](https://github.com/waigx/kernel_playground).
  
 - **Before complie**
   * An etc/ file was already in rootfs/, which included initial configuration file(s).  
