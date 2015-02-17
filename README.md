@@ -9,7 +9,7 @@ sblibc is a simple libc implementation and SBUsh is a simple shell implementatio
 
 - The source code is avaliable on [Github](https://github.com/waigx/sblibc).
  
-- ** Before complie **
+- **Before complie**
   * An etc/ file was already in rootfs/, which included initial configuration file(s).  
   * For testing purpose, bin/SBUsh/SBUsh.c:45 defined a root path: 
   
