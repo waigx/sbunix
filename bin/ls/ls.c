@@ -24,33 +24,32 @@
  */
 
 
+#include <stdio.h>
+#include <libio.h>
 #include <stdlib.h>
 #include <const.h>
-#include <sys/syscall.h>
-#include <syscall.h>
-#include <libsys.h>
+#include <libstr.h>
+#include <string.h>
 
-struct dirent *
-readdir(void *dir)
-{
-	DIR *dir_in = dir;
-	struct dirent *res_dirent;
-	uint64_t sys_call_res;
+int main (int argc, char* argv[], char* envp[]) {
+	char currentDir[] = ".";
+	char *target = argv[1];
+	struct dirent *pDirent;
+	DIR *pDir;
 
-	if ((char *)dir_in->dirent_next  - dir_in->buf + dir_in->dirent_next->d_reclen > dir_in->size || dir_in->dirent_next->d_reclen == 0 ) {
-		sys_call_res = syscall_3(SYS_getdents, (uint64_t)dir_in->dir_fd, (uint64_t)dir_in->buf, (uint64_t)DIR_READ_BUF);
-		if ((ssize_t)sys_call_res <= 0)
-			return NULL;
-
-		//If don't put this sbrk(0) here, all local variables will be 'rcx', very weird
-		sbrk(0);
-
-		dir_in->size = sys_call_res;
-		dir_in->dirent_next = (struct sblib_dirent *)dir_in->buf;
+	if (argc < 2) {
+		target = currentDir;
 	}
 
-	res_dirent = (struct dirent *)dir_in->dirent_next;
-	dir_in->dirent_next = (struct sblib_dirent *)((char *)dir_in->dirent_next + dir_in->dirent_next->d_reclen);
+	pDir = opendir(target);
+	if (pDir == NULL) {
+		return 1;
+	}
 
-	return res_dirent;
+	while ((pDirent = readdir(pDir)) != NULL) {
+		writeline(pDirent->d_name, STDOUT_FD);
+		writeline("  ", STDOUT_FD);
+	}
+	writeline("\n", STDOUT_FD);
+	return 0;
 }
