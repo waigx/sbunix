@@ -27,6 +27,8 @@
 #ifndef _LIBIO_H
 #define _LIBIO_H
 
+#include <stdarg.h>
+
 #define PATH_TYPE_NON -1
 #define PATH_TYPE_FIL 0
 #define PATH_TYPE_DIR 1
@@ -36,5 +38,7 @@ char * readline(char *, int);
 char * writeline(const char *, int);
 
 int pathtype(const char *);
+
+int strlistprintf(char *buf, const char *format, va_list val);
 
 #endif

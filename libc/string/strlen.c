@@ -27,7 +27,9 @@
 #include <sys/defs.h>
 
 
-size_t strlen(const char *str) {
+size_t 
+strlen(const char *str)
+{
 	const char *ptr = str;
 	while (*ptr != '\0')
 		ptr += 1;

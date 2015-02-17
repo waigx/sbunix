@@ -28,7 +28,9 @@
 #include <string.h>
 
 
-char *strcpy(char *dest, const char *src) {
+char *
+strcpy(char *dest, const char *src)
+{
 	size_t src_length = strlen(src);
 
 	strncpy(dest, src, src_length + 1);

@@ -24,26 +24,14 @@
  */
 
 
-#include <stdarg.h>
-#include <sys/defs.h>
-#include <string.h>
-#include <const.h>
-#include <type.h>
-#include <libio.h>
+#ifndef _TYPE_H
+#define _TYPE_H
+
+#define CHAR_ZERO '0'
+#define CONV_BASE 10
 
 
-int printf(const char *format, ...) {
-	va_list val;
-	char buf[PRINTF_LEN];
-	int printed;
-	va_start(val, format);
-	
-	printed = strlistprintf(buf, format, val);
-	writeline(buf, STDOUT_FD);
+char *itoa(char *buf, int64_t num);
+char *utoa(char *buf, uint64_t num);
 
-	va_end(val);
-
-	return printed;
-}
-
-
+#endif

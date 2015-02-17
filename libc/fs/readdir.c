@@ -30,17 +30,19 @@
 #include <syscall.h>
 #include <libsys.h>
 
-struct dirent *readdir(void *dir)
+struct dirent *
+readdir(void *dir)
 {
 	DIR *dir_in = dir;
 	struct dirent *res_dirent;
 	uint64_t sys_call_res;
 
-	if ((char *)dir_in->dirent_next  - dir_in->buf + dir_in->dirent_next->d_reclen >= dir_in->size) {
+	if ((char *)dir_in->dirent_next  - dir_in->buf + dir_in->dirent_next->d_reclen > dir_in->size) {
 		sys_call_res = syscall_3(SYS_getdents, (uint64_t)dir_in->dir_fd, (uint64_t)dir_in->buf, (uint64_t)DIR_READ_BUF);
-		if ((ssize_t)sys_call_res < 0 || (ssize_t)sys_call_res == 0)
+		if ((ssize_t)sys_call_res <= 0)
 			return NULL;
 
+		//If don't put this sbrk(0) here, all local variables will be 'rcx', very weird
 		sbrk(0);
 
 		dir_in->size = sys_call_res;

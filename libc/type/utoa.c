@@ -24,26 +24,25 @@
  */
 
 
-#include <stdarg.h>
 #include <sys/defs.h>
-#include <string.h>
 #include <const.h>
+#include <string.h>
 #include <type.h>
-#include <libio.h>
 
 
-int printf(const char *format, ...) {
-	va_list val;
-	char buf[PRINTF_LEN];
-	int printed;
-	va_start(val, format);
-	
-	printed = strlistprintf(buf, format, val);
-	writeline(buf, STDOUT_FD);
+char *
+utoa(char *buf, uint64_t num)
+{
+	int i = 0;
+	char res_rev[UINT64_LEN];
 
-	va_end(val);
+	while (num != 0) {
+		res_rev[i] = num % CONV_BASE + CHAR_ZERO;
+		num /= CONV_BASE;
+		i += 1;
+	}
+	res_rev[i] = '\0';
+	strrev(buf, res_rev);
 
-	return printed;
+	return buf;
 }
-
-

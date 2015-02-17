@@ -24,26 +24,19 @@
  */
 
 
-#include <stdarg.h>
-#include <sys/defs.h>
 #include <string.h>
-#include <const.h>
-#include <type.h>
-#include <libio.h>
 
 
-int printf(const char *format, ...) {
-	va_list val;
-	char buf[PRINTF_LEN];
-	int printed;
-	va_start(val, format);
-	
-	printed = strlistprintf(buf, format, val);
-	writeline(buf, STDOUT_FD);
+char *
+strrev(char *dest, const char *src)
+{
+	int i = strlen(src);
+	char *dest_ptr = dest;
 
-	va_end(val);
+	dest[i] = '\0';
+	for (i -= 1; i>=0; i--, dest_ptr++) {
+		*dest_ptr = src[i];
+	}
 
-	return printed;
+	return dest;
 }
-
-

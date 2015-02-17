@@ -28,7 +28,8 @@
 #include <string.h>
 
 
-char *strstr(const char *haystack, const char *needle)
+char *
+strstr(const char *haystack, const char *needle)
 {
 	while (strlen(haystack) >= strlen(needle)) {
 		if (strncmp(haystack, needle, strlen(needle)) == 0) {

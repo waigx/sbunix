@@ -19,7 +19,7 @@
  *  GNU General Public License for more details.
  * 
  *  You should have received a copy of the GNU General Public License
- *  along with SBUsh.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with sblibc.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
@@ -44,4 +44,5 @@ struct timeval {
 
 
 int nanosleep(const struct timespec *req, struct timespec *rem);
+
 #endif
