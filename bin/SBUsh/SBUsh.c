@@ -42,7 +42,7 @@
  * interface.
  * Note the directory without last "/";
  */
-#define ROOT_PATH "/home/waigx/Documents/CSE506/SBUsh/rootfs" 
+#define ROOT_PATH "" 
 
 /**
  * This constant gives the config files' path, later config
@@ -51,7 +51,7 @@
  */
 #define CONFIG_FILE {"/etc/SBUsh.SBUshrc", "~/.SBUshrc", ""}
 
-#define DEFAULT_PS1 "\\u@\\h$\\w "
+#define DEFAULT_PS1 "\\u@\\h$\\w\\b"
 
 
 int execute(char *);
@@ -436,6 +436,7 @@ parse_dir(char *buf, char *cd_arg)
  * when escape sequence is not supported
  *
  * Limited support of PS1 escape sequences:
+ *     * \b a space character
  *     * \h hostname before first dot
  *     * \H full hostname
  *     * \u user name
@@ -456,6 +457,9 @@ _parse_ps1(char *buf, char *ps1)
 		if (ps1[i] == '\\') {
 			i += 1;
 			switch (ps1[i]) {
+			case 'b':
+				strcpy(temp_info, " ");
+				break;
 			case 'h':
 				_getabbrhostname(temp_info);
 				break;
@@ -475,7 +479,6 @@ _parse_ps1(char *buf, char *ps1)
 				strcpy(temp_info, SHELL_NAME);
 				break;
 			default:
-				return NULL;
 				break;
 			}
 		} else {
