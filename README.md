@@ -18,7 +18,7 @@ sblibc is a simple libc implementation and SBUsh is a simple shell implementatio
     ```    
     This line is designed for finding configure file SBUsh.SBUshrc AND **PREFIX BEFORE PATH EVERY TIME WHEN SEARCHING COMMAND IN PATHES**. If not properly set, SBUsh will not find external executable files.
     
-    Left it blank, or, set ROOT environment in SBUsh variable with
+    Left it blank if you not sure, or, set ROOT environment in SBUsh variable with
     
     ```
     $ export ROOT=[PATH/TO/ROOT]
@@ -67,11 +67,11 @@ sblibc is a simple libc implementation and SBUsh is a simple shell implementatio
 
 ## About sblibc
 
-- Comments of non-standard are in the C files.
+- Comments of non-standard functions are in the C files.
 
-- **ls** and **hello** is for test purpose, they are not fully functional binary, and will improve in future.
+- **ls** and **hello** are for test purpose, they are not fully functional binary, and will improve in future.
 
-- malloc and free function can just ensure a runnable status, they will impove by [Buddy memory allocation](http://en.wikipedia.org/wiki/Buddy_memory_allocation) in future.
+- **malloc** and **free** function can just ensure a runnable status, they will impove by [Buddy memory allocation](http://en.wikipedia.org/wiki/Buddy_memory_allocation) in future.
 
 - Supported escape sequences of printf now:
   * \c char
