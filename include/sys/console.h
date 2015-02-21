@@ -24,14 +24,18 @@
  */
 
 
-/**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
- *
- * Returns and brief discription
- *
- * Details of this function
- * ...
- * ...
- */
+#define CONSOLE_START 0xB8000
+
+#define CONSOLE_ROW 25
+#define CONSOLE_COL 80
+
+
+typedef struct cursor_t {
+	char character;
+	char color;
+} cursor_t;
+
+typedef struct cursor_pos_t {
+	int r;
+	int c;
+} cursor_pos_t;

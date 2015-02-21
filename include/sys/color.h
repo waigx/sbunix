@@ -24,14 +24,19 @@
  */
 
 
-/**
- * function - brief discription
- * @arg1: Discription
- * @arg2: Discription
- *
- * Returns and brief discription
- *
- * Details of this function
- * ...
- * ...
- */
+#define CONSOLE_BLACK_DARK    0x0
+#define CONSOLE_BLUE_DARK     0x1
+#define CONSOLE_GREEN_DARK    0x2
+#define CONSOLE_CYAN_DARK     0x3
+#define CONSOLE_RED_DARK      0x4
+#define CONSOLE_MAGENTA_DARK  0x5
+#define CONSOLE_YELLOW_DARK   0x6
+#define CONSOLE_WHITE_DARK    0x7
+#define CONSOLE_BLACK_LIGHT   0x8
+#define CONSOLE_BLUE_LIGHT    0x9
+#define CONSOLE_GREEN_LIGHT   0xA
+#define CONSOLE_CYAN_LIGHT    0xB
+#define CONSOLE_RED_LIGHT     0xC
+#define CONSOLE_MAGENTA_LIGHT 0xD
+#define CONSOLE_YELLOW_LIGHT  0xE
+#define CONSOLE_WHITE_LIGHT   0xF
