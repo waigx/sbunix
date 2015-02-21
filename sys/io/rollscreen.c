@@ -24,24 +24,14 @@
  */
 
 
-#include <const.h>
-#include <string.h>
-#include <type.h>
+#include <sys/kio.h>
+#include <sys/console.h>
+#include <sys/mem.h>
 
 
-char *
-utoa(char *buf, uint64_t num, uint8_t base)
+void rollscreen(int n)
 {
-	int i = 0;
-	char res_rev[UINT64_LEN];
-
-	while (num != 0) {
-		res_rev[i] = itoc(num % base);
-		num /= base;
-		i += 1;
-	}
-	res_rev[i] = '\0';
-	strrev(buf, res_rev);
-
-	return buf;
+	shiftmem((char *)CONSOLE_START, (char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL, 2 * n * CONSOLE_COL);
+	setmem((char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL - 2 * n * CONSOLE_COL, (char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL, 0);
+	g_current_pos -= 2 * n * CONSOLE_COL;
 }

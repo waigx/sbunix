@@ -24,24 +24,17 @@
  */
 
 
-#include <const.h>
-#include <string.h>
-#include <type.h>
+#include <sys/kio.h>
+#include <sys/console.h>
+#include <sys/color.h>
 
 
-char *
-utoa(char *buf, uint64_t num, uint8_t base)
+void writenewline(int n)
 {
-	int i = 0;
-	char res_rev[UINT64_LEN];
+	int i;
+	uint64_t blank = n * CONSOLE_COL - (((uint64_t)g_current_pos - CONSOLE_START) / 2) % CONSOLE_COL;
 
-	while (num != 0) {
-		res_rev[i] = itoc(num % base);
-		num /= base;
-		i += 1;
+	for (i = 0; i < blank; i++) {
+		writecharcolor('\0', CONSOLE_BLACK_DARK);
 	}
-	res_rev[i] = '\0';
-	strrev(buf, res_rev);
-
-	return buf;
 }

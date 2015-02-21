@@ -24,24 +24,16 @@
  */
 
 
-#include <const.h>
-#include <string.h>
-#include <type.h>
-
-
-char *
-utoa(char *buf, uint64_t num, uint8_t base)
+char itoc(int i)
 {
-	int i = 0;
-	char res_rev[UINT64_LEN];
-
-	while (num != 0) {
-		res_rev[i] = itoc(num % base);
-		num /= base;
-		i += 1;
+	char result;
+	if (i < 10 && i >= 0) {
+		result = '0' + i;
+	} else if (i >= 10 && i < 16) {
+		result = i - 10 + 'a';
+	} else {
+		result = '?';
 	}
-	res_rev[i] = '\0';
-	strrev(buf, res_rev);
 
-	return buf;
+	return result;
 }

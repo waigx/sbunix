@@ -24,24 +24,7 @@
  */
 
 
-#include <const.h>
-#include <string.h>
-#include <type.h>
+#include <sys/defs.h>
 
-
-char *
-utoa(char *buf, uint64_t num, uint8_t base)
-{
-	int i = 0;
-	char res_rev[UINT64_LEN];
-
-	while (num != 0) {
-		res_rev[i] = itoc(num % base);
-		num /= base;
-		i += 1;
-	}
-	res_rev[i] = '\0';
-	strrev(buf, res_rev);
-
-	return buf;
-}
+void setmem(void *start, void *end, char value);
+void shiftmem(void *start, void *end, uint8_t offset);

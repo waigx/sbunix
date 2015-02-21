@@ -24,24 +24,29 @@
  */
 
 
-#include <const.h>
+#include <stdarg.h>
+#include <sys/defs.h>
+#include <sys/kio.h>
 #include <string.h>
+#include <const.h>
 #include <type.h>
 
 
-char *
-utoa(char *buf, uint64_t num, uint8_t base)
-{
-	int i = 0;
-	char res_rev[UINT64_LEN];
-
-	while (num != 0) {
-		res_rev[i] = itoc(num % base);
-		num /= base;
-		i += 1;
+int printf(const char *format, ...) {
+	va_list val;
+	char buf[PRINTF_LEN];
+	char *buf_ptr;
+	int printed;
+	va_start(val, format);
+	
+	printed = strlistprintf(buf, format, val);
+	for (buf_ptr = buf; *buf_ptr != '\0'; buf_ptr++) {
+		writechar(*buf_ptr);
 	}
-	res_rev[i] = '\0';
-	strrev(buf, res_rev);
 
-	return buf;
+	va_end(val);
+
+	return printed;
 }
+
+

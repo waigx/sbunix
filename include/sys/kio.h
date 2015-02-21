@@ -24,24 +24,17 @@
  */
 
 
-#include <const.h>
-#include <string.h>
-#include <type.h>
+#include <stdarg.h>
+#include <sys/defs.h>
 
 
-char *
-utoa(char *buf, uint64_t num, uint8_t base)
-{
-	int i = 0;
-	char res_rev[UINT64_LEN];
+extern char *g_current_pos;
+extern uint8_t g_default_color;
 
-	while (num != 0) {
-		res_rev[i] = itoc(num % base);
-		num /= base;
-		i += 1;
-	}
-	res_rev[i] = '\0';
-	strrev(buf, res_rev);
 
-	return buf;
-}
+int strlistprintf(char *buf, const char *format, va_list val);
+void writechar(char c);
+void writenewline(int n);
+void rollscreen(int n);
+void writecharcolor(char c, uint8_t color);
+void writecharpos(char *pos, char c, uint8_t color);

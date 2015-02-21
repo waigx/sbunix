@@ -24,24 +24,17 @@
  */
 
 
-#include <const.h>
-#include <string.h>
-#include <type.h>
+#include <sys/kio.h>
+#include <sys/console.h>
 
 
-char *
-utoa(char *buf, uint64_t num, uint8_t base)
+void writecharcolor(char c, uint8_t color)
 {
-	int i = 0;
-	char res_rev[UINT64_LEN];
-
-	while (num != 0) {
-		res_rev[i] = itoc(num % base);
-		num /= base;
-		i += 1;
+	writecharpos(g_current_pos, c, color);
+	g_current_pos += 2;
+	if (g_current_pos >= (char *)CONSOLE_START + 2 * (CONSOLE_ROW - 1) * CONSOLE_COL) {
+		rollscreen(1);
 	}
-	res_rev[i] = '\0';
-	strrev(buf, res_rev);
+	return;
 
-	return buf;
 }

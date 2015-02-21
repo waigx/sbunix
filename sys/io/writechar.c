@@ -24,24 +24,14 @@
  */
 
 
-#include <const.h>
-#include <string.h>
-#include <type.h>
+#include <sys/kio.h>
 
 
-char *
-utoa(char *buf, uint64_t num, uint8_t base)
+void writechar(char c)
 {
-	int i = 0;
-	char res_rev[UINT64_LEN];
-
-	while (num != 0) {
-		res_rev[i] = itoc(num % base);
-		num /= base;
-		i += 1;
+	if (c == '\n' || c=='\r') {
+		writenewline(1);
+	} else {
+		writecharcolor(c, g_default_color);
 	}
-	res_rev[i] = '\0';
-	strrev(buf, res_rev);
-
-	return buf;
 }
