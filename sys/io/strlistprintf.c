@@ -68,6 +68,12 @@ strlistprintf(char *buf, const char *format, va_list val)
 				strcpy(buf + printed, num_buf);
 				printed += strlen(num_buf) - 1;
 				break;
+			case 'b':
+				var_uint = va_arg(val, uint32_t);
+				utoa(num_buf, var_uint, 2);
+				strcpy(buf + printed, num_buf);
+				printed += strlen(num_buf) - 1;
+				break;
 			case 'x':
 				var_uint = va_arg(val, uint32_t);
 				utoa(num_buf, var_uint, 16);

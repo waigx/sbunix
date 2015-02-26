@@ -36,6 +36,11 @@ itoa(char *buf, int64_t num, uint8_t base)
 	int is_nagitive = (num < 0)? 1: -1;
 	char res_rev[UINT64_LEN];
 
+	if (num == 0) {
+		strcpy(buf, "0");
+		return buf;
+	}
+
 	num *= is_nagitive * -1;
 	while (num != 0) {
 		res_rev[i] = itoc(num % base);
