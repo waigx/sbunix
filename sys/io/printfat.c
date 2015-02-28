@@ -5,8 +5,7 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
- *  Copyright (C) 2015 	Dongju Ok   <dongju@stonybrook.edu, yardbirds79@gmail.com>	  
- *			Yigong Wang <yigwang@cs.stonybrook.edu>
+ *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
  *  sbunix is free software: you can redistribute it and/or modify
@@ -25,17 +24,37 @@
  */
 
 
-#include <sys/pic.h>
+#include <stdarg.h>
+#include <sys/defs.h>
+#include <sys/kio.h>
+#include <sys/console.h>
+#include <string.h>
+#include <const.h>
+#include <type.h>
 
 
-void set_timer(uint16_t clock)
-{
-	uint16_t i=0;
-	i = 1193182 / clock;		// PIC timer has 1.193182 osilator, So it is used for real time clock.  
-	out_port_byte(0x40, i & 0xFF);
-	out_port_byte(0x40, (i >> 8) & 0xFF);
- 	out_port_byte(0x43, 0x36 );
+int printfat(int r, int c, const char *format, ...) {
+	va_list val;
+	char buf[PRINTF_LEN];
+	char *buf_ptr;
+	int printed = 0;
+	char *pos = (char *)(CONSOLE_START) + (CONSOLE_COL * r + c) * 2;
+	char *end = (char *)CONSOLE_END;
+	va_start(val, format);
 
+	if (pos >= end) {
+		return printed;
+	}
+	
+	strlistprintf(buf, format, val);
+	for (buf_ptr = buf; *buf_ptr != '\0' && pos < (char *)CONSOLE_END; buf_ptr++, pos += 2) {
+		writecharpos(pos, *buf_ptr, g_default_color);
+		printed += 1;
+	}
+
+	va_end(val);
+
+	return printed;
 }
 
 

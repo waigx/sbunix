@@ -29,6 +29,7 @@
 #define CONSOLE_ROW 25
 #define CONSOLE_COL 80
 
+#define CONSOLE_END CONSOLE_START + CONSOLE_ROW * CONSOLE_COL * 2
 
 typedef struct cursor_t {
 	char character;

@@ -4,11 +4,6 @@
 #include <sys/defs.h>
 
 
-
-
-
-
-
 void isr0(void);
 void isr1(void);
 void isr2(void);
@@ -48,8 +43,5 @@ void isr35(void);
 void isr36(void);
 void isr37(void);
 
-
-
-//void reload_idt();
 
 #endif

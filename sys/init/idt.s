@@ -1,9 +1,3 @@
-#
-# gdt.s
-#
-#  Created on: Dec 29, 2010
-#      Author: cds
-#
 
 .text
 

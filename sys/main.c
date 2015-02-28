@@ -5,6 +5,10 @@
 #include <sys/tarfs.h>
 #include <sys/defs.h>
 #include <sys/kio.h>
+#include <sys/idt.h>
+#include <sys/isr.h>
+#include <sys/pic.h>
+#include <sys/timer.h>
 #include <stdarg.h>
 #include <string.h>
 #include <const.h>
@@ -31,6 +35,11 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	}
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 	// kernel starts here
+	__asm volatile("sti");
+	reload_idt();
+	init_pic();
+	set_timer(10000);
+
 }
 
 #define INITIAL_STACK_SIZE 4096

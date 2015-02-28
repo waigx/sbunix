@@ -5,8 +5,9 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
- *  Copyright (C) 2015  Dongju Ok   <dongju@stonybrook.edu, yardbirds79@gmail.com>        
- *                      Yigong Wang <yigwang@cs.stonybrook.edu>
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
+ *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
  *  sbunix is free software: you can redistribute it and/or modify
@@ -35,8 +36,7 @@
 .global isr30, isr31, isr32, isr33, isr34, isr35, isr36, isr37
 
 
-
-#// macro for save all registers and segments for switching context//
+// macro for save all registers and segments for switching context//
 .macro SAVE_ALL_REG 
 	pushq %rbp
 	movq %rsp, %rbp
@@ -60,10 +60,9 @@
 	movq %es, %rax
 	pushq %rax
 	movq %gs, %rax
-        pushq %rax
-        movq %fs, %rax
-        pushq %rax
-
+	pushq %rax
+    movq %fs, %rax
+	pushq %rax
 
 	movq $0x10, %rax
 	movq %rax , %ds
@@ -72,7 +71,8 @@
 	movq %rax, %fs
 .endm
 
-#// macro for load all registers and segments for switching context//
+
+/* macro for load all registers and segments for switching context*/
 .macro LOAD_ALL_REG
 	popq %rax
 	movq %rax, %ds
@@ -82,7 +82,6 @@
 	movq %rax, %gs
 	popq %rax
 	movq %rax, %fs
-
 
 	popq %r15
 	popq %r14
@@ -99,14 +98,17 @@
 	popq %rbx
 	popq %rax
 	popq %rbp
-
-
-
-
-	
 .endm
-# exception handler
-#0, Division by Zero Exception
+
+
+/* 
+ * Exception handlers
+ */
+
+/* ISR 0,
+ * 
+ * Division by Zero Exception 
+ */
 isr0:
 	cli
 	pushq $0
@@ -152,29 +154,28 @@ isr28:
 isr29:
 isr30:
 isr31:
-# timer handler
-# 32, timer interrupt
+
+
+/* ISR 32,
+ * 
+ * 32, Time handler 
+ */
 isr32:
 	cli
-        pushq $0
-        pushq $32
-
-        SAVE_ALL_REG
-        movq $0, %rdi
-        call timer_handler
-
-        LOAD_ALL_REG
-        add $0x10, %rsp
-        sti
-        iretq
+	pushq $0
+	pushq $32
+	
+	SAVE_ALL_REG
+	movq $0, %rdi
+	call timer_handler
+	
+	LOAD_ALL_REG
+	add $0x10, %rsp
+	sti
+	iretq
 
 isr33:
 isr34:
 isr35:
 isr36:
 isr37:
-
-
-
-
-

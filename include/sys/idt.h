@@ -4,8 +4,6 @@
 #include <sys/defs.h>
 
 
-
-
 void reload_idt();
 
 #endif

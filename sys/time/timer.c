@@ -5,6 +5,8 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -24,20 +26,19 @@
  */
 
 
-#include <stdarg.h>
-#include <sys/defs.h>
+#include <sys/pic.h>
 
 
-extern char *g_current_pos;
-extern uint8_t g_default_color;
+void set_timer(uint16_t clock)
+{
+	uint16_t i=0;
+
+	/* PIC timer has 1.193182 osilator, 
+	 So it is used for real time clock. */ 
+	i = 1193182 / clock;
+	out_port_byte(0x40, i & 0xFF);
+	out_port_byte(0x40, (i >> 8) & 0xFF);
+	out_port_byte(0x43, 0x36 );
+}
 
 
-int strlistprintf(char *buf, const char *format, va_list val);
-
-int printfat(int r, int c, const char *fmt, ...);
-
-void writechar(char c);
-void writenewline(int n);
-void rollscreen(int n);
-void writecharcolor(char c, uint8_t color);
-void writecharpos(char *pos, char c, uint8_t color);

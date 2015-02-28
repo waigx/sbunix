@@ -5,8 +5,9 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
- *  Copyright (C) 2015 	Dongju Ok   <dongju@stonybrook.edu, yardbirds79@gmail.com>	  
- *			Yigong Wang <yigwang@cs.stonybrook.edu>
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
+ *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
  *  sbunix is free software: you can redistribute it and/or modify
@@ -28,36 +29,34 @@
 #include <sys/idt.h>
 #include <sys/pic.h>
 #include <sys/timer.h>
-/* adapted from Chris Stones, shovelos */
 
-#define MAX_IDT 	256
 
-#define IDT_SEGMENT	0x08
+#define MAX_IDT               256
 
-#define IDT_DPL0          (0x00)  /*** descriptor privilege level 0 ***/
-#define IDT_DPL1          (0x20)  /*** descriptor privilege level 1 ***/
-#define IDT_DPL2          (0x40)  /*** descriptor privilege level 2 ***/
-#define IDT_DPL3          (0x60)  /*** descriptor privilege level 3 ***/
-#define IDT_P             (0x80)  /*** present ***/
-#define IDT_INTERRUPT_TYPE	(0x0e)
+#define IDT_SEGMENT         (0x08)
+
+#define IDT_DPL0            (0x00)  /*** descriptor privilege level 0 ***/
+#define IDT_DPL1            (0x20)  /*** descriptor privilege level 1 ***/
+#define IDT_DPL2            (0x40)  /*** descriptor privilege level 2 ***/
+#define IDT_DPL3            (0x60)  /*** descriptor privilege level 3 ***/
+#define IDT_P               (0x80)  /*** present ***/
+#define IDT_INTERRUPT_TYPE  (0x0e)
 
 
 struct idt_t {
 	uint16_t low_offset;
 	uint16_t segment_sel;
-	uint8_t  reserved1;	// It include IST, if you want to use IST, you should change this member.//
-	uint8_t	 flags;
+	/* It include IST, if you want to use IST, you should change this member. */
+	uint8_t  reserved1; 
+	uint8_t  flags;
 	uint16_t middle_offset;
 	uint32_t high_offset;
 	uint32_t reserved2;
 }__attribute__((packed));
 
-
-
-
 struct idtr_t {
-        uint16_t size;
-        uint64_t addr;
+	uint16_t size;
+	uint64_t addr;
 }__attribute__((packed));
 
 
@@ -79,6 +78,7 @@ static struct idt_t idt_entry[MAX_IDT];
 void _x86_64_asm_lidt(struct idtr_t* idtr);
 void _set_isr_table(void);
 void _set_idt_entry(struct idt_t *entry, void *handler, uint64_t selector, uint8_t flags);
+
 
 extern void isr0();
 extern void isr1();
@@ -121,7 +121,6 @@ extern void isr37();
 
 
 
-
 void reload_idt()
 {
 	_set_isr_table();
@@ -150,29 +149,28 @@ void _set_isr_table(void)
 	_set_idt_entry(&entry[14], isr14, IDT_SEGMENT ,IDT_DPL0);
 	_set_idt_entry(&entry[15], isr15, IDT_SEGMENT ,IDT_DPL0);
 	_set_idt_entry(&entry[16], isr16, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[17], isr17, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[18], isr18, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[19], isr19, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[20], isr20, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[21], isr21, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[22], isr22, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[23], isr23, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[24], isr24, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[25], isr25, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[26], isr26, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[27], isr27, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[28], isr28, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[29], isr29, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[17], isr17, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[18], isr18, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[19], isr19, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[20], isr20, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[21], isr21, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[22], isr22, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[23], isr23, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[24], isr24, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[25], isr25, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[26], isr26, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[27], isr27, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[28], isr28, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[29], isr29, IDT_SEGMENT ,IDT_DPL0);
 	_set_idt_entry(&entry[30], isr30, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[31], isr31, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[32], isr32, IDT_SEGMENT ,IDT_DPL0|IDT_P|IDT_INTERRUPT_TYPE);
-        _set_idt_entry(&entry[33], isr33, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[34], isr34, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[35], isr35, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[36], isr36, IDT_SEGMENT ,IDT_DPL0);
-        _set_idt_entry(&entry[37], isr37, IDT_SEGMENT ,IDT_DPL0);
-
-
+	_set_idt_entry(&entry[31], isr31, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[32], isr32, IDT_SEGMENT ,IDT_DPL0|IDT_P|IDT_INTERRUPT_TYPE);
+	_set_idt_entry(&entry[33], isr33, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[34], isr34, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[35], isr35, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[36], isr36, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[37], isr37, IDT_SEGMENT ,IDT_DPL0);
+	
 }
 
 void _set_idt_entry(struct idt_t *entry, void *handler, uint64_t selector, uint8_t flags)
@@ -186,9 +184,3 @@ void _set_idt_entry(struct idt_t *entry, void *handler, uint64_t selector, uint8
 	entry->reserved2 = 0;
 
 }
-
-
-
-
-
-
