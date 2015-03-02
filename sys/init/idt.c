@@ -164,8 +164,8 @@ void _set_isr_table(void)
 	_set_idt_entry(&entry[29], isr29, IDT_SEGMENT ,IDT_DPL0);
 	_set_idt_entry(&entry[30], isr30, IDT_SEGMENT ,IDT_DPL0);
 	_set_idt_entry(&entry[31], isr31, IDT_SEGMENT ,IDT_DPL0);
-	_set_idt_entry(&entry[32], isr32, IDT_SEGMENT ,IDT_DPL0|IDT_P|IDT_INTERRUPT_TYPE);
-	_set_idt_entry(&entry[33], isr33, IDT_SEGMENT ,IDT_DPL0);
+	_set_idt_entry(&entry[32], isr32, IDT_SEGMENT ,IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
+	_set_idt_entry(&entry[33], isr33, IDT_SEGMENT ,IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
 	_set_idt_entry(&entry[34], isr34, IDT_SEGMENT ,IDT_DPL0);
 	_set_idt_entry(&entry[35], isr35, IDT_SEGMENT ,IDT_DPL0);
 	_set_idt_entry(&entry[36], isr36, IDT_SEGMENT ,IDT_DPL0);

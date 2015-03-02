@@ -28,7 +28,7 @@
 
 .extern divide_handler
 .extern timer_handler
-
+.extern keyboard_handler
 
 .global isr0, isr1, isr2, isr3, isr4, isr5, isr6, isr7, isr8, isr9
 .global isr10, isr11, isr12, isr13, isr14, isr15, isr16, isr17, isr18, isr19
@@ -61,7 +61,7 @@
 	pushq %rax
 	movq %gs, %rax
 	pushq %rax
-    movq %fs, %rax
+	movq %fs, %rax
 	pushq %rax
 
 	movq $0x10, %rax
@@ -155,7 +155,6 @@ isr29:
 isr30:
 isr31:
 
-
 /* ISR 32,
  * 
  * 32, Time handler 
@@ -173,8 +172,24 @@ isr32:
 	add $0x10, %rsp
 	sti
 	iretq
-
+/* ISR 33,
+ * 
+ * 33, Keyboard handler 
+ */
 isr33:
+        cli
+        pushq $0
+        pushq $33
+
+        SAVE_ALL_REG
+        movq $0, %rdi
+        call keyboard_handler
+
+        LOAD_ALL_REG
+        add $0x10, %rsp
+        sti
+        iretq
+
 isr34:
 isr35:
 isr36:

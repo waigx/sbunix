@@ -3,6 +3,9 @@
 
 #define NULL ((void*)0)
 
+#define	TRUE	1
+#define	FALSE	0
+
 typedef unsigned long  uint64_t;
 typedef          long   int64_t;
 typedef unsigned int   uint32_t;

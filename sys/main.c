@@ -9,6 +9,8 @@
 #include <sys/isr.h>
 #include <sys/pic.h>
 #include <sys/timer.h>
+#include <sys/rtc.h>
+#include <sys/keyboard.h>
 #include <stdarg.h>
 #include <string.h>
 #include <const.h>
@@ -35,10 +37,13 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	}
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 	// kernel starts here
-	__asm volatile("sti");
 	reload_idt();
-	init_pic();
-	set_timer(10000);
+	init_pic(ENABLE_KEYBOARD_INT);	// only Keyboard intrrupt enable, others are masked by PIC.
+					// now, Dongju disable timer interrupt because it makes me to debug difficult.
+					// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
+	set_timer(10000);		
+	__asm volatile("sti");		// enable interupt("asm sti") should be executed after setting all interrupt info.
+
 
 }
 

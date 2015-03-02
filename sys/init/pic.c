@@ -24,10 +24,7 @@
  *  along with sbunix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-
-
 #include <sys/pic.h>
-
 
 /* To set cascaded PIC environment
  * 0b 0001 0001
@@ -51,15 +48,19 @@
  */ 
 #define ICW4 0x01
 
-
+#define	EOI	0x20
+#define	OFFSET_SLAVE_PIC_INTERRUPT	0x08
 /**
  * init_pic - init pic controller(Master and Slave)
  *
  * Returns value is void 
  *
  */
-void init_pic()
+void init_pic(uint16_t enable_interrupt)
 {
+	uint8_t master_mask_bit = ~(enable_interrupt & 0xFF );
+	uint8_t slave_mask_bit = ~( (enable_interrupt >> 8) & 0xFF);
+
 	/* Set ICW1 */
 	out_port_byte(PIC_MASTER_COMMAND, ICW1);
 	out_port_byte(PIC_SLAVE_COMMAND, ICW1);
@@ -75,7 +76,17 @@ void init_pic()
 	/* Set 80x86 mode */
 	out_port_byte(PIC_MASTER_DATA, ICW4);
 	out_port_byte(PIC_SLAVE_DATA, ICW4);
+
+	out_port_byte(PIC_MASTER_DATA, master_mask_bit);
+	out_port_byte(PIC_SLAVE_DATA, slave_mask_bit);
 }
 
-
+void send_eoi(uint16_t irq_num)
+{
+	out_port_byte(PIC_MASTER_COMMAND, EOI);
+	if (irq_num >= OFFSET_SLAVE_PIC_INTERRUPT)
+	{
+		out_port_byte(PIC_SLAVE_COMMAND, EOI); 
+	}
+}
 

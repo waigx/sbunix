@@ -28,7 +28,7 @@
 #include <sys/isr.h>
 #include <sys/sbunix.h>
 #include <sys/pic.h>
-
+#include <sys/keyboard.h>
 
 void divide_handler(uint64_t entry_num)
 {
@@ -37,9 +37,15 @@ void divide_handler(uint64_t entry_num)
 
 void timer_handler(void)
 {
-//	while(1);
-//	volatile uint64_t count=100000;
-	out_port_byte(0x20, 0x20);
 	printf("I am in time_handler\n");
-//	while(count--);
+	send_eoi(TIMER_IRQ_NUMBER);
 }
+
+void keyboard_handler(void)
+{
+        uint8_t ch = 0;
+        ch = get_char_keyboard();
+	printf("keyboard = %c\n", ch);
+	send_eoi(KEYBOARD_IRQ_NUMBER);
+}
+

@@ -3,6 +3,9 @@
 
 #include <sys/defs.h>
 
+#define	TIMER_IRQ_NUMBER	0x01
+#define	KEYBOARD_IRQ_NUMBER	0x02
+
 
 void isr0(void);
 void isr1(void);
@@ -42,6 +45,7 @@ void isr34(void);
 void isr35(void);
 void isr36(void);
 void isr37(void);
+
 
 
 #endif

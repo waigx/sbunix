@@ -37,8 +37,12 @@
 #define PIC_SLAVE_COMMAND      0xA0
 #define PIC_SLAVE_DATA         0xA1
 
+#define ENABLE_TIMER_INT        0x01
+#define ENABLE_KEYBOARD_INT     0x02
 
-void init_pic(void);
+void init_pic(uint16_t enable_interrupt);
+void send_eoi(uint16_t irq_num);
+
 
 static __inline void out_port_byte(unsigned short port, unsigned char data)
 {
