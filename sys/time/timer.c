@@ -40,5 +40,3 @@ void set_timer(uint16_t clock)
 	out_port_byte(0x40, (i >> 8) & 0xFF);
 	out_port_byte(0x43, 0x36 );
 }
-
-

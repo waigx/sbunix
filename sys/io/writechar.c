@@ -29,9 +29,18 @@
 
 void writechar(char c)
 {
-	if (c == '\n' || c=='\r') {
-		writenewline(1);
-	} else {
-		writecharcolor(c, g_default_color);
+	switch (c) {
+		case '\n':
+		case '\r':
+			writenewline(1);
+			break;
+
+		case 0x08:
+			backspacechar(1);
+			break;
+
+		default:
+			writecharcolor(c, g_default_color);
+			break;
 	}
 }

@@ -17,8 +17,10 @@
 #include <type.h>
 
 
-char *g_current_pos = (char *)(CONSOLE_START);
+char *g_current_pos = (char *)(CONSOLE_START) + 21 * 2 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
+uint8_t is_shifted = 0;
+uint8_t is_ctrled = 0;
 
 
 void start(uint32_t* modulep, void* physbase, void* physfree)
@@ -36,14 +38,19 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 		}
 	}
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+	rollscreen(1);
+	rollscreen(1);
+	rollscreen(1);
+	rollscreen(1);
 	// kernel starts here
 	reload_idt();
-	init_pic(ENABLE_KEYBOARD_INT);	// only Keyboard intrrupt enable, others are masked by PIC.
-					// now, Dongju disable timer interrupt because it makes me to debug difficult.
-					// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
-	set_timer(10000);		
-	__asm volatile("sti");		// enable interupt("asm sti") should be executed after setting all interrupt info.
-
+	// only Keyboard intrrupt enable, others are masked by PIC.
+	init_pic(ENABLE_KEYBOARD_INT|ENABLE_TIMER_INT);
+	// now, Dongju disable timer interrupt because it makes me to debug difficult.
+	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
+	set_timer(10000);
+	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
+	while (1);
 
 }
 

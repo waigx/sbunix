@@ -5,6 +5,8 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -24,21 +26,18 @@
  */
 
 
-#include <stdarg.h>
-#include <sys/defs.h>
+#include <sys/kio.h>
+#include <sys/console.h>
+#include <sys/mem.h>
 
 
-extern char *g_current_pos;
-extern uint8_t g_default_color;
+int backspacechar(int n)
+{
+	char *startpos = (char *)CONSOLE_START > (g_current_pos - 2 * n) ? (char *)CONSOLE_START : (g_current_pos - 2 * n);
+	int shifted = (int)(g_current_pos - startpos) / 2;
+	shiftmem(startpos, (char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL, 2 * shifted);
+	setmem((char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL - 2 * shifted, (char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL, 0);
+	g_current_pos -= 2 * shifted;
 
-
-int strlistprintf(char *buf, const char *format, va_list val);
-
-int printfat(int r, int c, const char *fmt, ...);
-int backspacechar(int n);
-
-void writechar(char c);
-void writenewline(int n);
-void rollscreen(int n);
-void writecharcolor(char c, uint8_t color);
-void writecharpos(char *pos, char c, uint8_t color);
+	return shifted;
+}

@@ -24,6 +24,9 @@
  *  along with sbunix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+
+
 #include <sys/pic.h>
 
 /* To set cascaded PIC environment
@@ -48,8 +51,10 @@
  */ 
 #define ICW4 0x01
 
-#define	EOI	0x20
-#define	OFFSET_SLAVE_PIC_INTERRUPT	0x08
+#define EOI 0x20
+#define OFFSET_SLAVE_PIC_INTERRUPT 0x08
+
+
 /**
  * init_pic - init pic controller(Master and Slave)
  *

@@ -7,6 +7,7 @@
  *
  *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
  *                                  yardbirds79@gmail.com>
+ *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
  *  sbunix is free software: you can redistribute it and/or modify
@@ -28,24 +29,63 @@
 #include <sys/isr.h>
 #include <sys/sbunix.h>
 #include <sys/pic.h>
+#include <sys/kio.h>
 #include <sys/keyboard.h>
+#include <sys/timer.h>
+
+static uint8_t g_scancode2ascii[] = {SCANCODE2ASCII_TABLE};
+static uint8_t g_scancode2ascii_shift[] = {SCANCODE2ASCII_TABLE_SHIFT};
+static uint8_t g_scancode2ascii_ctrl[] = {SCANCODE2ASCII_TABLE_CTRL};
 
 void divide_handler(uint64_t entry_num)
 {
 	printf("entry_num = %x\n", entry_num);
 }
 
+
 void timer_handler(void)
 {
-	printf("I am in time_handler\n");
+	echotime();
 	send_eoi(TIMER_IRQ_NUMBER);
 }
 
+
 void keyboard_handler(void)
 {
-        uint8_t ch = 0;
-        ch = get_char_keyboard();
-	printf("keyboard = %c\n", ch);
+	uint8_t sc = 0;
+	char ch = 0;
+	sc = get_scancode_keyboard();
+	
+	switch (sc) {
+		case SC_SHIFT_LEFT:
+		case SC_SHIFT_RIGHT:
+			is_shifted = 1;
+			break;
+		case SC_SHIFT_LEFT + SC_RELEASE_OFFSET:
+		case SC_SHIFT_RIGHT + SC_RELEASE_OFFSET:
+			is_shifted = 0;
+			break;
+		case SC_CTRL_LEFT:
+			is_ctrled = 1;
+			break;
+		case SC_CTRL_LEFT + SC_RELEASE_OFFSET:
+			is_shifted = 0;
+			break;
+		default:
+			if (is_shifted) {
+				ch = g_scancode2ascii_shift[sc];
+				break;
+			}
+			if (is_ctrled) {
+				ch = g_scancode2ascii_ctrl[sc];
+				break;
+			}
+			ch = g_scancode2ascii[sc];
+			break;
+	}
+
+	if (ch != 0)
+		writechar(ch);
 	send_eoi(KEYBOARD_IRQ_NUMBER);
 }
 

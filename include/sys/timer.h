@@ -5,12 +5,6 @@
 
 
 void set_timer(uint16_t);
-
-
-
-
-
-
-
+void echotime(void);
 
 #endif

@@ -5,8 +5,9 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
- *  Copyright (C) 2015  Dongju Ok   <dongju@stonybrook.edu, yardbirds79@gmail.com>        
- *                      Yigong Wang <yigwang@cs.stonybrook.edu>
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
+ *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
  *  sbunix is free software: you can redistribute it and/or modify
@@ -23,8 +24,11 @@
  *  along with sbunix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+
 #include <sys/pic.h>
 #include <sys/keyboard.h>
+
 
 #define KEYBOARD_CONTROL_REGISTER       0x64
 #define KEYBOARD_STATUS_REGISTER        0x64
@@ -40,55 +44,58 @@
 uint64_t
 init_keyboard(void)
 {
-        uint64_t i = 0;
-        out_port_byte( KEYBOARD_CONTROL_REGISTER, KEYBOARD_CONTROLLER_ENABLE_CMD);
+	uint64_t i = 0;
+	out_port_byte( KEYBOARD_CONTROL_REGISTER, KEYBOARD_CONTROLLER_ENABLE_CMD);
 
-        for (i=0; i < 0xFFFF; i++)
-        {
-                if (is_input_buf_full() == FALSE)
-                        break;
-        }
+	for (i=0; i < 0xFFFF; i++)
+	{
+		if (is_input_buf_full() == FALSE)
+			break;
+	}
 
-        out_port_byte(KEYBOARD_INPUT_BUFFER, KEYBOARD_ACTIVITY_CMD);
+	out_port_byte(KEYBOARD_INPUT_BUFFER, KEYBOARD_ACTIVITY_CMD);
 
-        for (i=0; i < 0xFFFF; i++)
-        {
-                 if (is_output_buf_full() == TRUE)
-                        break;
-        }
-        if (in_port_byte(KEYBOARD_OUTPUT_BUFFER) == KEYBOARD_OK_RESPONSE)
-        {
-                return TRUE;
-        }
-        else
-                return FALSE;
+	for (i=0; i < 0xFFFF; i++)
+	{
+		if (is_output_buf_full() == TRUE)
+			break;
+	}
+	if (in_port_byte(KEYBOARD_OUTPUT_BUFFER) == KEYBOARD_OK_RESPONSE)
+	{
+		return TRUE;
+	}
+	else
+		return FALSE;
 
 }
 
-uint8_t get_char_keyboard(void)
+
+uint8_t get_scancode_keyboard(void)
 {
-        return in_port_byte(KEYBOARD_OUTPUT_BUFFER);
+	return in_port_byte(KEYBOARD_OUTPUT_BUFFER);
 }
+
 
 uint64_t
 is_output_buf_full(void)
 {
-        if (in_port_byte(KEYBOARD_STATUS_REGISTER) & 0x01)
-        {
-                return TRUE;
-        }
-        else
-                return FALSE;
+	if (in_port_byte(KEYBOARD_STATUS_REGISTER) & 0x01)
+	{
+		return TRUE;
+	}
+	else
+		return FALSE;
 }
+
 
 uint64_t
 is_input_buf_full(void)
 {
-        if (in_port_byte(KEYBOARD_STATUS_REGISTER) & 0x02)
-        {
-                return TRUE;
-        }
-        else
-                return FALSE;
+	if (in_port_byte(KEYBOARD_STATUS_REGISTER) & 0x02)
+	{
+		return TRUE;
+	}
+	else
+		return FALSE;
 }
 
