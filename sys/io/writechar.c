@@ -43,4 +43,5 @@ void writechar(char c)
 			writecharcolor(c, g_default_color);
 			break;
 	}
+	flushscreen();
 }

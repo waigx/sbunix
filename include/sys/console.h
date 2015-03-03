@@ -30,13 +30,3 @@
 #define CONSOLE_COL 80
 
 #define CONSOLE_END CONSOLE_START + CONSOLE_ROW * CONSOLE_COL * 2
-
-typedef struct cursor_t {
-	char character;
-	char color;
-} cursor_t;
-
-typedef struct cursor_pos_t {
-	int r;
-	int c;
-} cursor_pos_t;

@@ -31,7 +31,8 @@
 
 void rollscreen(int n)
 {
-	shiftmem((char *)CONSOLE_START, (char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL, 2 * n * CONSOLE_COL);
-	setmem((char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL - 2 * n * CONSOLE_COL, (char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL, 0);
+	shiftmem(g_screenshot, g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW, 2 * n * CONSOLE_COL);
+	setmem( g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW - 2 * n * CONSOLE_COL, g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW, 0);
 	g_current_pos -= 2 * n * CONSOLE_COL;
+	flushscreen();
 }

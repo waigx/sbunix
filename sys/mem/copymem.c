@@ -24,17 +24,12 @@
  */
 
 
-#include <sys/kio.h>
-#include <sys/console.h>
+#include <sys/mem.h>
 
 
-void writecharcolor(char c, uint8_t color)
+void copymem(void *dest, void *src, uint32_t length)
 {
-	writecharpos(g_screenshot + g_current_pos, c, color);
-	g_current_pos += 2;
-	if (g_current_pos >= 2 * (CONSOLE_ROW - 1) * CONSOLE_COL) {
-		rollscreen(1);
-	}
-	return;
-
+	uint32_t i;
+	for (i = 0; i < length; i++)
+		*(char *)(dest + i) = *(char *)(src + i);
 }

@@ -32,7 +32,7 @@
 void writenewline(int n)
 {
 	int i;
-	uint64_t blank = n * CONSOLE_COL - (((uint64_t)g_current_pos - CONSOLE_START) / 2) % CONSOLE_COL;
+	uint64_t blank = n * CONSOLE_COL - (g_current_pos / 2) % CONSOLE_COL;
 
 	for (i = 0; i < blank; i++) {
 		writecharcolor('\0', CONSOLE_BLACK_DARK);

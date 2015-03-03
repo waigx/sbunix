@@ -33,11 +33,12 @@
 
 int backspacechar(int n)
 {
-	char *startpos = (char *)CONSOLE_START > (g_current_pos - 2 * n) ? (char *)CONSOLE_START : (g_current_pos - 2 * n);
-	int shifted = (int)(g_current_pos - startpos) / 2;
-	shiftmem(startpos, (char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL, 2 * shifted);
-	setmem((char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL - 2 * shifted, (char *)CONSOLE_START + 2 * CONSOLE_ROW * CONSOLE_COL, 0);
+	uint32_t startpos = (0 > (g_current_pos - 2 * n) ) ? 0 : (g_current_pos - 2 * n);
+	uint32_t shifted = (g_current_pos - startpos) / 2;
+	shiftmem(g_screenshot + startpos, g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW, 2 * shifted);
+	setmem(g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW - 2 * shifted, g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW, 0);
 	g_current_pos -= 2 * shifted;
+	flushscreen();
 
 	return shifted;
 }

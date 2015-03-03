@@ -26,10 +26,13 @@
 
 #include <stdarg.h>
 #include <sys/defs.h>
+#include <sys/console.h>
 
 
-extern char *g_current_pos;
+//extern char *g_current_pos;
+extern uint32_t g_current_pos;
 extern uint8_t g_default_color;
+extern char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
 
 
 int strlistprintf(char *buf, const char *format, va_list val);
@@ -40,5 +43,7 @@ int backspacechar(int n);
 void writechar(char c);
 void writenewline(int n);
 void rollscreen(int n);
+void flushscreen(void);
+void screenshot(void);
 void writecharcolor(char c, uint8_t color);
 void writecharpos(char *pos, char c, uint8_t color);

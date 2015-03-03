@@ -27,4 +27,5 @@
 #include <sys/defs.h>
 
 void setmem(void *start, void *end, char value);
-void shiftmem(void *start, void *end, uint8_t offset);
+void shiftmem(void *start, void *end, uint32_t offset);
+void copymem(void *dest, void *src, uint32_t length);

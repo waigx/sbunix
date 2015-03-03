@@ -17,7 +17,7 @@
 #include <type.h>
 
 
-char *g_current_pos = (char *)(CONSOLE_START) + 21 * 2 * CONSOLE_COL;
+uint32_t g_current_pos = 2 * 20 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
 uint8_t is_shifted = 0;
 uint8_t is_ctrled = 0;
@@ -32,17 +32,17 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 
 	while(modulep[0] != 0x9001) modulep += modulep[1]+2;
 
+	screenshot();
 	for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
 		if (smap->type == 1 /* memory */ && smap->length != 0) {
 			printf("Available Physical Memory [%x-%x]\n", smap->base, smap->base + smap->length);
 		}
 	}
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
-	rollscreen(1);
-	rollscreen(1);
-	rollscreen(1);
-	rollscreen(1);
+
 	// kernel starts here
+
+	rollscreen(4);
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.
 	init_pic(ENABLE_KEYBOARD_INT|ENABLE_TIMER_INT);

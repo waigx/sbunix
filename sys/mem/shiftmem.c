@@ -27,7 +27,7 @@
 #include <sys/mem.h>
 
 
-void shiftmem(void *start, void *end, uint8_t offset)
+void shiftmem(void *start, void *end, uint32_t offset)
 {
 	while (start + offset < end) {
 		*(char *)start = *((char *)(start) + offset);
