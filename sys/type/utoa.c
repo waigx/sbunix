@@ -35,6 +35,11 @@ utoa(char *buf, uint64_t num, uint8_t base)
 	int i = 0;
 	char res_rev[UINT64_LEN];
 
+	if (num == 0) {
+		strcpy(buf, "0");
+		return buf;
+	}
+
 	while (num != 0) {
 		res_rev[i] = itoc(num % base);
 		num /= base;
