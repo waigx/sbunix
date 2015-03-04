@@ -30,7 +30,6 @@
 #include <sys/mem.h>
 #include <sys/kio.h>
 
-char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
 
 void screenshot(void)
 {

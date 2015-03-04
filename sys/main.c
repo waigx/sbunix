@@ -17,14 +17,18 @@
 #include <type.h>
 
 
+char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
 uint32_t g_current_pos = 2 * 20 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
 uint8_t is_shifted = 0;
 uint8_t is_ctrled = 0;
-
+uint8_t g_timer_count = 0;
+struct rtc_t g_time_boot = TIMEZONE_UTC;
 
 void start(uint32_t* modulep, void* physbase, void* physfree)
 {
+	uint64_t t6 = 0x000;
+
 	struct smap_t {
 		uint64_t base, length;
 		uint32_t type;
@@ -41,14 +45,14 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
 	// kernel starts here
-
+	printf("%x\n", t6);
 	rollscreen(4);
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.
-	init_pic(ENABLE_KEYBOARD_INT|ENABLE_TIMER_INT);
+	init_pic(ENABLE_KEYBOARD_INT | ENABLE_TIMER_INT);
 	// now, Dongju disable timer interrupt because it makes me to debug difficult.
 	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
-	set_timer(10000);
+	set_timer(100);
 	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
 	while (1);
 

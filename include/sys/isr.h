@@ -3,8 +3,8 @@
 
 #include <sys/defs.h>
 
-#define	TIMER_IRQ_NUMBER	0x01
-#define	KEYBOARD_IRQ_NUMBER	0x02
+#define TIMER_IRQ_NUMBER       0x01
+#define KEYBOARD_IRQ_NUMBER    0x02
 
 
 void isr0(void);

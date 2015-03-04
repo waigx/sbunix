@@ -35,6 +35,26 @@ void echotime(void)
 {
 	struct rtc_t timezone = TIMEZONE_EST;
 	struct rtc_t timenow;
+
+	if (g_timer_count == 99) {
+		g_timer_count = 0;
+		g_time_boot.sec += 1;
+		if (g_time_boot.sec == 60) {
+			g_time_boot.sec = 0;
+			g_time_boot.min += 1;
+		}
+		if (g_time_boot.min == 60) {
+			g_time_boot.min = 0;
+			g_time_boot.hour += 1;
+		}
+		if (g_time_boot.hour == 24)
+			g_time_boot.hour = 0;
+	}
+	else {
+		g_timer_count += 1;
+	}
+	printfat(CONSOLE_ROW - 1, CONSOLE_COL - 10, "%d:%d:%d   ", g_time_boot.hour, g_time_boot.min, g_time_boot.sec);
+
 	get_rtc_time(&timenow, &timezone);
-	printfat(24, 0, "%d:%d:%d", timenow.hour, timenow.min, timenow.sec);
+	printfat(CONSOLE_ROW - 1, 0, "%d:%d:%d   ", timenow.hour, timenow.min, timenow.sec);
 }

@@ -33,9 +33,6 @@
 #include <sys/keyboard.h>
 #include <sys/timer.h>
 
-static uint8_t g_scancode2ascii[] = {SCANCODE2ASCII_TABLE};
-static uint8_t g_scancode2ascii_shift[] = {SCANCODE2ASCII_TABLE_SHIFT};
-static uint8_t g_scancode2ascii_ctrl[] = {SCANCODE2ASCII_TABLE_CTRL};
 
 void divide_handler(uint64_t entry_num)
 {
@@ -52,40 +49,7 @@ void timer_handler(void)
 
 void keyboard_handler(void)
 {
-	uint8_t sc = 0;
-	char ch = 0;
-	sc = get_scancode_keyboard();
-	
-	switch (sc) {
-		case SC_SHIFT_LEFT:
-		case SC_SHIFT_RIGHT:
-			is_shifted = 1;
-			break;
-		case SC_SHIFT_LEFT + SC_RELEASE_OFFSET:
-		case SC_SHIFT_RIGHT + SC_RELEASE_OFFSET:
-			is_shifted = 0;
-			break;
-		case SC_CTRL_LEFT:
-			is_ctrled = 1;
-			break;
-		case SC_CTRL_LEFT + SC_RELEASE_OFFSET:
-			is_shifted = 0;
-			break;
-		default:
-			if (is_shifted) {
-				ch = g_scancode2ascii_shift[sc];
-				break;
-			}
-			if (is_ctrled) {
-				ch = g_scancode2ascii_ctrl[sc];
-				break;
-			}
-			ch = g_scancode2ascii[sc];
-			break;
-	}
-
-	if (ch != 0)
-		writechar(ch);
+	echokeyboard();
 	send_eoi(KEYBOARD_IRQ_NUMBER);
 }
 

@@ -29,13 +29,13 @@
 #include <sys/pic.h>
 
 
-void set_timer(uint16_t clock)
+void set_timer(uint16_t freq)
 {
 	uint16_t i=0;
 
 	/* PIC timer has 1.193182 osilator, 
 	 So it is used for real time clock. */ 
-	i = 1193182 / clock;
+	i = 1193182 / freq;
 	out_port_byte(0x40, i & 0xFF);
 	out_port_byte(0x40, (i >> 8) & 0xFF);
 	out_port_byte(0x43, 0x36 );
