@@ -9,13 +9,13 @@ sbunix is a simple Unix implementation, sblibc is a simple libc implementation a
 
 - The source code is avaliable on [GitHub](https://github.com/waigx/sbunix).
  
-- ** For sbunix **
+- **For sbunix**
   * To compile the code, run
 
    ```
    $ make
    ```
-- ** For sblibc and SBUsh **
+- **For sblibc and SBUsh**
   * An etc/ file was already in rootfs/, which included initial configuration file(s).  
   * For testing purpose, bin/SBUsh/SBUsh.c:45 defined a root path: 
   
@@ -33,20 +33,19 @@ sbunix is a simple Unix implementation, sblibc is a simple libc implementation a
 
 
 ## About sbunix - warmup 2
-- To run the sbunix, use
+- To run the **sbunix**, use
 
    ```
    qemu-system-x86_64 -curses -cdrom $USER.iso -drive id=disk,file=$USER.img,if=none -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0 -net nic -net user,hostfwd=tcp::10080-:80 -net user,hostfwd=tcp::10023-:23 --no-reboot -gdb tcp::9998
    ```
 
-- Plase note the ** qemu ** in curses mode will not sent some combination keys like ** ctrl-M ** as press sequences to the program, instead, it just sent a ** CR **.
+- Plase note the **qemu** in curses mode will not sent some combination keys like **ctrl-M** as press sequences to the program, instead, it just sent a **CR**.
 
-- With RTC support, the default timezone is ** TIMEZONE_EST ** (-5), change default timezone in ** main.c **, add new timezone in ** rtc.h **.
+- With RTC support, the default timezone is **TIMEZONE_EST** (-5), change default timezone in **main.c**, add new timezone in **rtc.h**.
 
 - Display limited key press on the bottom of the screen.
 
 - With workable kernel printf.
-
 
 
 ## About SBUsh
