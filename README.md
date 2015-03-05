@@ -1,15 +1,21 @@
-# sblibc/SBUsh
+# sbunix/sblibc/SBUsh
 
 ## Intro
 
-sblibc is a simple libc implementation and SBUsh is a simple shell implementation. They are licensed under [GPLv3](http://www.gnu.org/copyleft/gpl.html). 
+sbunix is a simple Unix implementation, sblibc is a simple libc implementation and SBUsh is a simple shell implementation. They are licensed under [GPLv3](http://www.gnu.org/copyleft/gpl.html). 
 
 
 ## Source Codes and Compile
 
-- The source code is avaliable on [GitHub](https://github.com/waigx/kernel_playground).
+- The source code is avaliable on [GitHub](https://github.com/waigx/sbunix).
  
-- **Before complie**
+- ** For sbunix **
+  * To compile the code, run
+
+   ```
+   $ make
+   ```
+- ** For sblibc and SBUsh **
   * An etc/ file was already in rootfs/, which included initial configuration file(s).  
   * For testing purpose, bin/SBUsh/SBUsh.c:45 defined a root path: 
   
@@ -24,6 +30,23 @@ sblibc is a simple libc implementation and SBUsh is a simple shell implementatio
     $ export ROOT=[PATH/TO/ROOT]
     ```
   * Sometime the $PATH or other variable is much longer than expect, alter constants in include/const.h if error occurs.
+
+
+## About sbunix - warmup 2
+- To run the sbunix, use
+
+   ```
+   qemu-system-x86_64 -curses -cdrom $USER.iso -drive id=disk,file=$USER.img,if=none -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0 -net nic -net user,hostfwd=tcp::10080-:80 -net user,hostfwd=tcp::10023-:23 --no-reboot -gdb tcp::9998
+   ```
+
+- Plase note the ** qemu ** in curses mode will not sent some combination keys like ** ctrl-M ** as press sequences to the program, instead, it just sent a ** CR **.
+
+- With RTC support, the default timezone is ** TIMEZONE_EST ** (-5), change default timezone in ** main.c **, add new timezone in ** rtc.h **.
+
+- Display limited key press on the bottom of the screen.
+
+- With workable kernel printf.
+
 
 
 ## About SBUsh
