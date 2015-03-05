@@ -9,13 +9,13 @@ sbunix is a simple Unix implementation, sblibc is a simple libc implementation a
 
 - The source code is avaliable on [GitHub](https://github.com/waigx/sbunix).
  
-- **For sbunix**
+- For sbunix
   * To compile the code, run
 
    ```
    $ make
    ```
-- **For sblibc and SBUsh**
+- For sblibc and SBUsh
   * An etc/ file was already in rootfs/, which included initial configuration file(s).  
   * For testing purpose, bin/SBUsh/SBUsh.c:45 defined a root path: 
   
