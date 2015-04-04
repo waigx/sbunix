@@ -5,8 +5,6 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
- *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
- *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -26,12 +24,25 @@
  */
 
 
-#include <sys/console.h>
-#include <sys/mem.h>
-#include <sys/kio.h>
+#include <sys/proc.h>
+#include <sys/managemem.h>
 
-
-void screenshot()
+proc_ent *newproc()
 {
-	copymem(g_screenshot, (char *)CONSOLE_START, 2 * CONSOLE_COL * CONSOLE_ROW);
+	proc_ent *new_proc = g_proc_ent_start + g_next_proc_free_index;
+	kpid_t new_pid = g_next_proc_free_index;
+	cr3e_t new_cr3;
+
+	new_cr3 = newvmem(new_pid);
+
+	new_proc->cr3 = new_cr3;
+	new_proc->pid = new_pid;
+
+	while ((g_proc_ent_start + g_next_proc_free_index)->pid != 0) {
+		g_next_proc_free_index += 1;
+		if (g_next_proc_free_index >= MAX_PROC_NUM);
+			// max process num exceed error here;
+	}
+
+	return new_proc;
 }

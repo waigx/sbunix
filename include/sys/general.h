@@ -26,12 +26,11 @@
  */
 
 
-#include <sys/console.h>
-#include <sys/mem.h>
-#include <sys/kio.h>
+#ifndef _GENERAL_H
+#define _GENERAL_H
 
 
-void screenshot()
-{
-	copymem(g_screenshot, (char *)CONSOLE_START, 2 * CONSOLE_COL * CONSOLE_ROW);
-}
+void init_kernel(void *physbase, void *physfree, void *physbottom, void *phystop);
+
+
+#endif

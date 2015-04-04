@@ -19,4 +19,13 @@ typedef unsigned char   uint8_t;
 typedef unsigned long    size_t;
 typedef          int   intptr_t;
 
+typedef      uint32_t    kpid_t;
+typedef      uint64_t    size_t;
+
+typedef      uint64_t    cr3e_t;
+typedef      uint64_t   pml4e_t;
+typedef      uint64_t    pdpe_t;
+typedef      uint64_t     pde_t;
+typedef      uint64_t     pte_t;
+
 #endif

@@ -11,6 +11,10 @@
 #include <sys/timer.h>
 #include <sys/rtc.h>
 #include <sys/keyboard.h>
+#include <sys/managemem.h>
+#include <sys/general.h>
+#include <sys/proc.h>
+#include <sys/debug.h>
 #include <stdarg.h>
 #include <string.h>
 #include <const.h>
@@ -18,15 +22,27 @@
 
 
 char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
+uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
+uint64_t g_next_free_frame_index = 0;
+uint16_t g_next_proc_free_index = 1;
+void *g_physbase;
+void *g_physfree;
+void *g_page_frame_start;
+proc_ent *g_proc_ent_start;
 uint32_t g_current_pos = 2 * 21 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
 uint8_t is_shifted = 0;
 uint8_t is_ctrled = 0;
 uint8_t g_timer_count = 0;
+uint8_t g_debug_mode = 0;
 struct rtc_t g_time_boot = TIMEZONE_UTC;
+
 
 void start(uint32_t* modulep, void* physbase, void* physfree)
 {
+	void *phystop = 0;
+	void *physbottom = 0;
+	
 	struct smap_t {
 		uint64_t base, length;
 		uint32_t type;
@@ -34,17 +50,27 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 
 	while(modulep[0] != 0x9001) modulep += modulep[1]+2;
 
+	// Init screen
 	screenshot();
+	rollscreen(4);
+
 	for(smap = (struct smap_t*)(modulep+2); smap < (struct smap_t*)((char*)modulep+modulep[1]+2*4); ++smap) {
 		if (smap->type == 1 /* memory */ && smap->length != 0) {
 			printf("Available Physical Memory [%x-%x]\n", smap->base, smap->base + smap->length);
+			physbottom = (void *)(smap->base);
+			phystop = (void*)(smap->base + smap->length);
 		}
 	}
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
+	printf("physbase: %p, physfree: %p\n", physbase, physfree);
 
 	// kernel starts here
 
-	rollscreen(4);
+	// Initial kernel
+	printf("[Kernel]: Initializing kernel memory ...\n");
+	init_kernel(physbase, physfree, physbottom, phystop);
+	printf("[Kernel]: Finished.\n");
+
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.
 	init_pic(ENABLE_KEYBOARD_INT | ENABLE_TIMER_INT);
@@ -52,6 +78,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
 	set_timer(100);
 	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
+
 	while (1);
 
 }

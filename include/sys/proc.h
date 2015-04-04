@@ -26,12 +26,25 @@
  */
 
 
-#include <sys/console.h>
-#include <sys/mem.h>
-#include <sys/kio.h>
+#ifndef _PROC_H
+#define _PROC_H
 
 
-void screenshot()
-{
-	copymem(g_screenshot, (char *)CONSOLE_START, 2 * CONSOLE_COL * CONSOLE_ROW);
-}
+#include <sys/defs.h>
+
+
+#define MAX_PROC_NUM                             (1 << 16)
+
+
+struct proc_ent{
+	cr3e_t cr3;
+	kpid_t pid;
+};
+
+typedef struct proc_ent proc_ent;
+
+
+proc_ent *newproc();
+
+
+#endif

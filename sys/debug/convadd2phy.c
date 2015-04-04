@@ -26,37 +26,26 @@
  */
 
 
-#include <sys/isr.h>
-#include <sys/sbunix.h>
-#include <sys/pic.h>
-#include <sys/kio.h>
-#include <sys/keyboard.h>
-#include <sys/timer.h>
 #include <sys/debug.h>
+#include <sys/defs.h>
+#include <sys/managemem.h>
+#include <sys/sbunix.h>
 
 
-void divide_handler(uint64_t entry_num)
+uint64_t *debug_convadd2phy(cr3e_t cr3e, void *vaddr)
 {
-	printf("entry_num = %x\n", entry_num);
+	uint64_t *physaddr;
+	uint64_t *pml4e_p = pe2physaddr(cr3e);
+	uint64_t vaddr_uint = (uint64_t)vaddr;
+	uint64_t pml4e_offset = vaddr_uint << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDPE + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
+	uint64_t pdpe_offset = vaddr_uint << (VADDR_SIGN_EXTEND + VADDR_PML4E) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
+	uint64_t pde_offset = vaddr_uint << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PTE + VADDR_OFFSET);
+	uint64_t pte_offset = vaddr_uint << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
+
+	physaddr = pe2physaddr(*(pe2physaddr(*(pe2physaddr(*(pe2physaddr(*(pml4e_p + pml4e_offset)) + pdpe_offset)) + pde_offset)) + pte_offset));
+
+	printf("[Debug]: %p -> %p\n", vaddr, physaddr);
+	return physaddr;
 }
 
 
-void debug(uint64_t err_code)
-{
-	writechar(err_code + 'A');
-//	debug_pause();
-}
-
-
-void timer_handler(void)
-{
-	echotime();
-	send_eoi(TIMER_IRQ_NUMBER);
-}
-
-
-void keyboard_handler(void)
-{
-	echokeyboard();
-	send_eoi(KEYBOARD_IRQ_NUMBER);
-}
