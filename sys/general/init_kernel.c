@@ -27,6 +27,7 @@
 
 
 #include <sys/general.h>
+#include <sys/proc.h>
 #include <sys/managemem.h>
 #include <sys/kio.h>
 #include <sys/sbunix.h>
@@ -39,57 +40,6 @@ void _init_mem_pools()
 }
 
 
-void _kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
-{
-	pdpe_t *pdpe_p;
-	pde_t *pde_p;
-	pte_t *pte_p;
-
-	uint64_t pml4e_offset = vaddr << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDPE + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
-	uint64_t pdpe_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
-	uint64_t pde_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PTE + VADDR_OFFSET);
-	uint64_t pte_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
-
-	pml4e_t pml4e;
-	pdpe_t pdpe;
-	pde_t pde;
-	pte_t pte;
-
-
-	pml4e = *(pml4e_p + pml4e_offset);
-	if ((pml4e & 1) == PTE_PRESENTS) {
-		pdpe_p = (pdpe_t *)pe2physaddr(pml4e);
-	} else {
-		pdpe_p = newmemtable(pid, 1 << VADDR_PDPE, FALSE);
-		*(pml4e_p + pml4e_offset) = physaddr2pebase(pdpe_p) | PTE_PRESENTS | PTE_SUPER | PTE_WRITEABLE;
-	}
-
-	pdpe = *(pdpe_p + pdpe_offset);
-	if ((pdpe & 1) == PTE_PRESENTS) {
-		pde_p = (pde_t *)pe2physaddr(pdpe);
-	} else {
-		pde_p = newmemtable(pid, 1 << VADDR_PDE, FALSE);
-		*(pdpe_p + pdpe_offset) = physaddr2pebase(pde_p) | PTE_PRESENTS | PTE_SUPER | PTE_WRITEABLE;
-	}
-
-	pde = *(pde_p + pde_offset);
-	if ((pde & 1) == PTE_PRESENTS) {
-		pte_p = (pte_t *)pe2physaddr(pde);
-	} else {
-		pte_p = newmemtable(pid, 1 << VADDR_PTE, FALSE);
-		*(pde_p + pde_offset) = physaddr2pebase(pte_p) | PTE_PRESENTS | PTE_SUPER | PTE_WRITEABLE;
-	}
-
-	pte = *(pte_p + pte_offset);
-	if ((pte & 1) == PTE_PRESENTS) {
-		return;
-	} else {
-		*(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | PTE_PRESENTS | PTE_WRITEABLE;
-	}
-	return;
-}
-
-
 cr3e_t _init_kernel_mem(kpid_t pid, uint64_t physbase, uint64_t physfree, uint64_t physbottom, uint64_t phystop)
 {
 	uint64_t i;
@@ -97,12 +47,12 @@ cr3e_t _init_kernel_mem(kpid_t pid, uint64_t physbase, uint64_t physfree, uint64
 	pml4e_t *pml4e_p = (pml4e_t *)newmemtable(pid, 1 << VADDR_PML4E, TRUE);
 
 	for (i = (uint64_t)0; i <= phystop; i+= (PAGE_SIZE))
-		_kmmap(pml4e_p, pid, i, i);
+		kmmap(pml4e_p, pid, i, i);
 
 	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
-		_kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START);
+		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START);
 
-	_kmmap(pml4e_p, pid, CONSOLE_START, CONSOLE_START);
+	kmmap(pml4e_p, pid, CONSOLE_START, CONSOLE_START);
 	
 	printf("[Kernel Init Mem]: Kernel memory tables take %d page frames.\n", g_next_free_frame_index);
 
@@ -122,7 +72,6 @@ void _init_kernel_process(void *physbase, void *physfree, void *physbottom, void
 	kproc->pid = kpid;
 
 	g_next_proc_free_index += 1;
-	load_cr3(kcr3);
 	return;
 }
 
@@ -140,5 +89,6 @@ void init_kernel(void *physbase, void *physfree, void *physbottom, void *phystop
 	g_proc_ent_start = (proc_ent *)g_physfree;
 
 	_init_kernel_process(physbase, physfree, physbottom, phystop);
+	loadproc(KERNEL_PID);
 	return;
 }

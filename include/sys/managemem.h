@@ -82,11 +82,7 @@
 
 extern uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
 extern uint64_t g_next_free_frame_index;
-
-extern uint16_t g_next_proc_free_index;
-
 extern void *g_page_frame_start;
-extern proc_ent *g_proc_ent_start;
 extern void *g_physbase;
 extern void *g_physfree;
 
@@ -97,7 +93,9 @@ uint64_t *newmemtable(kpid_t pid, uint64_t table_size, uint8_t is_self_ref);
 cr3e_t newvmem(kpid_t);
 
 void linearmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physstart, uint64_t physend, uint64_t offset);
-void mmap(kpid_t pid, uint64_t vmembase, uint64_t framebase);
+
+void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr);
+void mmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr);
 
 uint64_t *pe2physaddr(uint64_t pe);
 uint64_t physaddr2pebase(uint64_t *physaddr);

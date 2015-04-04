@@ -28,6 +28,7 @@
 #include <sys/sbunix.h>
 #include <sys/managemem.h>
 #include <sys/mem.h>
+#include <sys/console.h>
 #include <sys/debug.h>
 
 
@@ -46,6 +47,62 @@ uint64_t physaddr2pebase(uint64_t *physaddr)
 //	uint64_t pebase = (uint64_t)physaddr << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_OFFSET ) << VADDR_OFFSET;
 	uint64_t pebase = (uint64_t)physaddr << 12 >> 24 << 12;
 	return pebase;
+}
+
+
+void mmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
+{
+}
+
+
+void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
+{
+	pdpe_t *pdpe_p;
+	pde_t *pde_p;
+	pte_t *pte_p;
+
+	uint64_t pml4e_offset = vaddr << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDPE + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
+	uint64_t pdpe_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
+	uint64_t pde_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PTE + VADDR_OFFSET);
+	uint64_t pte_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
+
+	pml4e_t pml4e;
+	pdpe_t pdpe;
+	pde_t pde;
+	pte_t pte;
+
+
+	pml4e = *(pml4e_p + pml4e_offset);
+	if ((pml4e & 1) == PTE_PRESENTS) {
+		pdpe_p = (pdpe_t *)pe2physaddr(pml4e);
+	} else {
+		pdpe_p = newmemtable(pid, 1 << VADDR_PDPE, FALSE);
+		*(pml4e_p + pml4e_offset) = physaddr2pebase(pdpe_p) | PTE_PRESENTS | PTE_SUPER | PTE_WRITEABLE;
+	}
+
+	pdpe = *(pdpe_p + pdpe_offset);
+	if ((pdpe & 1) == PTE_PRESENTS) {
+		pde_p = (pde_t *)pe2physaddr(pdpe);
+	} else {
+		pde_p = newmemtable(pid, 1 << VADDR_PDE, FALSE);
+		*(pdpe_p + pdpe_offset) = physaddr2pebase(pde_p) | PTE_PRESENTS | PTE_SUPER | PTE_WRITEABLE;
+	}
+
+	pde = *(pde_p + pde_offset);
+	if ((pde & 1) == PTE_PRESENTS) {
+		pte_p = (pte_t *)pe2physaddr(pde);
+	} else {
+		pte_p = newmemtable(pid, 1 << VADDR_PTE, FALSE);
+		*(pde_p + pde_offset) = physaddr2pebase(pte_p) | PTE_PRESENTS | PTE_SUPER | PTE_WRITEABLE;
+	}
+
+	pte = *(pte_p + pte_offset);
+	if ((pte & 1) == PTE_PRESENTS) {
+		return;
+	} else {
+		*(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | PTE_PRESENTS | PTE_WRITEABLE;
+	}
+	return;
 }
 
 
@@ -147,15 +204,16 @@ uint64_t *newmemtable(kpid_t pid, uint64_t table_size, uint8_t is_self_ref)
 cr3e_t newvmem(kpid_t pid)
 {
 	/*Begin to create a new 4 level table */
+	uint64_t i;
+	uint64_t page_frame_start = (uint64_t)g_page_frame_start;
 	pml4e_t *pml4e_p = (pml4e_t *)newmemtable(pid, 1 << VADDR_PML4E, TRUE);
-	linearmmap(pml4e_p, pid, (uint64_t)g_physbase, (uint64_t)g_page_frame_start - 1, KERNEL_SPACE_START);
+
+	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
+		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START);
+
+	kmmap(pml4e_p, pid, CONSOLE_START, CONSOLE_START);
 	
 	return (cr3e_t)physaddr2pebase(pml4e_p);
-}
-
-
-void mmap(kpid_t pid, uint64_t vmembase, uint64_t framebase)
-{
 }
 
 
