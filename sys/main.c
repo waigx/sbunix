@@ -15,7 +15,7 @@
 #include <string.h>
 #include <const.h>
 #include <type.h>
-
+#include <sys/sched/sched.h>
 
 char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
 uint32_t g_current_pos = 2 * 21 * CONSOLE_COL;
@@ -43,6 +43,10 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 
 	// kernel starts here
+
+	round_robin_scheduler();
+	printf("Down round_robin_scheduler() \n");
+
 
 	rollscreen(4);
 	reload_idt();
