@@ -26,12 +26,15 @@
  */
 
 
-#include <sys/console.h>
-#include <sys/mem.h>
-#include <sys/kio.h>
+#include <sys/debug.h>
+#include <sys/sbunix.h>
+#include <sys/defs.h>
+#include <sys/managemem.h>
 
 
-void screenshot()
+void debug_pause()
 {
-	copymem(g_screenshot, (char *)CONSOLE_START, 2 * CONSOLE_COL * CONSOLE_ROW);
+	while (1);
 }
+
+

@@ -26,12 +26,31 @@
  */
 
 
-#include <sys/console.h>
-#include <sys/mem.h>
-#include <sys/kio.h>
+#ifndef _PROC_H
+#define _PROC_H
 
 
-void screenshot()
-{
-	copymem(g_screenshot, (char *)CONSOLE_START, 2 * CONSOLE_COL * CONSOLE_ROW);
-}
+#include <sys/defs.h>
+
+#define KERNEL_PID                                       1
+#define MAX_PROC_NUM                             (1 << 16)
+
+
+struct proc_ent{
+	cr3e_t cr3;
+	kpid_t pid;
+};
+
+typedef struct proc_ent proc_ent;
+
+
+extern uint16_t g_next_proc_free_index;
+extern proc_ent *g_proc_ent_start;
+
+
+proc_ent *newproc();
+proc_ent *getproc(kpid_t pid);
+void loadproc(kpid_t pid);
+
+
+#endif

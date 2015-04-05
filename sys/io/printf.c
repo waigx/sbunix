@@ -26,6 +26,7 @@
 
 #include <stdarg.h>
 #include <sys/defs.h>
+#include <sys/debug.h>
 #include <sys/kio.h>
 #include <string.h>
 #include <const.h>
@@ -37,9 +38,11 @@ int printf(const char *format, ...) {
 	char buf[PRINTF_LEN];
 	char *buf_ptr;
 	int printed;
+
 	va_start(val, format);
-	
+
 	printed = strlistprintf(buf, format, val);
+
 	for (buf_ptr = buf; *buf_ptr != '\0'; buf_ptr++) {
 		writechar(*buf_ptr);
 	}

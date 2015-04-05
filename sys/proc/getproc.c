@@ -5,8 +5,6 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
- *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
- *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -26,12 +24,11 @@
  */
 
 
-#include <sys/console.h>
-#include <sys/mem.h>
-#include <sys/kio.h>
+#include <sys/proc.h>
 
 
-void screenshot()
+proc_ent *getproc(kpid_t pid)
 {
-	copymem(g_screenshot, (char *)CONSOLE_START, 2 * CONSOLE_COL * CONSOLE_ROW);
+	proc_ent *proc = g_proc_ent_start + pid;
+	return proc;
 }
