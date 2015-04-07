@@ -28,6 +28,10 @@
 #include <sys/sched/list.h>
 #include <sys/mem.h>
 
+#include <sys/proc.h>
+#include <sys/managemem.h>
+
+
 void init_task(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
 void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
 struct	task_t*	alloc_task(void);
@@ -47,7 +51,11 @@ create_task(uint64_t instruction_addr,
 		enum process_type type )
 {
 	struct	task_t	*task;
-	uint64_t	pid;
+	uint64_t pid = 0;
+	cr3e_t new_cr3 = 0;
+	pml4e_t *pml4e_p;
+	uint64_t page = 0;
+//	uint64_t kern_base = 0xffffffff80000000;
 	// allocate new task
 	task = alloc_task();
 
@@ -58,10 +66,23 @@ create_task(uint64_t instruction_addr,
 	//TODO using kmalloc
 	//task->name = binary;
 
+
+	// alloc pml4e, TODO how to get pml4e address?
+	new_cr3 = newvmem(pid);
+	task->cr3 = new_cr3;
+	pml4e_p = pe2physaddr(new_cr3);
+	task->pml4e = (uint64_t)pml4e_p;
+
+
+	kmmap((pml4e_t*)pml4e_p, pid, ((uint64_t)task>>12)<<12, (uint64_t)((uint64_t)task>>12)<<12);
+
 	if(type == KERNEL_PROCESS)
 	{
 		task->type = KERNEL_PROCESS;
 		init_task(task, instruction_addr, virtual_memory_addr);
+		page = (uint64_t)allocframe(pid);
+
+		kmmap((pml4e_t*)pml4e_p, pid, page, (uint64_t)virtual_memory_addr);
 
 	}
 	else if(type == USER_PROCESS)
@@ -113,7 +134,7 @@ void init_task(struct task_t *task, uint64_t entry_point, uint64_t *stack_base)
 void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stack_base )
 {
 	//setmem(task->context, (uint64_t*)((uint64_t)task->context + sizeof(struct regs_struct)), 0x00);
-	setmem((uint64_t *)task->context.regs, (uint64_t *)task->context.regs, 0x00);
+	setmem((uint64_t *)task->context.regs, (uint64_t *)task->context.regs + sizeof(struct regs_struct), 0x00);
 
 	// TODO stack_base will be allocated size or memory menagement by dongju
 	task->context.regs[CONTEXT_RSP_OFFSET] = (uint64_t)stack_base + 4096 -8;
@@ -145,6 +166,10 @@ sys_yield(void)
 	//if(current_task != NULL)
 	add_task_ready_list(next_task);
 
+
+	//load_cr3(cr3e_t cr3)
+	load_cr3((cr3e_t)next_task->cr3);
+
 	if(current_task == NULL)
 	{
 		switch_context((struct regs_struct*)NULL, (struct regs_struct*)next_task->context.regs); 
@@ -160,17 +185,17 @@ free_task()
 
 }
 
-static uint64_t task_num = 0;
+static uint64_t task_num = 1;
 
 struct task_t*
 alloc_task(void)
 {
-	uint64_t	addr;
+	uint64_t *addr;
 	// addr = kmalloc
-	//addr = allocmem();
+	addr = allocframe(task_num++);
 
-	addr = (uint64_t)task_buf[task_num];
-	task_num ++; 
+//	addr = (uint64_t)task_buf[task_num];
+//	task_num ++; 
 
 	return (struct task_t*)addr;
 }

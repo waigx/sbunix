@@ -93,7 +93,8 @@ struct task_t
 	struct	task_t	*next_task;
 	
 	// related to memory and regs //
-	uint64_t	cr3;
+	uint64_t cr3;
+	uint64_t pml4e;
 	struct	regs_struct	context;
 
 	// process status //

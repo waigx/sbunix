@@ -28,6 +28,9 @@
 #include <sys/sched/sched.h>
 #include <sys/sbunix.h>
 
+#include <sys/managemem.h>
+
+
 void task_1(void);
 void task_2(void);
 
@@ -41,8 +44,16 @@ void round_robin_scheduler(void)
 	struct task_t *task1;
 	struct task_t *task2;
 
-	task1 = create_task((uint64_t)task_1, NULL, (uint64_t *)temp_stack/*0x81000000*/ , KERNEL_PROCESS);
-	task2 = create_task((uint64_t)task_2, NULL, (uint64_t *)temp_stack2/*0x82000000*/ , KERNEL_PROCESS);
+	task1 = create_task((uint64_t)task_1, NULL, 
+			(uint64_t *)/*temp_stack*/0xffffffff80300000 , KERNEL_PROCESS);
+	task2 = create_task((uint64_t)task_2, NULL, 
+			(uint64_t *)/*temp_stack2*/0xffffffff80302000 , KERNEL_PROCESS);
+
+	//
+	kmmap((pml4e_t*)task1->pml4e, task1->pid, ((uint64_t)task2>>12)<<12, (uint64_t)((uint64_t)task2>>12)<<12);
+	  kmmap((pml4e_t*)task2->pml4e, task2->pid, ((uint64_t)task1>>12)<<12, (uint64_t)((uint64_t)task1>>12)<<12);
+
+
 	
 	add_task_ready_list(task1);
 	add_task_ready_list(task2);
@@ -50,16 +61,19 @@ void round_robin_scheduler(void)
 	sys_yield();
 }
 
+uint64_t global_buf_test[10];
 void task_1(void)
 {
 	uint64_t i = 0;
-	uint64_t j = 1000;
+	uint64_t j = 10000;
 	while(1)
 	{
 		printf("I am task_1, count = %x\n",i++);
+		global_buf_test[0] += 1;
+		printf("global_buf_test = %x\n",global_buf_test[0]); 
 		while(j--);
-		j = 1000;
-		if(i % 10 == 0)
+		j = 10000000;
+		if(i % 5 == 0)
 			sys_yield();
 		
 	}
@@ -68,13 +82,15 @@ void task_1(void)
 void task_2(void)
 {
         uint64_t a = 0;
-        uint64_t b = 100;
+        uint64_t b = 10000;
         while(1)
         {
                 printf("I am task_2, count = %x\n",a++);
-                while(b--);
-                b = 100;
-		if(a %10 == 0)
+                global_buf_test[0] += 2;
+		printf("global_buf_test = %x\n",global_buf_test[0]);
+		while(b--);
+                b = 10000000;
+		if(a %5 == 0)
 			sys_yield();
         }
 }

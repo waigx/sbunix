@@ -66,10 +66,14 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 
 	// kernel starts here
 	rollscreen(4);
+
 	// Initial kernel
 	printf("[Kernel]: Initializing kernel memory ...\n");
 	init_kernel(physbase, physfree, physbottom, phystop);
 	printf("[Kernel]: Finished.\n");
+
+	// scheduler
+	round_robin_scheduler();
 
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.

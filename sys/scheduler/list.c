@@ -69,6 +69,7 @@ void* remove_list_from_header(LIST* list)
 	// remove header and return
 	link = (LISTLINK*)list->header;
 	return remove_list(list, link->id);
+	//return remove_list(list, 0);
 }
 
 void* remove_list(LIST* list, uint64_t id)
