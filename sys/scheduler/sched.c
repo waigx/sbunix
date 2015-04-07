@@ -50,8 +50,8 @@ void round_robin_scheduler(void)
 			(uint64_t *)/*temp_stack2*/0xffffffff80302000 , KERNEL_PROCESS);
 
 	//
-	kmmap((pml4e_t*)task1->pml4e, task1->pid, ((uint64_t)task2>>12)<<12, (uint64_t)((uint64_t)task2>>12)<<12);
-	  kmmap((pml4e_t*)task2->pml4e, task2->pid, ((uint64_t)task1>>12)<<12, (uint64_t)((uint64_t)task1>>12)<<12);
+	//kmmap((pml4e_t*)task1->pml4e, task1->pid, ((uint64_t)task2>>12)<<12, (uint64_t)((uint64_t)task2>>12)<<12);
+	  //kmmap((pml4e_t*)task2->pml4e, task2->pid, ((uint64_t)task1>>12)<<12, (uint64_t)((uint64_t)task1>>12)<<12);
 
 
 	

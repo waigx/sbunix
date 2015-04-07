@@ -62,6 +62,8 @@
 #define GDT_KERNEL_CODE_SEG	0x08
 #define	GDT_KERNEL_DATA_SEG	0x10
   
+#define MAX_TASKS		1024
+
 
 enum process_status
 {

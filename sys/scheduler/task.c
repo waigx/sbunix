@@ -34,7 +34,7 @@
 
 void init_task(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
 void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
-struct	task_t*	alloc_task(void);
+struct	task_t*	alloc_task(uint64_t pid);
 uint64_t get_newpid(void);
 
 
@@ -42,6 +42,8 @@ static uint64_t	next_pid = 0;
 static struct task_t *gp_current_task;
 uint8_t task_buf[5][4096];
 struct list_manager_struct g_ready_task_list;
+
+struct task_t tasks[MAX_TASKS];
 
 
 struct task_t*
@@ -57,11 +59,13 @@ create_task(uint64_t instruction_addr,
 	uint64_t page = 0;
 //	uint64_t kern_base = 0xffffffff80000000;
 	// allocate new task
-	task = alloc_task();
+	//task = alloc_task();
 
 	// get new pid
 	pid = get_newpid();
+	task = alloc_task(pid);
 	task->pid = pid;
+
 
 	//TODO using kmalloc
 	//task->name = binary;
@@ -185,14 +189,17 @@ free_task()
 
 }
 
-static uint64_t task_num = 1;
+//static uint64_t task_num = 1;
 
 struct task_t*
-alloc_task(void)
+alloc_task(uint64_t pid)
 {
 	uint64_t *addr;
+	addr =(uint64_t*)&tasks[pid];
+	
+
 	// addr = kmalloc
-	addr = allocframe(task_num++);
+	//addr = allocframe(task_num++);
 
 //	addr = (uint64_t)task_buf[task_num];
 //	task_num ++; 
