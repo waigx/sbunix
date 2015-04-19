@@ -73,7 +73,11 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	printf("[Kernel]: Finished.\n");
 
 	// scheduler
+	reload_idt();
+	__asm volatile("sti");
 	round_robin_scheduler();
+	while(1);
+	///////////////////////
 
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.

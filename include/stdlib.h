@@ -73,4 +73,9 @@ void *opendir(const char *name);
 struct dirent *readdir(void *dir);
 int closedir(void *dir);
 
+// add yield by Dongju
+void yield(uint64_t user);
+
+
+
 #endif

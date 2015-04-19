@@ -107,7 +107,7 @@ struct task_t
 
 void round_robin_scheduler(void);
 struct	task_t*	create_task(uint64_t instruction_addr,
-                uint8_t *binary ,
+                char *binary ,
                 void* virtual_memory_addr,
                 enum process_type type );
 void add_task_ready_list(struct task_t *task);

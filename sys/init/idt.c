@@ -29,7 +29,7 @@
 #include <sys/idt.h>
 #include <sys/pic.h>
 #include <sys/timer.h>
-
+#include <syscall.h>
 
 #define MAX_IDT               256
 
@@ -170,6 +170,8 @@ void _set_isr_table(void)
 	_set_idt_entry(&entry[35], isr35, IDT_SEGMENT ,IDT_DPL0);
 	_set_idt_entry(&entry[36], isr36, IDT_SEGMENT ,IDT_DPL0);
 	_set_idt_entry(&entry[37], isr37, IDT_SEGMENT ,IDT_DPL0);
+
+	_set_idt_entry(&entry[48], (uint64_t *)syscall_handler, IDT_SEGMENT,  IDT_DPL3 | IDT_P | IDT_INTERRUPT_TYPE);
 	
 }
 
