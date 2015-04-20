@@ -31,16 +31,26 @@
 #include <type.h>
 #include <libio.h>
 
+#include <syscall.h>
 
 int printf(const char *format, ...) {
 	va_list val;
 	char buf[PRINTF_LEN];
 	int printed;
 	va_start(val, format);
-	
+
+// Temp code for using printf in USER program //
+
+if(1)
+{
+	syscall_1(SYS_printf, (uint64_t)format);
+	printed = 0;
+}
+else	
+{
 	printed = strlistprintf(buf, format, val);
 	writeline(buf, STDOUT_FD);
-
+}
 	va_end(val);
 
 	return printed;

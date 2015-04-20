@@ -31,35 +31,37 @@
 
 
 #include <sys/defs.h>
-#include <sys/proc.h>
+#include <sys/sched/sched.h>
 
 
-#define CR3_PWT                                        0x8
-#define CR3_PCD                                       0x10
+#define CR3_PWT                                                    0x8
+#define CR3_PCD                                                   0x10
 
-#define PTE_PRESENTS                                   0x1
-#define PTE_WRITEABLE                                  0x2
-#define PTE_SUPER                                      0x4
-#define PTE_PWT                                        0x8
-#define PTE_PCD                                       0x10
+#define PTE_PRESENTS                                               0x1
+#define PTE_WRITEABLE                                              0x2
+#define PTE_SUPER                                                  0x4
+#define PTE_PWT                                                    0x8
+#define PTE_PCD                                                   0x10
 
-#define PTE_DIRTY                                     0x40
+#define PTE_DIRTY                                                 0x40
 
-#define PAGE_SIZE_LOG2                                  12
-#define PAGE_SIZE                    (1 << PAGE_SIZE_LOG2)
-#define MAX_PAGE_FRAME                           (1 << 20)
-#define PAGE_TABLE_ENTRY_NUM                      (1 << 9)
-#define KERNEL_SPACE_START              0xffffffff80000000
-#define KERNEL_PROC_HEAP_SIZE                      0xfffff
+#define PAGE_SIZE_LOG2                                              12
+#define PAGE_SIZE                                (1 << PAGE_SIZE_LOG2)
+#define MAX_PAGE_FRAME                                       (1 << 20)
+#define PAGE_TABLE_ENTRY_NUM                                  (1 << 9)
+#define KERNEL_SPACE_START                          0xffffffff80000000
+#define KERNEL_PROC_HEAP_SIZE                                  0xfffff
 
-#define VADDR_SIGN_EXTEND                               16
-#define VADDR_PML4E                                      9
-#define VADDR_PDPE                                       9
-#define VADDR_PDE                                        9
-#define VADDR_PTE                                        9
-#define VADDR_OFFSET                                    12
+#define VADDR_SIGN_EXTEND                                           16
+#define VADDR_PML4E                                                  9
+#define VADDR_PDPE                                                   9
+#define VADDR_PDE                                                    9
+#define VADDR_PTE                                                    9
+#define VADDR_OFFSET                                                12
 
-#define EXTEND_BIT_1                    0xffff000000000000
+#define EXTEND_BIT_1                                0xffff000000000000
+
+#define USER_STACK_START  (KERNEL_SPACE_START + KERNEL_PROC_HEAP_SIZE)
 
 
 /* 

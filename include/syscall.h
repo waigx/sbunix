@@ -30,13 +30,20 @@
 #include <sys/defs.h>
 #include <sys/syscall.h>
 
+// added by Dongju 
+uint64_t syscall(void);
+void syscall_handler(void);
+void yield(uint64_t user);
+
+
 static __inline uint64_t syscall_0(uint64_t n)
 {
 	uint64_t returned_value;
 
 	__asm__ __volatile__(
 		"movq %1, %%rax\n\t"
-		"syscall;"
+		//"syscall;"    // for Linux
+                "int $48;"      // for sbunix
 		"movq %%rax, %0\n\t"
 		: "=r" (returned_value)
 		: "r" (n)
@@ -52,7 +59,8 @@ static __inline uint64_t syscall_1(uint64_t n, uint64_t a1)
 	__asm__ __volatile__(
 		"movq %1, %%rax\n\t"
 		"movq %2, %%rdi\n\t"
-		"syscall;"
+		//"syscall;"    // for Linux
+                "int $48;"      // for sbunix
 		"movq %%rax, %0\n\t"
 		: "=r" (returned_value)
 		: "r" (n), "r" (a1)
@@ -69,7 +77,8 @@ static __inline uint64_t syscall_2(uint64_t n, uint64_t a1, uint64_t a2)
 		"movq %1, %%rax\n\t"
 		"movq %2, %%rdi\n\t"
 		"movq %3, %%rsi\n\t"
-		"syscall;"
+		//"syscall;"    // for Linux
+                "int $48;"      // for sbunix
 		"movq %%rax, %0\n\t"
 		: "=r" (returned_value)
 		: "r" (n), "r" (a1), "r" (a2)
@@ -87,7 +96,8 @@ static __inline uint64_t syscall_3(uint64_t n, uint64_t a1, uint64_t a2, uint64_
 		"movq %2, %%rdi\n\t"
 		"movq %3, %%rsi\n\t"
 		"movq %4, %%rdx\n\t"
-		"syscall;"
+		//"syscall;"    // for Linux
+                "int $48;"      // for sbunix
 		"movq %%rax, %0\n\t"
 		: "=r" (returned_value)
 		: "r" (n), "r" (a1), "r" (a2), "r" (a3)
@@ -106,7 +116,8 @@ static __inline uint64_t syscall_4(uint64_t n, uint64_t a1, uint64_t a2, uint64_
 		"movq %3, %%rsi\n\t"
 		"movq %4, %%rdx\n\t"
 		"movq %5, %%r10\n\t"
-		"syscall;"
+		//"syscall;"	// for Linux
+		"int $48;"	// for sbunix
 		"movq %%rax, %0\n\t"
 		: "=r" (returned_value)
 		: "r" (n), "r" (a1), "r" (a2), "r" (a3), "r" (a4)

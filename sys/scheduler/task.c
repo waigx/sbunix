@@ -30,7 +30,7 @@
 #include <sys/mem.h>
 
 #include <sys/managemem.h>
-
+#include <sys/elf.h>
 
 void init_task(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
 void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
@@ -46,13 +46,18 @@ struct list_manager_struct g_ready_task_list;
 struct task_t tasks[MAX_TASKS];
 
 
-struct task_t* create_task(uint64_t instruction_addr, uint8_t *binary , void* virtual_memory_addr, enum process_type type )
+struct task_t*
+create_task(uint64_t instruction_addr, 
+		char *binary , 
+		void* virtual_memory_addr, 
+		enum process_type type )
 {
 	struct	task_t	*task;
 	uint64_t pid = 0;
 	cr3e_t new_cr3 = 0;
 	pml4e_t *pml4e_p;
 	uint64_t page = 0;
+	uint64_t entry = 0;
 //	uint64_t kern_base = 0xffffffff80000000;
 	// allocate new task
 	//task = alloc_task();
@@ -89,6 +94,12 @@ struct task_t* create_task(uint64_t instruction_addr, uint8_t *binary , void* vi
 	{
 		//set_cr3();
 		//task->stack_base = virtual_memory_addr;
+		task->type = USER_PROCESS;
+		entry = load_elf(task, binary);
+		init_task(task, entry /*instruction_addr*/, virtual_memory_addr);
+                page = (uint64_t)allocframe(pid);
+                kmmap((pml4e_t*)pml4e_p, pid, page, (uint64_t)virtual_memory_addr);
+
 	}
 
 	// setting pml4e map 

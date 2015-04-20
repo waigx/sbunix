@@ -13,7 +13,6 @@
 #include <sys/keyboard.h>
 #include <sys/managemem.h>
 #include <sys/general.h>
-#include <sys/proc.h>
 #include <sys/debug.h>
 #include <stdarg.h>
 #include <string.h>
@@ -24,11 +23,11 @@
 char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
 uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
 uint64_t g_next_free_frame_index = 0;
-uint16_t g_next_proc_free_index = 1;
+uint16_t g_next_task_free_index = 1;
 void *g_physbase;
 void *g_physfree;
 void *g_page_frame_start;
-proc_ent *g_proc_ent_start;
+task_t *g_task_start;
 uint32_t g_current_pos = 2 * 21 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
 uint8_t is_shifted = 0;
@@ -73,7 +72,11 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	printf("[Kernel]: Finished.\n");
 
 	// scheduler
+	reload_idt();
+	__asm volatile("sti");
 	round_robin_scheduler();
+	while(1);
+	///////////////////////
 
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.

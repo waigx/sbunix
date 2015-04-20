@@ -25,20 +25,24 @@
 
 
 #include <sys/sched/sched.h>
+#include <sys/mem.h>
 #include <sys/managemem.h>
+#include <string.h>
 
-void init_task(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
-void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
+void init_task(task_t *task, uint64_t entry_point, uint64_t *stack_base);
+void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base);
 struct task_t* alloc_task(uint64_t pid);
 uint64_t get_newpid(void);
 
 
 
-task_t *newtask(void *binary, process_type_t type)
+task_t *newtask(const char *task_name, process_type_t type)
 {
-	void *entry_point;
+	uint64_t entry_point;
+	uint64_t *phy_stack_base;
 	task_t *task = g_task_start + g_next_task_free_index;
 	kpid_t new_pid = g_next_task_free_index;
+	cr3e_t new_cr3;
 
 	/*
 	 * Allocate new pid
@@ -49,27 +53,25 @@ task_t *newtask(void *binary, process_type_t type)
 		// max process num exceed error here;
 	}
 
-	cr3e_t new_cr3;
-
 	new_cr3 = newvmem(new_pid);
 
 	task->cr3 = new_cr3;
 	task->pid = new_pid;
 	task->type = type;
-	task->binary = binary;
 	task->status = PROCESS_NEW;
+	strcpy(task->name, task_name);
+	phy_stack_base = allocframe(new_pid);
+	kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, USER_STACK_START);
 
 	if(type == KERNEL_PROCESS) {
-
+//		init_task(task, instruction_addr, virtual_memory_addr);
+//		page = (uint64_t)allocframe(pid);
 	} else if (type == USER_PROCESS) {
-
+		entry_point = load_elf(task, task_name);
+		init_task(task, entry_point, phy_stack_base);
 	}
 
-	//task->process_type = USER_PROCESS;
-
-	// TODO. dealing with elf format and get entry point;
-
-	init_task(task, entry_point, virtual_memory_addr);
+	task->status = PROCESS_NEW;
 
 	// add task list
 
@@ -77,23 +79,14 @@ task_t *newtask(void *binary, process_type_t type)
 }
 
 
-
-void add_task_ready_list(struct task_t *task)
-{
-	add_list_to_tail(&g_ready_task_list, task);
-
-}
-
-
-
-void init_task(struct task_t *task, uint64_t entry_point, uint64_t *stack_base)
+void init_task(task_t *task, uint64_t entry_point, uint64_t *stack_base)
 {
 	task->stack_base = stack_base;
 	init_task_context(task, entry_point, stack_base);
 }
 
 
-void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stack_base )
+void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base )
 {
 	//setmem(task->context, (uint64_t*)((uint64_t)task->context + sizeof(struct regs_struct)), 0x00);
 	setmem((uint64_t *)task->context.regs, (uint64_t *)task->context.regs + sizeof(struct regs_struct), 0x00);
@@ -114,14 +107,13 @@ void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stac
 	//task->context.regs[CONTEXT_RFLAG_OFFSET] |= (0x1 << 9);	// IF(bit 9) enable	
 }
 
-
 void
 sys_yield(void)
 {
 	struct task_t *next_task;
 	struct task_t *current_task;
 	// TODO how to get current task pointer and next task point
-	next_task = (struct task_t*)get_next_task();
+	next_task = (task_t*)get_next_task();
 	current_task = gp_current_task;
 
 	// switch context
@@ -141,10 +133,3 @@ sys_yield(void)
 		switch_context((struct regs_struct*)current_task->context.regs, (struct regs_struct*)next_task->context.regs);
 }
 
-
-void
-free_task()
-{
-	;
-
-}
