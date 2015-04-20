@@ -5,8 +5,6 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
- *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
- *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -25,12 +23,9 @@
  *
  */
 
+
 #include <sys/sched/sched.h>
-#include <sys/sched/list.h>
-#include <sys/mem.h>
-
 #include <sys/managemem.h>
-
 
 void init_task(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
 void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
@@ -38,82 +33,49 @@ struct task_t* alloc_task(uint64_t pid);
 uint64_t get_newpid(void);
 
 
-static uint64_t	next_pid = 0;
-static struct task_t *gp_current_task;
-uint8_t task_buf[5][4096];
-struct list_manager_struct g_ready_task_list;
 
-struct task_t tasks[MAX_TASKS];
-
-
-struct task_t* create_task(uint64_t instruction_addr, uint8_t *binary , void* virtual_memory_addr, enum process_type type )
+task_t *newtask(void *binary, process_type_t type)
 {
-	struct	task_t	*task;
-	uint64_t pid = 0;
-	cr3e_t new_cr3 = 0;
-	pml4e_t *pml4e_p;
-	uint64_t page = 0;
-//	uint64_t kern_base = 0xffffffff80000000;
-	// allocate new task
-	//task = alloc_task();
+	void *entry_point;
+	task_t *task = g_task_start + g_next_task_free_index;
+	kpid_t new_pid = g_next_task_free_index;
 
-	// get new pid
-	pid = get_newpid();
-	task = alloc_task(pid);
-	task->pid = pid;
+	/*
+	 * Allocate new pid
+	 */
+	while ((g_task_start + g_next_task_free_index)->pid != 0) {
+		g_next_task_free_index += 1;
+		if (g_next_task_free_index >= MAX_PROC_NUM);
+		// max process num exceed error here;
+	}
 
+	cr3e_t new_cr3;
 
-	//TODO using kmalloc
-	//task->name = binary;
+	new_cr3 = newvmem(new_pid);
 
-
-	// alloc pml4e, TODO how to get pml4e address?
-	new_cr3 = newvmem(pid);
 	task->cr3 = new_cr3;
-	pml4e_p = pe2physaddr(new_cr3);
-	task->pml4e = (uint64_t)pml4e_p;
+	task->pid = new_pid;
+	task->type = type;
+	task->binary = binary;
+	task->status = PROCESS_NEW;
 
+	if(type == KERNEL_PROCESS) {
 
-	kmmap((pml4e_t*)pml4e_p, pid, ((uint64_t)task>>12)<<12, (uint64_t)((uint64_t)task>>12)<<12);
-
-	if(type == KERNEL_PROCESS)
-	{
-		task->type = KERNEL_PROCESS;
-		init_task(task, instruction_addr, virtual_memory_addr);
-		page = (uint64_t)allocframe(pid);
-
-		kmmap((pml4e_t*)pml4e_p, pid, page, (uint64_t)virtual_memory_addr);
+	} else if (type == USER_PROCESS) {
 
 	}
-	else if(type == USER_PROCESS)
-	{
-		//set_cr3();
-		//task->stack_base = virtual_memory_addr;
-	}
 
-	// setting pml4e map 
-
-	// allocate_virtual_addr()
-	//task->stack_base = virtual_memory_addr;
-
-	task->status = PROCESS_RUNNABLE;
 	//task->process_type = USER_PROCESS;
 
-	// TODO. dealing with elf format
+	// TODO. dealing with elf format and get entry point;
+
+	init_task(task, entry_point, virtual_memory_addr);
 
 	// add task list
-	return (struct task_t*)task;
+
+	return task;
 }
 
-
-struct task_t*
-get_next_task(void)
-{
-	struct task_t *new_task = NULL;
-	//uint64_t i = 0;
-	new_task = (struct task_t*)remove_list_from_header(&g_ready_task_list);
-	return (struct task_t*)new_task;
-}
 
 
 void add_task_ready_list(struct task_t *task)
@@ -123,12 +85,13 @@ void add_task_ready_list(struct task_t *task)
 }
 
 
+
 void init_task(struct task_t *task, uint64_t entry_point, uint64_t *stack_base)
 {
-
 	task->stack_base = stack_base;
 	init_task_context(task, entry_point, stack_base);
 }
+
 
 void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stack_base )
 {
@@ -150,6 +113,7 @@ void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stac
 	// TODO needed to enable interrupt by dongju
 	//task->context.regs[CONTEXT_RFLAG_OFFSET] |= (0x1 << 9);	// IF(bit 9) enable	
 }
+
 
 void
 sys_yield(void)
@@ -177,47 +141,10 @@ sys_yield(void)
 		switch_context((struct regs_struct*)current_task->context.regs, (struct regs_struct*)next_task->context.regs);
 }
 
+
 void
 free_task()
 {
 	;
 
-}
-
-//static uint64_t task_num = 1;
-
-struct task_t*
-alloc_task(uint64_t pid)
-{
-	uint64_t *addr;
-	addr =(uint64_t*)&tasks[pid];
-	
-
-	// addr = kmalloc
-	//addr = allocframe(task_num++);
-
-//	addr = (uint64_t)task_buf[task_num];
-//	task_num ++; 
-
-	return (struct task_t*)addr;
-}
-
-void
-add_task_list(void)
-{
-	;
-}
-
-void
-free_task_list(void)
-{
-	;
-}
-
-
-uint64_t get_newpid(void)
-{
-	//TODO how to deal with pid=0 because pid=0 means child process.
-	next_pid += 1;
-	return next_pid;
 }
