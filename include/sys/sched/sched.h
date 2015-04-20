@@ -63,7 +63,7 @@
 #define	GDT_KERNEL_DATA_SEG	0x10
   
 #define MAX_TASKS		1024
-
+#define MAX_OPEN_FILE_DESCRIPT	1024
 
 enum process_status
 {
@@ -103,6 +103,9 @@ struct task_t
 	enum process_status	status;
 	enum process_type	type;
 
+	// Open file descript, stdin, stdout, and stderr are 0, 1, and 2 //
+	//struct file_descript	fd[MAX_OPEN_FILE_DESCRIPT];
+
 };
 
 void round_robin_scheduler(void);
@@ -113,5 +116,6 @@ struct	task_t*	create_task(uint64_t instruction_addr,
 void add_task_ready_list(struct task_t *task);
 void sys_yield(void);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
+struct task_t* get_current_task(void);
 
 #endif
