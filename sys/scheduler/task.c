@@ -232,3 +232,8 @@ uint64_t get_newpid(void)
 	next_pid += 1;
 	return next_pid;
 }
+
+struct task_t* get_current_task(void)
+{
+	return (struct task_t*)gp_current_task;
+}

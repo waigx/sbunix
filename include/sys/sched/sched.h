@@ -68,6 +68,7 @@
 #define MAX_PROC_NUM                       (1 << 16)
 #define MAX_TASK_NAME                            256
 
+#define MAX_OPEN_FILE_DESCRIPT                  1024
 
 typedef enum 
 {
@@ -108,12 +109,16 @@ typedef struct
 	// Legacy
 	struct task_t *next_task;
 	uint64_t pml4e;
+
+	// Open file descript, stdin, stdout, and stderr are 0, 1, and 2 //
+	//struct file_descript	fd[MAX_OPEN_FILE_DESCRIPT];
+
+
 } task_t;
 
 
 extern uint16_t g_next_task_free_index;
 extern task_t *g_task_start;
-
 
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 task_t *gettask(kpid_t pid);
@@ -126,5 +131,8 @@ void round_robin_scheduler(void);
 task_t * create_task(uint64_t instruction_addr, uint8_t *binary , void* virtual_memory_addr, enum process_type type );
 void add_task_ready_list(struct task_t *task);
 void sys_yield(void);
+
+void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
+struct task_t* get_current_task(void);
 
 #endif
