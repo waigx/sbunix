@@ -44,13 +44,15 @@ uint64_t temp_stack2[4096 * 4];
 
 void round_robin_scheduler(void)
 {
-	struct task_t *task1;
-	struct task_t *task2;
+	task_t *task1;
+	task_t *task2;
 
-	task1 = create_task((uint64_t)task_1,"bin/user_1", 
-			(uint64_t *)/*temp_stack*/0xffffffff80300000 , USER_PROCESS);
-	task2 = create_task((uint64_t)task_2,"bin/user_2", 
-			(uint64_t *)/*temp_stack2*/0xffffffff80302000 , USER_PROCESS);
+//	task1 = create_task((uint64_t)task_1,"bin/user_1", 
+//			(uint64_t *)/*temp_stack*/0xffffffff80300000 , USER_PROCESS);
+//	task2 = create_task((uint64_t)task_2,"bin/user_2", 
+//			(uint64_t *)/*temp_stack2*/0xffffffff80302000 , USER_PROCESS);
+	task1 = newtask("bin/user_1", USER_PROCESS);
+	task2 = newtask("bin/user_1", USER_PROCESS);
 
 
 	//printf("opne_tarfs output = %x\n", open_tarfs("bin/user_1", 0));
@@ -61,8 +63,10 @@ void round_robin_scheduler(void)
 	//kmmap((pml4e_t*)task1->pml4e, task1->pid, ((uint64_t)task2>>12)<<12, (uint64_t)((uint64_t)task2>>12)<<12);
 	  //kmmap((pml4e_t*)task2->pml4e, task2->pid, ((uint64_t)task1>>12)<<12, (uint64_t)((uint64_t)task1>>12)<<12);
 
-	add_task_ready_list(task1);
-	add_task_ready_list(task2);
+//	add_task_ready_list(task1);
+//	add_task_ready_list(task2);
+	task1->status = PROCESS_READY;
+	task2->status = PROCESS_READY;
 	
 	//close(1);
 	//sys_yield();

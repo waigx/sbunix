@@ -24,10 +24,13 @@ char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
 uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
 uint64_t g_next_free_frame_index = 0;
 uint16_t g_next_task_free_index = 1;
+uint16_t g_next_task_index = 1;
+uint16_t g_task_bump = 2;
 void *g_physbase;
 void *g_physfree;
 void *g_page_frame_start;
 task_t *g_task_start;
+task_t *gp_current_task;
 uint32_t g_current_pos = 2 * 21 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
 uint8_t is_shifted = 0;
@@ -64,8 +67,6 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	printf("physbase: %p, physfree: %p\n", physbase, physfree);
 
 	// kernel starts here
-	rollscreen(4);
-
 	// Initial kernel
 	printf("[Kernel]: Initializing kernel memory ...\n");
 	init_kernel(physbase, physfree, physbottom, phystop);

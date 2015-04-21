@@ -39,11 +39,10 @@ typedef struct {
 	uint64_t p_align;
 }Elf64_Phdr;
 
-	
 
 
 
-uint64_t load_elf(struct task_t *task, char *binary);
+uint64_t load_elf(task_t *task, const char *task_name);
 
 
 

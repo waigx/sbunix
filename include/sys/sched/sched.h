@@ -112,27 +112,28 @@ typedef struct
 
 	// Open file descript, stdin, stdout, and stderr are 0, 1, and 2 //
 	//struct file_descript	fd[MAX_OPEN_FILE_DESCRIPT];
-
-
 } task_t;
 
 
 extern uint16_t g_next_task_free_index;
 extern task_t *g_task_start;
+extern uint16_t g_next_task_index;
+extern uint16_t g_task_bump;
+extern task_t *gp_current_task;
 
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 task_t *gettask(kpid_t pid);
 void loadtask(kpid_t pid);
 task_t *newtask(const char *task_name, process_type_t type);
 
+void sys_yield(void);
+void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
+
 // Legacy
 void round_robin_scheduler(void);
 
-task_t * create_task(uint64_t instruction_addr, uint8_t *binary , void* virtual_memory_addr, enum process_type type );
+//task_t * create_task(uint64_t instruction_addr, uint8_t *binary , void* virtual_memory_addr, process_type type );
 void add_task_ready_list(struct task_t *task);
-void sys_yield(void);
-
-void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 struct task_t* get_current_task(void);
 
 #endif

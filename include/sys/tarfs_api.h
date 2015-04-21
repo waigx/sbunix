@@ -14,7 +14,6 @@ struct file_descript
 
 uint64_t find_elf(const char *pathname, int flags);
 
-
 int open_tarfs(const char *pathname, int flags);
 
 ssize_t read_tarfs(int fd, void *buf, size_t count);

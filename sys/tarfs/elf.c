@@ -39,9 +39,8 @@
 uint64_t check_ELF_format( Elf64_Ehdr *elf);
 
 
-uint64_t load_elf(struct task_t *task, char *binary)
+uint64_t load_elf(task_t *task, const char *task_name)
 {
-
 	 Elf64_Ehdr *elfhdr;
 	 Elf64_Phdr *phdr;
 	//struct Elf64_Shdr;
@@ -58,7 +57,7 @@ uint64_t load_elf(struct task_t *task, char *binary)
 	uint64_t temp_cr3 = 0;
 
 	//fd = open_tarfs(binary, 0);
-	fd = find_elf((char *)binary,0);
+	fd = find_elf(task_name, 0);
 	elfhdr = ( Elf64_Ehdr *)fd;
 
 	if(check_ELF_format(elfhdr) == FALSE)

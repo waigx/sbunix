@@ -5,6 +5,8 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -27,14 +29,11 @@
 #include <sys/sched/sched.h>
 #include <sys/mem.h>
 #include <sys/managemem.h>
+#include <sys/elf.h>
 #include <string.h>
 
 void init_task(task_t *task, uint64_t entry_point, uint64_t *stack_base);
 void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base);
-struct task_t* alloc_task(uint64_t pid);
-uint64_t get_newpid(void);
-
-
 
 task_t *newtask(const char *task_name, process_type_t type)
 {
@@ -49,6 +48,8 @@ task_t *newtask(const char *task_name, process_type_t type)
 	 */
 	while ((g_task_start + g_next_task_free_index)->pid != 0) {
 		g_next_task_free_index += 1;
+		if (g_next_task_free_index == g_task_bump)
+			g_task_bump++;
 		if (g_next_task_free_index >= MAX_PROC_NUM);
 		// max process num exceed error here;
 	}
@@ -70,8 +71,6 @@ task_t *newtask(const char *task_name, process_type_t type)
 		entry_point = load_elf(task, task_name);
 		init_task(task, entry_point, phy_stack_base);
 	}
-
-	task->status = PROCESS_NEW;
 
 	// add task list
 
@@ -107,29 +106,4 @@ void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base 
 	//task->context.regs[CONTEXT_RFLAG_OFFSET] |= (0x1 << 9);	// IF(bit 9) enable	
 }
 
-void
-sys_yield(void)
-{
-	struct task_t *next_task;
-	struct task_t *current_task;
-	// TODO how to get current task pointer and next task point
-	next_task = (task_t*)get_next_task();
-	current_task = gp_current_task;
-
-	// switch context
-	gp_current_task = next_task;
-	//if(current_task != NULL)
-	add_task_ready_list(next_task);
-
-
-	//load_cr3(cr3e_t cr3)
-	load_cr3((cr3e_t)next_task->cr3);
-
-	if(current_task == NULL)
-	{
-		switch_context((struct regs_struct*)NULL, (struct regs_struct*)next_task->context.regs); 
-	}
-	else
-		switch_context((struct regs_struct*)current_task->context.regs, (struct regs_struct*)next_task->context.regs);
-}
 

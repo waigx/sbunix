@@ -37,49 +37,47 @@
 
 uint64_t get_file_size(struct posix_header_ustar *tarfs_header);
 
-
-
 uint64_t find_elf(const char *pathname, int flags)
 {
-        struct posix_header_ustar *tarfs_header;
-        //uint64_t i = 0;
-        uint64_t fd = 0;
-        uint64_t offset = 0;
-        uint64_t address = 0;
+	struct posix_header_ustar *tarfs_header;
+	//uint64_t i = 0;
+	uint64_t fd = 0;
+	uint64_t offset = 0;
+	uint64_t address = 0;
 
-        address = (uint64_t)&(_binary_tarfs_start);
+	address = (uint64_t)&(_binary_tarfs_start);
 	//printf("struct size = %x \n",sizeof(struct posix_header_ustar));
-        while(1)
-        {
-                tarfs_header = (struct posix_header_ustar *)address;
-                printf("elf name = %s %x\n", tarfs_header->name,tarfs_header);
-                if(strcmp(tarfs_header->name, pathname) == 0)
-                {
-                        printf("finding %s elf\n",pathname);
-                        fd = (uint64_t)(tarfs_header) + sizeof(struct posix_header_ustar);
-                        return fd;
-                        break;
-                }
+	while(1)
+	{
+		tarfs_header = (struct posix_header_ustar *)address;
+		printf("elf name = %s %x\n", tarfs_header->name,tarfs_header);
+		if(strcmp(tarfs_header->name, pathname) == 0)
+		{
+			printf("finding %s elf\n",pathname);
+			fd = (uint64_t)(tarfs_header) + sizeof(struct posix_header_ustar);
+			return fd;
+			break;
+		}
 
-                if(tarfs_header->name[0] == '\0')
-                {
-                        printf("there is not exist %s elf\n");
-                        return -1;
-                }
-                
+		if(tarfs_header->name[0] == '\0')
+		{
+			printf("there is not exist %s elf\n");
+			return -1;
+		}
+
 		offset = get_file_size(tarfs_header);
 
-                if(offset != 0)
-                        printf("offset = %x\n",offset);
-                address += sizeof(struct posix_header_ustar);
-                address += ((((offset ) /512 ) /*+ 1 */) * 512);
+		if(offset != 0)
+			printf("offset = %x\n",offset);
+		address += sizeof(struct posix_header_ustar);
+		address += ((((offset ) /512 ) /*+ 1 */) * 512);
 
-                if(offset % 512)
-                        address += 512;
+		if(offset % 512)
+			address += 512;
 
-        }
+	}
 
-        return -1;
+	return -1;
 }
 
 
