@@ -31,9 +31,7 @@
 void loadtask(kpid_t pid)
 {
 	task_t *task = gettask(pid);
-	cr3e_t cr3e = task->cr3;
-
-	load_cr3(cr3e);
+	task->type = PROCESS_READY;
 
 	return;
 }

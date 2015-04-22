@@ -61,7 +61,7 @@
 
 #define EXTEND_BIT_1                                0xffff000000000000
 
-#define USER_STACK_START  (KERNEL_SPACE_START + KERNEL_PROC_HEAP_SIZE)
+#define USER_STACK_START              (KERNEL_SPACE_START - PAGE_SIZE)
 
 
 /* 

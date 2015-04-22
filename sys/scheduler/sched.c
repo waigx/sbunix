@@ -27,6 +27,7 @@
 
 #include <sys/sched/sched.h>
 #include <sys/sbunix.h>
+#include <sys/debug.h>
 
 #include <sys/managemem.h>
 #include <syscall.h>
@@ -52,7 +53,7 @@ void round_robin_scheduler(void)
 //	task2 = create_task((uint64_t)task_2,"bin/user_2", 
 //			(uint64_t *)/*temp_stack2*/0xffffffff80302000 , USER_PROCESS);
 	task1 = newtask("bin/user_1", USER_PROCESS);
-	task2 = newtask("bin/user_1", USER_PROCESS);
+	task2 = newtask("bin/user_2", USER_PROCESS);
 
 
 	//printf("opne_tarfs output = %x\n", open_tarfs("bin/user_1", 0));
@@ -67,7 +68,6 @@ void round_robin_scheduler(void)
 //	add_task_ready_list(task2);
 	task1->status = PROCESS_READY;
 	task2->status = PROCESS_READY;
-	
 	//close(1);
 	//sys_yield();
 	yield(0);
@@ -76,7 +76,7 @@ void round_robin_scheduler(void)
 void yield(uint64_t user)
 {
 	printf("yield called by %x\n",user);
-        syscall_4(SYS_yield, 1, 2, 3, 4);
+    syscall_4(SYS_yield, 1, 2, 3, 4);
 }
 
 

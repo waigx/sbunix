@@ -211,6 +211,10 @@ cr3e_t newvmem(kpid_t pid)
 	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
 		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START);
 
+	for (i = (uint64_t)0; i <= page_frame_start; i += (PAGE_SIZE))
+		kmmap(pml4e_p, pid, i, i);
+
+
 	kmmap(pml4e_p, pid, CONSOLE_START, CONSOLE_START);
 	
 	return (cr3e_t)physaddr2pebase(pml4e_p);

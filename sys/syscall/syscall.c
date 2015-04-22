@@ -28,6 +28,7 @@
 #include <syscall.h>
 #include <sys/sbunix.h>
 #include <sys/sched/sched.h>
+#include <sys/debug.h>
 
 
 uint64_t syscall(void)

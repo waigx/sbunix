@@ -27,6 +27,8 @@
 
 #include <sys/sched/sched.h>
 #include <sys/managemem.h>
+#include <sys/debug.h>
+#include <sys/sbunix.h>
 
 
 task_t *get_next_task(void)
@@ -66,15 +68,12 @@ sys_yield(void)
 	//if(current_task != NULL)
 	//add_task_ready_list(next_task);
 
-
 	//load_cr3(cr3e_t cr3)
 	load_cr3(next_task->cr3);
-
-	if(current_task == NULL)
-	{
+	if(current_task->pid == 1) {
 		switch_context((struct regs_struct*)NULL, (struct regs_struct*)next_task->context.regs); 
-	}
-	else
+	} else {
 		switch_context((struct regs_struct*)current_task->context.regs, (struct regs_struct*)next_task->context.regs);
+	}
 }
 

@@ -35,17 +35,18 @@
 #include <sys/managemem.h>
 #include <sys/mem.h>
 #include <sys/register.h>
+#include <sys/debug.h>
 
 uint64_t check_ELF_format( Elf64_Ehdr *elf);
 
 
 uint64_t load_elf(task_t *task, const char *task_name)
 {
-	 Elf64_Ehdr *elfhdr;
-	 Elf64_Phdr *phdr;
+	Elf64_Ehdr *elfhdr;
+	Elf64_Phdr *phdr;
 	//struct Elf64_Shdr;
 	uint64_t i = 0;
-	 Elf64_Phdr *ph_start;
+	Elf64_Phdr *ph_start;
 	uint64_t ph_num = 0;
 	uint64_t  fd = 0;
 
@@ -53,8 +54,7 @@ uint64_t load_elf(task_t *task, const char *task_name)
 	uint64_t size = 0;
 	uint64_t vaddr = 0;
 	//uint64_t flag = 0;
-	uint64_t page = 0;
-	uint64_t temp_cr3 = 0;
+	uint64_t page;
 
 	//fd = open_tarfs(binary, 0);
 	fd = find_elf(task_name, 0);
@@ -80,18 +80,10 @@ uint64_t load_elf(task_t *task, const char *task_name)
 			vaddr = phdr->p_va;
 			//flag = phdr->p_flags;
 			//permission =
+
 			page = (uint64_t)allocframe(task->pid);
-
-			kmmap((pml4e_t*)task->pml4e, task->pid, page, (uint64_t)vaddr);
-			
-			temp_cr3 = get_cr3_register();
-
-			load_cr3((cr3e_t)task->cr3);		
-	
-			copymem((uint64_t*)vaddr,(uint64_t *)(offset+ (uint64_t)elfhdr), size);			
-			
-			load_cr3(temp_cr3);
-
+			copymem((uint64_t*)page, (uint64_t *)(offset+ (uint64_t)elfhdr), size);
+			kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr);
 		}
 
 	}

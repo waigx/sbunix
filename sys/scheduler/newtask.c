@@ -31,6 +31,7 @@
 #include <sys/managemem.h>
 #include <sys/elf.h>
 #include <string.h>
+#include <sys/debug.h>
 
 void init_task(task_t *task, uint64_t entry_point, uint64_t *stack_base);
 void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base);
