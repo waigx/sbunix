@@ -33,6 +33,7 @@
 #include <sys/keyboard.h>
 #include <sys/timer.h>
 #include <sys/debug.h>
+#include <sys/sched/sched.h>
 
 
 void divide_handler(uint64_t entry_num)
@@ -51,6 +52,7 @@ void debug(uint64_t err_code)
 void timer_handler(void)
 {
 	echotime();
+	scheduler();
 	send_eoi(TIMER_IRQ_NUMBER);
 }
 

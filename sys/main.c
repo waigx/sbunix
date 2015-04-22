@@ -35,7 +35,8 @@ uint32_t g_current_pos = 2 * 21 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
 uint8_t is_shifted = 0;
 uint8_t is_ctrled = 0;
-uint8_t g_timer_count = 0;
+uint16_t g_timer_count = 0;
+uint16_t g_switch_timer = 0;
 uint8_t g_debug_mode = 0;
 struct rtc_t g_time_boot = TIMEZONE_UTC;
 
@@ -75,7 +76,6 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 //	// scheduler
 //	reload_idt();
 //	__asm volatile("sti");
-//	round_robin_scheduler();
 //	while(1);
 //	///////////////////////
 
@@ -84,8 +84,11 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	init_pic(ENABLE_KEYBOARD_INT | ENABLE_TIMER_INT);
 	// now, Dongju disable timer interrupt because it makes me to debug difficult.
 	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
-	set_timer(100);
+	set_timer(1000);
+	round_robin_scheduler();
+
 	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
+
 
 	while (1);
 

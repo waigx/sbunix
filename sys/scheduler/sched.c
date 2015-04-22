@@ -68,7 +68,7 @@ void round_robin_scheduler(void)
 	task2->status = PROCESS_READY;
 	//close(1);
 	//sys_yield();
-	yield(0);
+//	yield(0);
 }
 
 void yield(uint64_t user)

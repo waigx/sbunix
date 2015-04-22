@@ -40,7 +40,7 @@ int main(int argc, char* argv[], char* envp[])
   //              while(j--);
     //            j = 1000000;
       //          if(i % 5 == 0)
-                        yield(13);
+//                        yield(13);
         }
         return 0;
 }

@@ -70,6 +70,8 @@
 
 #define MAX_OPEN_FILE_DESCRIPT                  1024
 
+#define SWITCH_TIME_IN_MS                         50
+
 typedef enum 
 {
 	PROCESS_NEW,
@@ -120,6 +122,7 @@ extern task_t *g_task_start;
 extern uint16_t g_next_task_index;
 extern uint16_t g_task_bump;
 extern task_t *gp_current_task;
+extern uint16_t g_switch_timer;
 
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 task_t *gettask(kpid_t pid);
@@ -127,6 +130,7 @@ void loadtask(kpid_t pid);
 task_t *newtask(const char *task_name, process_type_t type);
 
 void sys_yield(void);
+void scheduler(void);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 
 // Legacy
