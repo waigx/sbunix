@@ -34,17 +34,17 @@
 task_t *get_next_task(void)
 {
 	task_t *next_task;
-	uint8_t next_task_runable = (FALSE);
+	uint8_t next_task_runable = FALSE;
 	while (next_task_runable == FALSE){
 		next_task = g_task_start + g_next_task_index;
-		if ((next_task->pid > 1) && (next_task->status == PROCESS_READY)) {
+		if (next_task->status == PROCESS_READY) {
 			next_task_runable = TRUE;
 		} else {
 			next_task_runable = FALSE;
-			g_task_start++;
+			g_next_task_index++;
 		}
-		if (g_next_task_index == g_task_bump)
-			g_next_task_index = 1;
+		if (g_next_task_index > g_task_bump)
+			g_next_task_index = KERNEL_PID + 1;
 	}
 	g_next_task_index++;
 
@@ -59,7 +59,7 @@ sys_yield(void)
 	// TODO how to get current task pointer and next task point
 	next_task = get_next_task();
 	current_task = gp_current_task;
-
+	printf("** current_task: %d\n", current_task->pid);
 	// switch context
 	current_task->status = PROCESS_READY;
 	next_task->status = PROCESS_RUNNING;

@@ -37,7 +37,7 @@ int main(int argc, char* argv[], char* envp[])
 
 	while(1)
 	{
-		printf("I'm user_1 and count = %x\n",i++);
+		//printf("I'm user_1 and count = %x\n",i++);
 	//	while(j--);
 	//	j = 1000000;
 		//if(i % 5 == 0)

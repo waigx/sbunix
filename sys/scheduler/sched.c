@@ -55,9 +55,7 @@ void round_robin_scheduler(void)
 	task1 = newtask("bin/user_1", USER_PROCESS);
 	task2 = newtask("bin/user_2", USER_PROCESS);
 
-
 	//printf("opne_tarfs output = %x\n", open_tarfs("bin/user_1", 0));
-
 
 	//while(1);
 	//

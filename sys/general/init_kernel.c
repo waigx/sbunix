@@ -72,6 +72,7 @@ void _init_kernel_process(void *physbase, void *physfree, void *physbottom, void
 	kproc->pid = kpid;
 
 	g_next_task_free_index += 1;
+	g_task_bump = KERNEL_PID;
 	return;
 }
 

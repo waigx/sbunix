@@ -32,6 +32,7 @@
 #include <sys/elf.h>
 #include <string.h>
 #include <sys/debug.h>
+#include <sys/sbunix.h>
 
 void init_task(task_t *task, uint64_t entry_point, uint64_t *stack_base);
 void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base);
@@ -43,17 +44,6 @@ task_t *newtask(const char *task_name, process_type_t type)
 	task_t *task = g_task_start + g_next_task_free_index;
 	kpid_t new_pid = g_next_task_free_index;
 	cr3e_t new_cr3;
-
-	/*
-	 * Allocate new pid
-	 */
-	while ((g_task_start + g_next_task_free_index)->pid != 0) {
-		g_next_task_free_index += 1;
-		if (g_next_task_free_index == g_task_bump)
-			g_task_bump++;
-		if (g_next_task_free_index >= MAX_PROC_NUM);
-		// max process num exceed error here;
-	}
 
 	new_cr3 = newvmem(new_pid);
 
@@ -70,8 +60,21 @@ task_t *newtask(const char *task_name, process_type_t type)
 //		page = (uint64_t)allocframe(pid);
 	} else if (type == USER_PROCESS) {
 		entry_point = load_elf(task, task_name);
-		init_task(task, entry_point, phy_stack_base);
+		init_task(task, entry_point, (uint64_t *)USER_STACK_START);
 	}
+
+
+	/*
+	 * Allocate new pid
+	 */
+	while ((g_task_start + g_next_task_free_index)->pid != 0) {
+		g_next_task_free_index += 1;
+		if (g_next_task_free_index > g_task_bump)
+			g_task_bump++;
+		if (g_next_task_free_index >= MAX_PROC_NUM);
+		// max process num exceed error here;
+	}
+
 
 	// add task list
 

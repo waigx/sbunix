@@ -25,7 +25,7 @@ uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
 uint64_t g_next_free_frame_index = 0;
 uint16_t g_next_task_free_index = 1;
 uint16_t g_next_task_index = 1;
-uint16_t g_task_bump = 2;
+uint16_t g_task_bump;
 void *g_physbase;
 void *g_physfree;
 void *g_page_frame_start;
@@ -72,12 +72,12 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	init_kernel(physbase, physfree, physbottom, phystop);
 	printf("[Kernel]: Finished.\n");
 
-	// scheduler
-	reload_idt();
-	__asm volatile("sti");
-	round_robin_scheduler();
-	while(1);
-	///////////////////////
+//	// scheduler
+//	reload_idt();
+//	__asm volatile("sti");
+//	round_robin_scheduler();
+//	while(1);
+//	///////////////////////
 
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.
