@@ -30,11 +30,15 @@
 
 void scheduler()
 {
-	if (g_switch_timer == SWITCH_TIME_IN_MS){
+
+//	sys_yield();
+
+#if(1)
+	if (g_switch_timer == SWITCH_TIME_IN_MS / 10){
 		sys_yield();
 		g_switch_timer = 0;
 	} else {
 		g_switch_timer += 1;
 	}
-	
+#endif	
 }

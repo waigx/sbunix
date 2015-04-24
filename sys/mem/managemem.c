@@ -98,6 +98,9 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 
 	pte = *(pte_p + pte_offset);
 	if ((pte & 1) == PTE_PRESENTS) {
+		/* changed for test dongju */
+		 *(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | PTE_PRESENTS | PTE_WRITEABLE;
+
 		return;
 	} else {
 		*(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | PTE_PRESENTS | PTE_WRITEABLE;

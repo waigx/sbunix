@@ -42,7 +42,7 @@ int main(int argc, char* argv[], char* envp[])
 	//	j = 1000000;
 		//if(i % 5 == 0)
 		      i = i + 3;
- //                      yield(1);
 	}
 	return 0;
 }
+

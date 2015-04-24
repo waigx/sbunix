@@ -90,7 +90,7 @@
  * Switch context
  */
 switch_context:
-	
+	cli	
 	pushq %rbp
 	movq %rsp, %rbp
 
@@ -135,5 +135,6 @@ switch_context:
 .Loadcontext:
 	movq %rsi, %rsp
 	LOAD_CONTEXT
+	sti
 	iretq 
 

@@ -132,5 +132,6 @@ syscall_handler:
 	call syscall 	
 	
 	LOAD_ALL_REG
+	
 	iretq 
 

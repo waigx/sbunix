@@ -52,8 +52,11 @@ void debug(uint64_t err_code)
 void timer_handler(void)
 {
 	echotime();
-	scheduler();
+	printf("time_inter\n");
+	 __asm volatile("cli");
 	send_eoi(TIMER_IRQ_NUMBER);
+	scheduler();
+	//send_eoi(TIMER_IRQ_NUMBER);
 }
 
 
