@@ -68,6 +68,14 @@ sys_yield(void)
 	//if(current_task != NULL)
 	//add_task_ready_list(next_task);
 
+//	load_cr3(next_task->cr3);
+//	printf("first cr3 = %x\n", next_task->cr3);
+	
+//	next_task = get_next_task();
+//	load_cr3(next_task->cr3);
+//	printf("second cr3 = %x \n", next_task->cr3);
+
+
 	//load_cr3(cr3e_t cr3)
 	load_cr3(next_task->cr3);
 	if(current_task->pid == 1) {

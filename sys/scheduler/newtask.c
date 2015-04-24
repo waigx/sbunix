@@ -107,7 +107,7 @@ void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base 
 	
 	task->context.regs[CONTEXT_RIP_OFFSET] = entry_point;
 	// TODO needed to enable interrupt by dongju
-	//task->context.regs[CONTEXT_RFLAG_OFFSET] |= (0x1 << 9);	// IF(bit 9) enable	
+	task->context.regs[CONTEXT_RFLAG_OFFSET] |= (0x1 << 9);	// IF(bit 9) enable	
 }
 
 
