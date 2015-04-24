@@ -85,10 +85,9 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	// now, Dongju disable timer interrupt because it makes me to debug difficult.
 	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
 	set_timer(1000);
-	round_robin_scheduler();
-
 	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
 
+	round_robin_scheduler();
 
 	while (1);
 
