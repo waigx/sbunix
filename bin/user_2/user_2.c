@@ -34,7 +34,6 @@ int main(int argc, char* argv[], char* envp[])
 	uint64_t i = 0;
     //    uint64_t j = 10000;
 
-//	__asm volatile("sti");
         while(1)
         {
                 printf("I'm user_2 and count = %x\n",i++);

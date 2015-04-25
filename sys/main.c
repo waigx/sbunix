@@ -39,7 +39,6 @@ uint16_t g_timer_count = 0;
 uint16_t g_switch_timer = 0;
 uint8_t g_debug_mode = 0;
 struct rtc_t g_time_boot = TIMEZONE_UTC;
-	int x;
 
 void start(uint32_t* modulep, void* physbase, void* physfree)
 {
@@ -66,7 +65,6 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	}
 	printf("tarfs in [%p:%p]\n", &_binary_tarfs_start, &_binary_tarfs_end);
 	printf("physbase: %p, physfree: %p\n", physbase, physfree);
-	printf("x: %p\n", &x);
 
 	// kernel starts here
 	// Initial kernel
@@ -85,9 +83,10 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	init_pic(ENABLE_KEYBOARD_INT | ENABLE_TIMER_INT);
 	// now, Dongju disable timer interrupt because it makes me to debug difficult.
 	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
+
 	set_timer(100);
-	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
 	round_robin_scheduler();
+	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
 
 	while (1);
 
