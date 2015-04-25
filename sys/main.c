@@ -72,11 +72,6 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	init_kernel(physbase, physfree, physbottom, phystop);
 	printf("[Kernel]: Finished.\n");
 
-//	// scheduler
-//	reload_idt();
-//	__asm volatile("sti");
-//	while(1);
-//	///////////////////////
 
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.

@@ -31,7 +31,7 @@
 void loadtask(kpid_t pid)
 {
 	task_t *task = gettask(pid);
-	task->type = PROCESS_READY;
+	task->status = PROCESS_READY;
 
 	return;
 }
