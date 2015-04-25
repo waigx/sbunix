@@ -70,7 +70,7 @@
 
 #define MAX_OPEN_FILE_DESCRIPT                  1024
 
-#define SWITCH_TIME_IN_MS                         50
+#define SWITCH_TIME_IN_MS                          5
 
 typedef enum 
 {
