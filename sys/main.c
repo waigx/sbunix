@@ -80,7 +80,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
 
 	set_timer(1000);
-	round_robin_scheduler();
+	load_test_tasks();
 	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
 
 	while (1);

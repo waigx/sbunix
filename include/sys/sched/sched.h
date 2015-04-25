@@ -126,7 +126,7 @@ extern uint16_t g_switch_timer;
 
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 task_t *gettask(kpid_t pid);
-void loadtask(kpid_t pid);
+void loadtask(task_t *task);
 task_t *newtask(const char *task_name, process_type_t type);
 
 void sys_yield(void);
@@ -134,7 +134,7 @@ void scheduler(void);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 
 // Legacy
-void round_robin_scheduler(void);
+void load_test_tasks(void);
 
 //task_t * create_task(uint64_t instruction_addr, uint8_t *binary , void* virtual_memory_addr, process_type type );
 void add_task_ready_list(struct task_t *task);
