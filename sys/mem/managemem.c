@@ -159,9 +159,6 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 
 	pte = *(pte_p + pte_offset);
 	if ((pte & PTE_PRESENTS) == PTE_PRESENTS) {
-		/* changed for test dongju */
-		 *(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | PTE_PRESENTS | PTE_WRITEABLE;
-
 		return;
 	} else {
 		*(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | PTE_PRESENTS | PTE_WRITEABLE;
@@ -275,7 +272,7 @@ cr3e_t newvmem(kpid_t pid)
 	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
 		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START);
 
-	for (i = (uint64_t)0; i <= page_frame_start; i += (PAGE_SIZE))
+	for (i = (uint64_t)0; i < (uint64_t)g_physbase; i += (PAGE_SIZE))
 		kmmap(pml4e_p, pid, i, i);
 
 

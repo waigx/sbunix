@@ -87,7 +87,7 @@ void init_kernel(void *physbase, void *physfree, void *physbottom, void *phystop
 	g_page_frame_start = physfree + KERNEL_PROC_HEAP_SIZE + PAGE_SIZE;
 	// align page table to PAGE_SIZE
 	g_page_frame_start = (void *)(((uint64_t)g_page_frame_start) >> PAGE_SIZE_LOG2 << PAGE_SIZE_LOG2);
-	g_task_start = (task_t *)g_physfree;
+	g_task_start = (task_t *)(g_physfree + KERNEL_SPACE_START);
 	gp_current_task = g_task_start + KERNEL_PID;
 	gp_current_task->status = PROCESS_RUNNING;
 
