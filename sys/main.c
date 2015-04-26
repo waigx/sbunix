@@ -68,9 +68,9 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 
 	// kernel starts here
 	// Initial kernel
-	printf("[Kernel]: Initializing kernel memory ...\n");
+	debug_print("info", "Initializing kernel memory ...\n");
 	init_kernel(physbase, physfree, physbottom, phystop);
-	printf("[Kernel]: Finished.\n");
+	debug_print("info", "Finished ...\n");
 
 
 	reload_idt();
