@@ -31,7 +31,9 @@
 #include <sys/pic.h>
 #include <sys/kio.h>
 #include <sys/keyboard.h>
+#include <sys/managemem.h>
 #include <sys/timer.h>
+#include <sys/register.h>
 #include <sys/debug.h>
 #include <sys/sched/sched.h>
 
@@ -44,8 +46,17 @@ void divide_handler(uint64_t entry_num)
 
 void debug(uint64_t err_code)
 {
-	writechar(err_code + 'A');
-//	debug_pause();
+	printf("[IDT Fault Number:] %d\n", err_code);
+	debug_pause();
+}
+
+
+void pagefault_handler(void)
+{
+	uint64_t vaddr = get_cr2_register();
+	printf("[Page Fault:] %p\n", vaddr);
+	newvaddr(gp_current_task->pid, vaddr);
+	printf("[Returned]\n");
 }
 
 

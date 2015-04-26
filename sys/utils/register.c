@@ -38,51 +38,61 @@ uint64_t get_rax_register(void)
 
 uint64_t get_rdi_register(void)
 {
-        uint64_t ret = 0;
-        __asm__ __volatile__("movq %%rdi, %0"
-                        :"=r"(ret)
-                        :
-                        );
-        return ret;
+	uint64_t ret = 0;
+	__asm__ __volatile__("movq %%rdi, %0"
+			:"=r"(ret)
+			:
+			);
+	return ret;
 }
 
 uint64_t get_rsi_register(void)
 {
-        uint64_t ret = 0;
-        __asm__ __volatile__("movq %%rsi, %0"
-                        :"=r"(ret)
-                        :
-                        );
-        return ret;
+	uint64_t ret = 0;
+	__asm__ __volatile__("movq %%rsi, %0"
+			:"=r"(ret)
+			:
+			);
+	return ret;
 }
 uint64_t get_rdx_register(void)
 {
-        uint64_t ret = 0;
-        __asm__ __volatile__("movq %%rdx, %0"
-                        :"=r"(ret)
-                        :
-                        );
-        return ret;
+	uint64_t ret = 0;
+	__asm__ __volatile__("movq %%rdx, %0"
+			:"=r"(ret)
+			:
+			);
+	return ret;
 }
 
 uint64_t get_r10_register(void)
 {
-        uint64_t ret = 0;
-        __asm__ __volatile__("movq %%r10, %0"
-                        :"=r"(ret)
-                        :
-                        );
-        return ret;
+	uint64_t ret = 0;
+	__asm__ __volatile__("movq %%r10, %0"
+			:"=r"(ret)
+			:
+			);
+	return ret;
+}
+
+uint64_t get_cr2_register(void)
+{
+	uint64_t ret = 0;
+	__asm__ __volatile__("movq %%cr2, %0"
+			:"=r"(ret)
+			:
+			);
+	return ret;
 }
 
 uint64_t get_cr3_register(void)
 {
-        uint64_t ret = 0;
-        __asm__ __volatile__("movq %%cr3, %%rax;"
+	uint64_t ret = 0;
+	__asm__ __volatile__("movq %%cr3, %%rax;"
 			"movq %%rax, %0;"
-                        :"=r"(ret)
-                        :
-                        );
-        return ret;
+			:"=r"(ret)
+			:
+			);
+	return ret;
 }
 

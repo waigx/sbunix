@@ -42,6 +42,7 @@ uint64_t *debug_convadd2phy(cr3e_t cr3e, void *vaddr)
 	uint64_t pde_offset = vaddr_uint << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PTE + VADDR_OFFSET);
 	uint64_t pte_offset = vaddr_uint << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
 
+
 	physaddr = pe2physaddr(*(pe2physaddr(*(pe2physaddr(*(pe2physaddr(*(pml4e_p + pml4e_offset)) + pdpe_offset)) + pde_offset)) + pte_offset));
 
 	printf("[Debug]: %p -> %p\n", vaddr, physaddr);

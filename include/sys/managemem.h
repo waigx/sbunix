@@ -137,6 +137,7 @@
  * PML4E self-ref. address;
  * Use index of 510;
  * 
+ * 
  *                                 |<-- PTE operate start here 
  *                                 |           |<-- PDE operate start here
  *                                 |           |           |<-- PDPE operate start here
@@ -147,6 +148,7 @@
  *         Sign Extend|       PML4E|       PDPE|        PDE|        PTE|         Offset
  * -------------------| -----------|-----------|-----------|-----------| --------------
  *                    |            |           |           |           | 
+ * 
  */
 #define PAGE_SELF_REF                  0xffffff7fbfdfe000
 
@@ -160,6 +162,7 @@ extern void *g_physfree;
 
 void *allocframe(kpid_t);
 
+void newvaddr(kpid_t pid, uint64_t vaddr);
 uint64_t *newmemtable(kpid_t pid, uint64_t table_size, uint8_t is_self_ref);
 cr3e_t newvmem(kpid_t);
 

@@ -29,6 +29,8 @@
 .extern divide_handler
 .extern timer_handler
 .extern keyboard_handler
+.extern pagefault_handler
+
 .extern debug
 
 .global isr0, isr1, isr2, isr3, isr4, isr5, isr6, isr7, isr8, isr9
@@ -329,7 +331,7 @@ isr14:
 
 	SAVE_ALL_REG
 	movq $14, %rdi
-	call debug
+	call pagefault_handler
 
 	LOAD_ALL_REG
 	add $0x10, %rsp

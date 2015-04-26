@@ -24,6 +24,7 @@
  *  along with sbunix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 #include <sys/register.h>
 #include <syscall.h>
 #include <sys/sbunix.h>
@@ -54,7 +55,7 @@ uint64_t syscall(void)
 	a2 = get_rsi_register();
 	a3 = get_rdx_register();
 	a4 = get_r10_register();
-        a5 = get_rsi_register();
+	a5 = get_rsi_register();
 
 //	printf("a1=%x, a2=%x, a3=%x, a4=%x\n",a1, a2, a3, a4);
 

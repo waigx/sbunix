@@ -29,7 +29,7 @@
 int main(int argc, char* argv[], char* envp[]) 
 {
 	uint64_t i = 0;
-//	uint64_t j = 10000;
+	uint64_t *test_ptr = (uint64_t *)0xadeadbeef;
 
 
 	//printf("1");
@@ -38,6 +38,7 @@ int main(int argc, char* argv[], char* envp[])
 	while(1)
 	{
 		printf("I'm user_1 and count = %x\n",i++);
+		*test_ptr = 0;
 	//	while(j--);
 	//	j = 1000000;
 		//if(i % 5 == 0)
