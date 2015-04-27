@@ -76,7 +76,6 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 		{
 			*(pdpe_p + i) = 0;
 		}
-		printf("[pdpe phy]: %p\n", temp_ptr);
 	}
 
 	pdpe = *(pdpe_p + pdpe_offset);
@@ -87,7 +86,6 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 		{
 			*(pde_p + i) = 0;
 		}
-		printf("[pde phy]: %p\n", temp_ptr);
 	}
 
 	pde = *(pde_p + pde_offset);
@@ -98,7 +96,6 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 		{
 			*(pte_p + i) = 0;
 		}
-		printf("[pte phy]: %p\n", temp_ptr);
 	}
 
 	pte = *(pte_p + pte_offset);

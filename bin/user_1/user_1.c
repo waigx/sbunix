@@ -26,6 +26,19 @@
 
 #include <stdio.h>
 #include <syscall.h>
+
+void testfun(int i)
+{
+	volatile uint64_t x[10000];
+	volatile uint64_t j;
+	for (j = 0; j<10000; j++)
+		*(x + j) = j;
+
+	//printf("stack %x\n", x[1]);
+}
+
+
+
 int main(int argc, char* argv[], char* envp[]) 
 {
 	uint64_t i = 0;
@@ -35,15 +48,15 @@ int main(int argc, char* argv[], char* envp[])
 	//printf("1");
 	//while(1);
 
-	while(1)
-	{
 		printf("I'm user_1 and count = %x\n",i++);
 		*test_ptr = 0;
+		testfun(i);
+		
 	//	while(j--);
 	//	j = 1000000;
 		//if(i % 5 == 0)
 		      i = i + 3;
-	}
+	while(1);
 	return 0;
 }
 

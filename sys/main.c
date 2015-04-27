@@ -75,7 +75,8 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.
-	init_pic(ENABLE_KEYBOARD_INT | ENABLE_TIMER_INT);
+//	init_pic(ENABLE_KEYBOARD_INT | ENABLE_TIMER_INT);
+	init_pic(ENABLE_KEYBOARD_INT );
 	// now, Dongju disable timer interrupt because it makes me to debug difficult.
 	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
 

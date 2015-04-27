@@ -147,12 +147,12 @@ void _set_isr_table(void)
 	_set_idt_entry(&entry[12], isr12, IDT_SEGMENT, IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
 	_set_idt_entry(&entry[13], isr13, IDT_SEGMENT, IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
 	_set_idt_entry(&entry[14], isr14, IDT_SEGMENT, IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
-	_set_idt_entry(&entry[15], isr15, IDT_SEGMENT, IDT_DPL0);
-	_set_idt_entry(&entry[16], isr16, IDT_SEGMENT, IDT_DPL0);
-	_set_idt_entry(&entry[17], isr17, IDT_SEGMENT, IDT_DPL0);
-	_set_idt_entry(&entry[18], isr18, IDT_SEGMENT, IDT_DPL0);
-	_set_idt_entry(&entry[19], isr19, IDT_SEGMENT, IDT_DPL0);
-	_set_idt_entry(&entry[20], isr20, IDT_SEGMENT, IDT_DPL0);
+	_set_idt_entry(&entry[15], isr15, IDT_SEGMENT, IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
+	_set_idt_entry(&entry[16], isr16, IDT_SEGMENT, IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
+	_set_idt_entry(&entry[17], isr17, IDT_SEGMENT, IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
+	_set_idt_entry(&entry[18], isr18, IDT_SEGMENT, IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
+	_set_idt_entry(&entry[19], isr19, IDT_SEGMENT, IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
+	_set_idt_entry(&entry[20], isr20, IDT_SEGMENT, IDT_DPL0 | IDT_P | IDT_INTERRUPT_TYPE);
 	_set_idt_entry(&entry[21], isr21, IDT_SEGMENT, IDT_DPL0);
 	_set_idt_entry(&entry[22], isr22, IDT_SEGMENT, IDT_DPL0);
 	_set_idt_entry(&entry[23], isr23, IDT_SEGMENT, IDT_DPL0);

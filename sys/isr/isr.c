@@ -46,7 +46,8 @@ void divide_handler(uint64_t entry_num)
 
 void debug(uint64_t err_code)
 {
-	printf("[IDT Fault Number:] %d\n", err_code);
+	debug_print("ISR", "Fault number: %d\n", err_code);
+	debug_print("ISR", "Intentional pause now.\n");
 	debug_pause();
 }
 
@@ -54,9 +55,8 @@ void debug(uint64_t err_code)
 void pagefault_handler(void)
 {
 	uint64_t vaddr = get_cr2_register();
-	printf("[Page Fault:] %p\n", vaddr);
+	debug_print("PagFlt", "Virtual addr: %p\n", vaddr);
 	newvaddr(gp_current_task->pid, vaddr);
-	printf("[Returned]\n");
 }
 
 

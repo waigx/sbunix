@@ -30,6 +30,7 @@
 #include <sys/sbunix.h>
 #include <sys/defs.h>
 #include <sys/managemem.h>
+#include <sys/pic.h>
 
 
 void debug_pause()
