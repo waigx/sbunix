@@ -31,7 +31,7 @@ void testfun(int i)
 {
 	volatile uint64_t x[10000];
 	volatile uint64_t j;
-	for (j = 0; j<10000; j++)
+	for (j = 3; j<10000; j++)
 		*(x + j) = j;
 
 	//printf("stack %x\n", x[1]);
@@ -42,21 +42,30 @@ void testfun(int i)
 int main(int argc, char* argv[], char* envp[]) 
 {
 	uint64_t i = 0;
-	uint64_t *test_ptr = (uint64_t *)0xadeadbeef;
+	volatile uint64_t *test1_ptr = (uint64_t *)0xffffffff7ffec748;
+	volatile uint64_t *test2_ptr = (uint64_t *)0xffffffff7ffec648;
+	volatile uint64_t *test3_ptr = (uint64_t *)0xffffffff7ffee748;
+	//uint64_t *test_ptr = (uint64_t *)0xadeadbeef;
 
 
 	//printf("1");
 	//while(1);
 
 		printf("I'm user_1 and count = %x\n",i++);
-		*test_ptr = 0;
+		*test1_ptr = 123;
+		*test2_ptr = 124;
+		*test3_ptr = 125;
+		printf("test1_ptr-> %d\n",*test1_ptr);
+		printf("test2_ptr-> %d\n",*test2_ptr);
+		printf("test3_ptr-> %d\n",*test3_ptr);
+
+	while(1);
 		testfun(i);
 		
 	//	while(j--);
 	//	j = 1000000;
 		//if(i % 5 == 0)
 		      i = i + 3;
-	while(1);
 	return 0;
 }
 
