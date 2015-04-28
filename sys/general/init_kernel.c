@@ -52,8 +52,6 @@ cr3e_t _init_kernel_mem(kpid_t pid, uint64_t physbase, uint64_t physfree, uint64
 	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
 		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START);
 
-	kmmap(pml4e_p, pid, CONSOLE_START, CONSOLE_START);
-	
 	printf("[Kernel Init Mem]: Kernel memory tables take %d page frames.\n", g_next_free_frame_index);
 
 	return (cr3e_t)physaddr2pebase(pml4e_p);

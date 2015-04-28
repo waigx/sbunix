@@ -63,6 +63,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 	pde_t *pde_p = getpdep(vaddr);
 	pte_t *pte_p = getptep(vaddr);
 
+	
 	uint64_t pml4e_offset = vaddr << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDPE + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
 	uint64_t pdpe_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
 	uint64_t pde_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PTE + VADDR_OFFSET);
@@ -129,7 +130,6 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 	pde_t pde;
 	pte_t pte;
 
-
 	pml4e = *(pml4e_p + pml4e_offset);
 	if ((pml4e & PTE_PRESENTS) == PTE_PRESENTS) {
 		pdpe_p = (pdpe_t *)pe2physaddr(pml4e);
@@ -157,6 +157,8 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 	pte = *(pte_p + pte_offset);
 
 	if ((pte & PTE_PRESENTS) == PTE_PRESENTS) {
+		debug_print("Mem", "Error, duplicated page table entry mapping.\n");
+		debug_pause();
 		return;
 	} else {
 		*(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | PTE_PRESENTS | PTE_WRITEABLE | PTE_SUPER;
@@ -272,9 +274,6 @@ cr3e_t newvmem(kpid_t pid)
 
 	for (i = (uint64_t)0; i < (uint64_t)g_physbase; i += (PAGE_SIZE))
 		kmmap(pml4e_p, pid, i, i);
-
-
-	kmmap(pml4e_p, pid, CONSOLE_START, CONSOLE_START);
 	
 	return (cr3e_t)physaddr2pebase(pml4e_p);
 }
