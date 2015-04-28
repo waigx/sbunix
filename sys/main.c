@@ -26,6 +26,7 @@ uint64_t g_next_free_frame_index = 0;
 uint16_t g_next_task_free_index = 1;
 uint16_t g_next_task_index = 1;
 uint16_t g_task_bump;
+uint64_t g_frame_bump;
 void *g_physbase;
 void *g_physfree;
 void *g_page_frame_start;

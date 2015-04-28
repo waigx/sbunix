@@ -59,7 +59,6 @@ int main(int argc, char* argv[], char* envp[])
 		printf("test2_ptr-> %d\n",*test2_ptr);
 		printf("test3_ptr-> %d\n",*test3_ptr);
 
-	while(1);
 		testfun(i);
 		
 	//	while(j--);

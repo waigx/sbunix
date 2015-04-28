@@ -279,6 +279,30 @@ cr3e_t newvmem(kpid_t pid)
 }
 
 
+void freevmem(kpid_t pid)
+{
+	uint64_t i = g_frame_bump;
+	uint8_t is_first_time = TRUE;
+
+	while (i >= 0) {
+
+		if (g_page_frame_pool[i] == pid) {
+			g_page_frame_pool[i] = 0;
+			g_next_free_frame_index = i;
+			if (is_first_time)
+				g_frame_bump -= 1;
+		} else {
+			is_first_time = FALSE;
+		}
+
+		i -= 1;
+	}
+
+	return;
+}
+
+
+
 pml4e_t *getpml4ep()
 {
 	return (pml4e_t *)PAGE_SELF_REF;

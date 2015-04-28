@@ -156,6 +156,7 @@
 
 extern uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
 extern uint64_t g_next_free_frame_index;
+extern uint64_t g_frame_bump;
 extern void *g_page_frame_start;
 extern void *g_physbase;
 extern void *g_physfree;
@@ -165,7 +166,8 @@ void *allocframe(kpid_t);
 
 void newvaddr(kpid_t pid, uint64_t vaddr);
 uint64_t *newmemtable(kpid_t pid, uint64_t table_size, uint8_t is_self_ref);
-cr3e_t newvmem(kpid_t);
+cr3e_t newvmem(kpid_t pid);
+void freevmem(kpid_t pid);
 
 void linearmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physstart, uint64_t physend, uint64_t offset);
 

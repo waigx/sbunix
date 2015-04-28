@@ -62,6 +62,36 @@ uint64_t syscall(void)
 	switch(syscall_num)
 	{
 
+		case SYS_exit:
+			sys_exit(a1);
+			return 0;
+			break;
+	
+//#define SYS_brk        12
+//#define SYS_fork       57
+
+		case SYS_getpid:
+			ret = sys_getpid();
+			return ret;
+			break;
+
+//#define SYS_getppid   110
+//#define SYS_execve     59
+//#define SYS_wait4      61
+//#define SYS_nanosleep  35
+//#define SYS_alarm      37
+//#define SYS_getcwd     79
+//#define SYS_chdir      80
+//#define SYS_open        2
+//#define SYS_read        0
+//#define SYS_write       1
+//#define SYS_lseek       8
+//#define SYS_close       3
+//#define SYS_pipe       22
+//#define SYS_dup        32
+//#define SYS_dup2       33
+//#define SYS_getdents   78
+
 		case SYS_yield:
 			//printf("calling sys_yield()\n");
 			sys_yield();
@@ -69,55 +99,13 @@ uint64_t syscall(void)
 			break;
 
 		case SYS_printf: 
-			
 			printf((const char *)a1, a2, a3, a4, a5);
 			return 0;
 			break;
 
-/*
-		SYS_brk:
-
-			
-		SYS_fork:
-
-
-		SYS_getpid:	
-
-
-		SYS_getppid:
-
-
-		SYS_execve:
-
-
-		SYS_wait4:
-
-		SYS_nanosleep:
-
-
-		SYS_alarm:     
-
-
-		SYS_getcwd:    
-
-		SYS_chdir:     
-		
-		SYS_open:      
-		SYS_read:      
-		SYS_write:     
-		SYS_lseek:     
-		SYS_close:     
-		SYS_pipe:      
-		SYS_dup:       
-		SYS_dup2:      
-		SYS_getdents:  
-
- */
 		default:
-		
-			printf("no syscall number\n");
+			printf("Invalid system call number: %d\n", syscall_num);
 			//printf("a1=%x, a2=%x, a3=%x, a4=%x\n",a1, a2, a3, a4);
-			
 	} 
 
 	return 0;
