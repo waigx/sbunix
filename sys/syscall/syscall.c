@@ -59,8 +59,7 @@ uint64_t syscall(void)
 
 //	printf("a1=%x, a2=%x, a3=%x, a4=%x\n",a1, a2, a3, a4);
 
-	switch(syscall_num)
-	{
+	switch(syscall_num) {
 
 		case SYS_exit:
 			sys_exit(a1);
@@ -68,15 +67,28 @@ uint64_t syscall(void)
 			break;
 	
 //#define SYS_brk        12
-//#define SYS_fork       57
+
+		case SYS_fork:
+			ret = sys_fork();
+			return ret;
+			break;
 
 		case SYS_getpid:
 			ret = sys_getpid();
 			return ret;
 			break;
 
-//#define SYS_getppid   110
-//#define SYS_execve     59
+		case SYS_getppid:
+			ret = sys_getppid();
+			return ret;
+			break;
+
+		case SYS_execve:
+			ret = sys_execve((char *)a1, (char **)a2, (char **)a3);
+			return ret;
+			break;
+
+
 //#define SYS_wait4      61
 //#define SYS_nanosleep  35
 //#define SYS_alarm      37

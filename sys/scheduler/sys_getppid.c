@@ -28,33 +28,11 @@
 #include <sys/sched/sched.h>
 #include <sys/managemem.h>
 #include <sys/debug.h>
-#include <sys/sbunix.h>
 
 
-void
-sys_yield(void)
+uint64_t
+sys_getppid(void)
 {
-	task_t *next_task;
-	task_t *current_task;
-	// TODO how to get current task pointer and next task point
-	next_task = get_next_task();
-	current_task = gp_current_task;
-	debug_print("yield", "Current task pid: %d\n", current_task->pid);
-	debug_print("yield", "Next task pid: %d\n", next_task->pid);
-	// switch context
-	if (current_task->status != PROCESS_TERMINATED)
-		current_task->status = PROCESS_READY;
-	next_task->status = PROCESS_RUNNING;
-
-	gp_current_task = next_task;
-	//if(current_task != NULL)
-
-	//load_cr3(cr3e_t cr3)
-	load_cr3(next_task->cr3);
-	if(current_task->pid == 1) {
-		switch_context((struct regs_struct*)NULL, (struct regs_struct*)next_task->context.regs); 
-	} else {
-		switch_context((struct regs_struct*)current_task->context.regs, (struct regs_struct*)next_task->context.regs);
-	}
+	return (uint64_t)(gp_current_task->parent);
 }
 

@@ -53,6 +53,7 @@ task_t *newtask(const char *task_name, process_type_t type)
 
 	task->cr3 = new_cr3;
 	task->pid = new_pid;
+	task->parent = gp_current_task->pid;
 	task->type = type;
 	task->status = PROCESS_NEW;
 	strcpy(task->name, task_name);
@@ -118,15 +119,15 @@ void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base 
 	task->context.regs[CONTEXT_SS_OFFSET] = GDT_KERNEL_DATA_SEG;
 #else
 	task->context.regs[CONTEXT_CS_OFFSET] = GDT_USER_CODE_SEG;
-        task->context.regs[CONTEXT_DS_OFFSET] = GDT_USER_DATA_SEG;
-        task->context.regs[CONTEXT_ES_OFFSET] = GDT_USER_DATA_SEG;
-        task->context.regs[CONTEXT_FS_OFFSET] = GDT_USER_DATA_SEG;
-        task->context.regs[CONTEXT_GS_OFFSET] = GDT_USER_DATA_SEG;
-        task->context.regs[CONTEXT_SS_OFFSET] = GDT_USER_DATA_SEG;
+	task->context.regs[CONTEXT_DS_OFFSET] = GDT_USER_DATA_SEG;
+	task->context.regs[CONTEXT_ES_OFFSET] = GDT_USER_DATA_SEG;
+	task->context.regs[CONTEXT_FS_OFFSET] = GDT_USER_DATA_SEG;
+	task->context.regs[CONTEXT_GS_OFFSET] = GDT_USER_DATA_SEG;
+	task->context.regs[CONTEXT_SS_OFFSET] = GDT_USER_DATA_SEG;
 
 #endif
 
-	
+
 	task->context.regs[CONTEXT_RIP_OFFSET] = entry_point;
 	// TODO needed to enable interrupt by dongju
 	task->context.regs[CONTEXT_RFLAG_OFFSET] |= (0x1 << 9);	// IF(bit 9) enable	

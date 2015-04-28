@@ -100,6 +100,8 @@ struct regs_struct
 typedef struct
 {
 	kpid_t pid;
+	kpid_t parent;
+
 	char name[MAX_TASK_NAME];
 	
 	// related to memory and regs //
@@ -140,12 +142,19 @@ void load_test_tasks(void);
 
 task_t *gettask(kpid_t pid);
 void loadtask(task_t *task);
+void unloadtask(task_t *task);
+
+task_t *get_next_task(void);
+
 task_t *newtask(const char *task_name, process_type_t type);
+uint64_t sys_execve(const char *filename, char *const argv[], char *const envp[]);
+uint64_t sys_fork(void);
 
 uint64_t sys_getpid(void);
+uint64_t sys_getppid(void);
 void sys_yield(void);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
-uint64_t sys_exit(uint64_t res);
+void sys_exit(uint64_t res);
 
 void scheduler(void);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);

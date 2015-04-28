@@ -25,14 +25,18 @@
  *
  */
 
+
 #include <sys/sched/sched.h>
 #include <sys/managemem.h>
 #include <sys/debug.h>
 
 
-uint64_t
+void
 sys_exit(uint64_t res)
 {
-	return res;
+	task_t *task = gp_current_task;
+	freevmem(task->pid);
+	unloadtask(task);
+	sys_yield();
+	return;
 }
-

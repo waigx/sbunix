@@ -50,9 +50,8 @@ int main(int argc, char* argv[], char* envp[])
 
 	//printf("1");
 	//while(1);
-	while(1) {
 
-		printf("I'm user_1 and count = %x\n",i++);
+	printf("I'm user_1 and count = %x\n",i++);
 //		*test1_ptr = 123;
 //		*test2_ptr = 124;
 //		*test3_ptr = 125;
@@ -60,8 +59,7 @@ int main(int argc, char* argv[], char* envp[])
 //		printf("test2_ptr-> %d\n",*test2_ptr);
 //		printf("test3_ptr-> %d\n",*test3_ptr);
 
-		testfun(i);
-	}
+	testfun(i);
 	return 0;
 }
 

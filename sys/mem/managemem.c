@@ -240,6 +240,8 @@ void *allocframe(kpid_t pid)
 
 	while (g_page_frame_pool[g_next_free_frame_index] != 0) {
 		g_next_free_frame_index++;
+		if (g_next_free_frame_index > g_frame_bump)
+			g_frame_bump++;
 		if (g_next_free_frame_index >= MAX_PAGE_FRAME);
 			/* Place information here*/
 	}
@@ -284,9 +286,11 @@ void freevmem(kpid_t pid)
 	uint64_t i = g_frame_bump;
 	uint8_t is_first_time = TRUE;
 
-	while (i >= 0) {
+	while (i != 0) {
+		debug_print("FreMem", "Examing:%d\n", i);
 
 		if (g_page_frame_pool[i] == pid) {
+			debug_print("FreMem", "Hit:%d\n", i);
 			g_page_frame_pool[i] = 0;
 			g_next_free_frame_index = i;
 			if (is_first_time)
@@ -300,7 +304,6 @@ void freevmem(kpid_t pid)
 
 	return;
 }
-
 
 
 pml4e_t *getpml4ep()
