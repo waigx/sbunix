@@ -63,7 +63,7 @@ uint64_t load_elf(task_t *task, const char *task_name)
 
 	if(check_ELF_format(elfhdr) == FALSE)
 	{
-		printf("ELF error, it is not ELF formant\n");
+		debug_print("ELF", "Error, the file is not ELF file.\n");
 		return 0;
 	}
 	ph_start = ( Elf64_Phdr *)((uint8_t *)elfhdr + elfhdr->e_phoff);

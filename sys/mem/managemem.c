@@ -71,7 +71,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 	pml4e = *(pml4e_p + pml4e_offset);
 	if ((pml4e & PTE_PRESENTS) != PTE_PRESENTS) {
 		temp_ptr = allocframe(pid);
-		*(pml4e_p + pml4e_offset) = physaddr2pebase(temp_ptr) | PTE_PRESENTS | PTE_SUPER;
+		*(pml4e_p + pml4e_offset) = physaddr2pebase(temp_ptr) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
 		for (i=0; i<512; i++)
 		{
 			*(pdpe_p + i) = 0;
@@ -81,7 +81,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 	pdpe = *(pdpe_p + pdpe_offset);
 	if ((pdpe & PTE_PRESENTS) != PTE_PRESENTS) {
 		temp_ptr = allocframe(pid);
-		*(pdpe_p + pdpe_offset) = physaddr2pebase(temp_ptr) | PTE_PRESENTS | PTE_SUPER;
+		*(pdpe_p + pdpe_offset) = physaddr2pebase(temp_ptr) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
 		for (i=0; i<512; i++)
 		{
 			*(pde_p + i) = 0;
@@ -91,7 +91,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 	pde = *(pde_p + pde_offset);
 	if ((pde & PTE_PRESENTS) != PTE_PRESENTS) {
 		temp_ptr = allocframe(pid);
-		*(pde_p + pde_offset) = physaddr2pebase(temp_ptr) | PTE_PRESENTS | PTE_SUPER;
+		*(pde_p + pde_offset) = physaddr2pebase(temp_ptr) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
 		for (i=0; i<512; i++)
 		{
 			*(pte_p + i) = 0;
@@ -135,7 +135,7 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 		pdpe_p = (pdpe_t *)pe2physaddr(pml4e);
 	} else {
 		pdpe_p = newmemtable(pid, 1 << VADDR_PDPE, FALSE);
-		*(pml4e_p + pml4e_offset) = physaddr2pebase(pdpe_p) | PTE_PRESENTS | PTE_SUPER;
+		*(pml4e_p + pml4e_offset) = physaddr2pebase(pdpe_p) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
 	}
 
 	pdpe = *(pdpe_p + pdpe_offset);
@@ -143,7 +143,7 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 		pde_p = (pde_t *)pe2physaddr(pdpe);
 	} else {
 		pde_p = newmemtable(pid, 1 << VADDR_PDE, FALSE);
-		*(pdpe_p + pdpe_offset) = physaddr2pebase(pde_p) | PTE_PRESENTS | PTE_SUPER;
+		*(pdpe_p + pdpe_offset) = physaddr2pebase(pde_p) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
 	}
 
 	pde = *(pde_p + pde_offset);
@@ -151,13 +151,12 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 		pte_p = (pte_t *)pe2physaddr(pde);
 	} else {
 		pte_p = newmemtable(pid, 1 << VADDR_PTE, FALSE);
-		*(pde_p + pde_offset) = physaddr2pebase(pte_p) | PTE_PRESENTS | PTE_SUPER;
+		*(pde_p + pde_offset) = physaddr2pebase(pte_p) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
 	}
 
 	pte = *(pte_p + pte_offset);
 
 	if ((pte & PTE_PRESENTS) == PTE_PRESENTS) {
-		*(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | PTE_PRESENTS | PTE_WRITEABLE | PTE_SUPER;
 		return;
 	} else {
 		*(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | PTE_PRESENTS | PTE_WRITEABLE | PTE_SUPER;

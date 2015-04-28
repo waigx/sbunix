@@ -34,7 +34,7 @@ void testfun(int i)
 	for (j = 3; j<10000; j++)
 		*(x + j) = j;
 
-	//printf("stack %x\n", x[1]);
+	printf("stack %x\n", i);
 }
 
 
@@ -50,7 +50,6 @@ int main(int argc, char* argv[], char* envp[])
 
 	//printf("1");
 	//while(1);
-//	__asm volatile("int $0x30");
 	while(1) {
 
 		printf("I'm user_1 and count = %x\n",i++);
@@ -61,7 +60,7 @@ int main(int argc, char* argv[], char* envp[])
 //		printf("test2_ptr-> %d\n",*test2_ptr);
 //		printf("test3_ptr-> %d\n",*test3_ptr);
 
-//		testfun(i);
+		testfun(i);
 	}
 	return 0;
 }
