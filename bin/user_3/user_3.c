@@ -25,44 +25,24 @@
 
 
 #include <stdio.h>
+//#include <sys/sbunix.h>
 #include <syscall.h>
-
-void testfun(int i)
-{
-	volatile uint64_t x[10000];
-	volatile uint64_t j;
-	for (j = 3; j<10000; j++)
-		*(x + j) = j;
-
-	//printf("stack %x\n", x[1]);
-}
-
-
+//#include <sys/kio.h>
 
 int main(int argc, char* argv[], char* envp[]) 
 {
 	uint64_t i = 0;
-//	volatile uint64_t *test1_ptr = (uint64_t *)0xffffffff7ffec748;
-//	volatile uint64_t *test2_ptr = (uint64_t *)0xffffffff7ffec648;
-//	volatile uint64_t *test3_ptr = (uint64_t *)0xffffffff7ffee748;
-	//uint64_t *test_ptr = (uint64_t *)0xadeadbeef;
+    //    uint64_t j = 10000;
 
-
-	//printf("1");
-	//while(1);
-//	__asm volatile("int $0x30");
-	while(1) {
-
-		printf("I'm user_1 and count = %x\n",i++);
-//		*test1_ptr = 123;
-//		*test2_ptr = 124;
-//		*test3_ptr = 125;
-//		printf("test1_ptr-> %d\n",*test1_ptr);
-//		printf("test2_ptr-> %d\n",*test2_ptr);
-//		printf("test3_ptr-> %d\n",*test3_ptr);
-
-//		testfun(i);
-	}
-	return 0;
+        while(1)
+        {
+                printf("I'm user_3 and count = %x\n",i++);
+//		  __asm volatile("sti");		
+//		printfat(10, 10,"I'm user 222 \n");
+//                while(j--);
+  //              j = 1000000;
+      //          if(i % 5 == 0)
+//                        yield(13);
+        }
+        return 0;
 }
-

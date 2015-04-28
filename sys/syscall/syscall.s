@@ -25,7 +25,7 @@
  *
  */
 
-.global	syscall_handler
+.global syscall_handler
 
 .global _sys_exit
 .global _sys_malloc

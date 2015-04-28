@@ -65,8 +65,8 @@
 //#define GDT_KERNEL_CODE_SEG                     0x08
 //#define GDT_KERNEL_DATA_SEG                     0x10
 
-#define GDT_USER_CODE_SEG			0x1B 	//0x1B -3
-#define GDT_USER_DATA_SEG			0x23 	//0x23 -3
+#define GDT_USER_CODE_SEG                       0x1B
+#define GDT_USER_DATA_SEG                       0x23
   
 #define KERNEL_PID                                 1
 #define MAX_PROC_NUM                       (1 << 16)
@@ -136,17 +136,21 @@ extern uint16_t g_task_bump;
 extern task_t *gp_current_task;
 extern uint16_t g_switch_timer;
 
-void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
+void load_test_tasks(void);
+
 task_t *gettask(kpid_t pid);
-void loadtask(kpid_t pid);
+void loadtask(task_t *task);
 task_t *newtask(const char *task_name, process_type_t type);
 
+uint64_t sys_getpid(void);
 void sys_yield(void);
+void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
+uint64_t sys_exit(uint64_t res);
+
 void scheduler(void);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 
 // Legacy
-void round_robin_scheduler(void);
 
 //task_t * create_task(uint64_t instruction_addr, uint8_t *binary , void* virtual_memory_addr, process_type type );
 void add_task_ready_list(struct task_t *task);

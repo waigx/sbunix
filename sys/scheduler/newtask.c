@@ -64,8 +64,8 @@ task_t *newtask(const char *task_name, process_type_t type)
 //		page = (uint64_t)allocframe(pid);
 	} else if (type == USER_PROCESS) {
 		/* KERNEL STACK Setting */
-                phy_stack_base = allocframe(new_pid);
-                kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, KERNEL_STACK_START);
+		phy_stack_base = allocframe(new_pid);
+		kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, KERNEL_STACK_START);
 
 		entry_point = load_elf(task, task_name);
 		init_task(task, entry_point, (uint64_t *)USER_STACK_START, (uint64_t *)KERNEL_STACK_START);

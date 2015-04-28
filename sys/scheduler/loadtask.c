@@ -28,10 +28,9 @@
 #include <sys/managemem.h>
 
 
-void loadtask(kpid_t pid)
+void loadtask(task_t *task)
 {
-	task_t *task = gettask(pid);
-	task->type = PROCESS_READY;
+	task->status = PROCESS_READY;
 
 	return;
 }

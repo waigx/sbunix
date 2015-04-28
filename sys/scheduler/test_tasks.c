@@ -25,18 +25,33 @@
  *
  */
 
+#include <sys/sched/sched.h>
+#include <sys/sbunix.h>
+#include <sys/debug.h>
 
-#ifndef _DEBUG_H
-#define _DEBUG_H
-
-
-#include <sys/defs.h>
 #include <sys/managemem.h>
 
-extern uint8_t g_debug_mode;
 
-uint64_t *debug_convadd2phy(cr3e_t cr3e, void *vaddr);
-void debug_pause();
-void debug_print(const char *category, const char *format, ...);
 
-#endif
+
+void load_test_tasks(void)
+{
+	task_t *task1;
+	task_t *task2;
+//	task_t *task3;
+//	task_t *task4;
+//	task_t *task5;
+
+	task1 = newtask("bin/user_1", USER_PROCESS);
+	task2 = newtask("bin/user_2", USER_PROCESS);
+//	task3 = newtask("bin/user_3", USER_PROCESS);
+//	task4 = newtask("bin/user_4", USER_PROCESS);
+//	task5 = newtask("bin/user_5", USER_PROCESS);
+
+	loadtask(task1);
+	loadtask(task2);
+//	loadtask(task3);
+//	loadtask(task4);
+//	loadtask(task5);
+
+}

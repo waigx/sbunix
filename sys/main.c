@@ -26,6 +26,7 @@ uint64_t g_next_free_frame_index = 0;
 uint16_t g_next_task_free_index = 1;
 uint16_t g_next_task_index = 1;
 uint16_t g_task_bump;
+uint64_t g_frame_bump;
 void *g_physbase;
 void *g_physfree;
 void *g_page_frame_start;
@@ -68,15 +69,10 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 
 	// kernel starts here
 	// Initial kernel
-	printf("[Kernel]: Initializing kernel memory ...\n");
+	debug_print("info", "Initializing kernel memory ...\n");
 	init_kernel(physbase, physfree, physbottom, phystop);
-	printf("[Kernel]: Finished.\n");
+	debug_print("info", "Finished ...\n");
 
-//	// scheduler
-//	reload_idt();
-//	__asm volatile("sti");
-//	while(1);
-//	///////////////////////
 
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.
@@ -85,7 +81,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
 
 	set_timer(100);
-	round_robin_scheduler();
+	load_test_tasks();
 	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
 
 	while (1);
