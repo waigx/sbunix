@@ -135,7 +135,7 @@
 #define EXTEND_BIT_1                                0xffff000000000000
 
 #define USER_STACK_START              (KERNEL_SPACE_START - PAGE_SIZE)
-
+#define KERNEL_STACK_START             (USER_STACK_START + 0x70001000)
 
 /* 
  * PML4E self-ref. address;
