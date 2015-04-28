@@ -31,6 +31,7 @@
 
 #include <sys/defs.h>
 #include <sys/sched/list.h>
+#include <sys/gdt.h>
 
 // SS, RSP, RFLAGS, CS, RIP + registers as ISR //
 
@@ -61,8 +62,11 @@
 #define CONTEXT_RSP_OFFSET                        22
 #define CONTEXT_SS_OFFSET                         23
 
-#define GDT_KERNEL_CODE_SEG                     0x08
-#define GDT_KERNEL_DATA_SEG                     0x10
+//#define GDT_KERNEL_CODE_SEG                     0x08
+//#define GDT_KERNEL_DATA_SEG                     0x10
+
+#define GDT_USER_CODE_SEG			0x1B 	//0x1B -3
+#define GDT_USER_DATA_SEG			0x23 	//0x23 -3
   
 #define KERNEL_PID                                 1
 #define MAX_PROC_NUM                       (1 << 16)
@@ -105,8 +109,16 @@ typedef struct
 	process_status_t status;
 	process_type_t type;
 
-	uint64_t *stack_base;
+	uint64_t *u_stack_base;
+	uint64_t *k_stack_base;
+	uint64_t reserved[4];	/* Don't remove because k_stack_base is scrached, by dongju */
 	struct regs_struct context;
+
+	// TSS
+	struct tss_t *tsss;
+
+	// ring active
+	uint64_t b_ring;
 
 	// Legacy
 	struct task_t *next_task;
@@ -139,5 +151,5 @@ void round_robin_scheduler(void);
 //task_t * create_task(uint64_t instruction_addr, uint8_t *binary , void* virtual_memory_addr, process_type type );
 void add_task_ready_list(struct task_t *task);
 struct task_t* get_current_task(void);
-
+//uint64_t get_kernel_rsp(void);
 #endif

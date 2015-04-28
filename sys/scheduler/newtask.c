@@ -34,8 +34,12 @@
 #include <sys/debug.h>
 #include <sys/sbunix.h>
 
-void init_task(task_t *task, uint64_t entry_point, uint64_t *stack_base);
+void init_task(task_t *task, uint64_t entry_point, uint64_t *user_stack_base, uint64_t *kernel_stack_base);
 void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base);
+
+/* temp code */
+struct tss_t tss_buf[16];
+uint8_t kernel_stack[4096 * 2];
 
 task_t *newtask(const char *task_name, process_type_t type)
 {
@@ -59,8 +63,14 @@ task_t *newtask(const char *task_name, process_type_t type)
 //		init_task(task, instruction_addr, virtual_memory_addr);
 //		page = (uint64_t)allocframe(pid);
 	} else if (type == USER_PROCESS) {
+		/* KERNEL STACK Setting */
+                phy_stack_base = allocframe(new_pid);
+                kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, USER_STACK_START - 4096 * 16);
+
 		entry_point = load_elf(task, task_name);
-		init_task(task, entry_point, (uint64_t *)USER_STACK_START);
+		init_task(task, entry_point, (uint64_t *)USER_STACK_START, (uint64_t *)(USER_STACK_START - 4096 * 16));
+		
+		task->tsss = (struct tss_t *)&(tss_buf[task->pid]);
 	}
 
 
@@ -82,10 +92,11 @@ task_t *newtask(const char *task_name, process_type_t type)
 }
 
 
-void init_task(task_t *task, uint64_t entry_point, uint64_t *stack_base)
+void init_task(task_t *task, uint64_t entry_point, uint64_t *user_stack_base, uint64_t *kernel_stack_base)
 {
-	task->stack_base = stack_base;
-	init_task_context(task, entry_point, stack_base);
+	task->u_stack_base = user_stack_base;
+	task->k_stack_base = kernel_stack_base;
+	init_task_context(task, entry_point, user_stack_base /*kernel_stack_base*/);
 }
 
 
@@ -98,12 +109,23 @@ void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base 
 	task->context.regs[CONTEXT_RSP_OFFSET] = (uint64_t)stack_base + 4096 -8;
 	task->context.regs[CONTEXT_RBP_OFFSET] = (uint64_t)stack_base + 4096 -8;
 
+#if(0)
 	task->context.regs[CONTEXT_CS_OFFSET] = GDT_KERNEL_CODE_SEG;
 	task->context.regs[CONTEXT_DS_OFFSET] = GDT_KERNEL_DATA_SEG;
 	task->context.regs[CONTEXT_ES_OFFSET] = GDT_KERNEL_DATA_SEG;
 	task->context.regs[CONTEXT_FS_OFFSET] = GDT_KERNEL_DATA_SEG;
 	task->context.regs[CONTEXT_GS_OFFSET] = GDT_KERNEL_DATA_SEG;
 	task->context.regs[CONTEXT_SS_OFFSET] = GDT_KERNEL_DATA_SEG;
+#else
+	task->context.regs[CONTEXT_CS_OFFSET] = GDT_USER_CODE_SEG;
+        task->context.regs[CONTEXT_DS_OFFSET] = GDT_USER_DATA_SEG;
+        task->context.regs[CONTEXT_ES_OFFSET] = GDT_USER_DATA_SEG;
+        task->context.regs[CONTEXT_FS_OFFSET] = GDT_USER_DATA_SEG;
+        task->context.regs[CONTEXT_GS_OFFSET] = GDT_USER_DATA_SEG;
+        task->context.regs[CONTEXT_SS_OFFSET] = GDT_USER_DATA_SEG;
+
+#endif
+
 	
 	task->context.regs[CONTEXT_RIP_OFFSET] = entry_point;
 	// TODO needed to enable interrupt by dongju

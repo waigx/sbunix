@@ -27,7 +27,8 @@
 
 .global	switch_context
 
-
+.extern set_rsp_tss
+.extern get_kernel_rsp
 // macro for save all registers and segments for switching context//
 .macro SAVE_CONTEXT 
 	pushq %rbp
@@ -134,7 +135,35 @@ switch_context:
 	/* load new task context */
 .Loadcontext:
 	movq %rsi, %rsp
+	
+	//LOAD_CONTEXT
+	/* set TSS */
+	//movq %rbp, %rax
+	//subq $4096*16, %rax
+	//movq $0xffffffff7ffeff00, %rax
+	call set_rsp_tss
+        movq $0x2B, %rax
+        ltr %ax
+        /* end setting TSS */
 	LOAD_CONTEXT
+	/* switching ring0 to ring3 */
+//	movq $0x23, %rax /* 0x10+3 */
+  //   	movq %rax, %ds
+    // 	movq %rax, %es 
+     //	movq %rax, %fs 
+     //	movq %rax, %gs /*;we don't need to worry about SS. it's handled by iret */
+	
+//	movq %rsp, %rax
+  //   	pushq $0x23 /*;user data segment with bottom 2 bits set for ring 3*/
+    // 	pushq %rax /*;push our current stack just for the heck of it*/
+     //	pushf
+     	//pushq $0x08+$3 /*;user data segment with bottom 2 bits set for ring 3*/
+     	/*push _test_user_function ;may need to remove the _ for this to work right */
+     	//movq %rip, %rax
+	//pushq %rax
+	//iret
+
+
 	sti
 	iretq 
 

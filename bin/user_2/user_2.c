@@ -37,12 +37,12 @@ int main(int argc, char* argv[], char* envp[])
         while(1)
         {
                 printf("I'm user_2 and count = %x\n",i++);
-//		  __asm volatile("sti");		
+//		  __asm volatile("cli");		
 //		printfat(10, 10,"I'm user 222 \n");
 //                while(j--);
   //              j = 1000000;
       //          if(i % 5 == 0)
-//                        yield(13);
+ //                       yield(13);
         }
         return 0;
 }
