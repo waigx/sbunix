@@ -85,6 +85,11 @@
  *   _________________________|_________________|________________|______  
  *                            |                 |            Entry point                 
  *                            |                 |                         
+ *                            |                 |                         
+ *   _________________________|_________________|_______________________  
+ *                            | For VMA structs |              g_vma_end          
+ *   _________________________|_________________|_______________________  
+ *   0x0000 0000 0028 0000    |                 |            g_vma_start
  *   _________________________|_________________|_______________________ _ _ _ _ _ _ _ _ _
  *   0x0000 0000 0020 0000    |                 |             g_physbase              
  *                            | Used by drivers |                           these v.addrs will map  
@@ -149,7 +154,21 @@
  * 
  */
 
-#define PAGE_SELF_REF                  0xffffff7fbfdfe000
+#define PAGE_SELF_REF                               0xffffff7fbfdfe000
+
+
+#define MAX_VMA_NUM                                           (1 << 7)
+#define VMA_EXEC                                              (1 << 0)
+#define VMA_WRITEABLE                                         (1 << 1)
+#define VMA_READABLE                                          (1 << 2)
+#define VMA_START                                   0x0000000000280000
+
+typedef struct {
+	uint64_t *vaddr_start;
+	uint64_t *vaddr_end;
+	uint64_t permission;
+	char name[256];
+} vma_t;
 
 
 extern uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
@@ -158,6 +177,8 @@ extern uint64_t g_frame_bump;
 extern void *g_page_frame_start;
 extern void *g_physbase;
 extern void *g_physfree;
+extern vma_t *g_vma_start;
+extern vma_t *g_vma_end;
 
 
 void *allocframe(kpid_t);

@@ -36,7 +36,11 @@ int backspacechar(int n)
 	uint32_t startpos = (0 > (g_current_pos - 2 * n) ) ? 0 : (g_current_pos - 2 * n);
 	uint32_t shifted = (g_current_pos - startpos) / 2;
 	shiftmem(g_screenshot + startpos, g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW, 2 * shifted);
+	/*
+	 * Comment out for optimized shiftmem
 	setmem(g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW - 2 * shifted, g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW, 0);
+	 */
+
 	g_current_pos -= 2 * shifted;
 	flushscreen();
 

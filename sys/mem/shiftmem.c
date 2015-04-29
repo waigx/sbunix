@@ -26,11 +26,38 @@
 
 #include <sys/mem.h>
 
+/*
+ * THE SHIFT NOT INCLUDE void *end
+ *
+ */
 
-void shiftmem(void *start, void *end, uint32_t offset)
+void shiftmem(void *start, void *end, long long offset)
 {
-	while (start + offset < end) {
-		*(char *)start = *((char *)(start) + offset);
-		start += 1;
+	if (offset == 0)
+		return;
+
+	if (offset > 0) {
+		while (start + offset < end) {
+			*(char *)start = *((char *)(start) + offset);
+			start += 1;
+		}
+		while (start < end) {
+			*(char *)start = 0;
+			start += 1;
+		}
+		return;
+	}
+
+	if (offset < 0) {
+		end -= 1;
+		while (end + offset >= start) {
+			*(char *)end = *((char *)(end) + offset);
+			end -= 1;
+		}
+		while (end >= start) {
+			*(char *)end = 0;
+			end -= 1;
+		}
+		return;
 	}
 }

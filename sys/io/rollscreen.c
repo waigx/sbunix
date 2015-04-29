@@ -32,7 +32,10 @@
 void rollscreen(int n)
 {
 	shiftmem(g_screenshot, g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW, 2 * n * CONSOLE_COL);
+	/*
+	 * Comment out for optimized shiftmem
 	setmem( g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW - 2 * n * CONSOLE_COL, g_screenshot + 2 * CONSOLE_COL * CONSOLE_ROW, 0);
+	 */
 	g_current_pos -= 2 * n * CONSOLE_COL;
 	flushscreen();
 }
