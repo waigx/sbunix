@@ -22,6 +22,7 @@ typedef          int   intptr_t;
 typedef      uint32_t    kpid_t;
 typedef      uint64_t    size_t;
 
+typedef      uint64_t    cr0e_t;
 typedef      uint64_t    cr3e_t;
 typedef      uint64_t   pml4e_t;
 typedef      uint64_t    pdpe_t;

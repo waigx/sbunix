@@ -28,6 +28,7 @@
 
 #include <sys/sched/sched.h>
 #include <sys/mem.h>
+#include <sys/defs.h>
 #include <sys/managemem.h>
 #include <sys/elf.h>
 #include <string.h>
@@ -58,7 +59,7 @@ task_t *newtask(const char *task_name, process_type_t type)
 	task->status = PROCESS_NEW;
 	strcpy(task->name, task_name);
 	phy_stack_base = allocframe(new_pid);
-	kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, USER_STACK_START);
+	kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, USER_STACK_START, TRUE, FALSE);
 
 	if(type == KERNEL_PROCESS) {
 //		init_task(task, instruction_addr, virtual_memory_addr);
@@ -66,7 +67,7 @@ task_t *newtask(const char *task_name, process_type_t type)
 	} else if (type == USER_PROCESS) {
 		/* KERNEL STACK Setting */
 		phy_stack_base = allocframe(new_pid);
-		kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, KERNEL_STACK_START);
+		kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, KERNEL_STACK_START, FALSE, TRUE);
 
 		entry_point = load_elf(task, task_name);
 		init_task(task, entry_point, (uint64_t *)USER_STACK_START, (uint64_t *)KERNEL_STACK_START);

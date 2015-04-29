@@ -43,19 +43,22 @@
  *                            |                 |                |                
  *                            |                 |               \|/               
  *                            |                 |                `               
- *   _________________________|_________________|_______________________
- *                            |                 |  KERNEL_PROC_HEAP_SIZE
- *                            |  Store tasks    |                         
- *   _________________________|_________________|_______________________
- *                            |                 |             g_physfree            
- *                            |                 |                         
- *                            | Used by kernel  |                         
- *                            |                 |                         
- *   _________________________|_________________|_______________________
- *                            |                 |             g_physbase
- *                            | Used by drivers |             
- *                            |                 |             
- *   _________________________|_________________|_______________________
+ *   _________________________|_________________|_______________________ _ _ _ _ _ _ _ _ _
+ *   0xFFFF FFFF 8080 0000    |                 |                                      .     
+ *                            |                 |                                     /|\
+ *   _________________________|_________________|_______________________               |
+ *                            |                 |  KERNEL_PROC_HEAP_SIZE               |
+ *                            |  Store tasks    |                                      |
+ *   _________________________|_________________|_______________________             
+ *                            |                 |           + g_physfree    these v.addrs will map           
+ *                            |                 |                             to the same p.addrs  
+ *                            | Used by kernel  |                                  
+ *                            |                 |                                      |
+ *   _________________________|_________________|_______________________               |
+ *   0xFFFF FFFF 0020 0000    |                 |           + g_physbase               |
+ *                            | Used by drivers |                                     \|/
+ *                            |                 |                                      `   
+ *   _________________________|_________________|_______________________ _ _ _ _ _ _ _ _ _
  *   0xFFFF FFFF 8000 0000    |                 |     KERNEL_SPACE_START
  *   _________________________|_________________|_______________________
  *   0xFFFF FFFF 7FFF F000    |                 |       USER_STACK_START
@@ -63,39 +66,36 @@
  *                            |                 |               \|/               
  *                            |                 |                `               
  *                            |                 |                         
- *                            |                 |                         
- *                            |                 |                         
  *   _________________________|_________________|_______________________
  *   0xFFFF FF7F FFFF FFFF    |  For self-ref   |  
  *   _________________________|_________________|_______________________
  *   0xFFFF FF00 0000 0000    |                 |              
- *                            |                 |                         
- *                            |                 |                         
  *                                                                        
  *                            ~ ~ ~ ~ ~ ~ ~ ~ ~ ~                         
  *                                                                        
- *                            |                 |                         
  *                            |                 |                .        
  *                            |                 |               /|\       
  *   _________________________|_________________|________________|______  
  *                            |                 |           g_heap_start                    
- *                            |                 |                         
  *                                                                        
  *                            ~ ~ ~ ~ ~ ~ ~ ~ ~ ~                         
  *                                                                        
- *                            |                 |                         
  *                            |                 |                .        
  *                            |                 |               /|\       
  *   _________________________|_________________|________________|______  
  *                            |                 |            Entry point                 
  *                            |                 |                         
- *   _________________________|_________________|_______________________
- *                            |                 |             g_physbase                                 
- *                            | Used by drivers |                         
- *                            |                 |                         
- *   _________________________|_________________|_______________________
+ *   _________________________|_________________|_______________________ _ _ _ _ _ _ _ _ _
+ *   0x0000 0000 0020 0000    |                 |             g_physbase              
+ *                            | Used by drivers |                           these v.addrs will map  
+ *                            |                 |                             to the same p.addrs  
+ *   _________________________|_________________|_______________________ _ _ _ _ _ _ _ _ _
  *   0x0000 0000 0000 0000                                       
  *                                                                            
+ *                                                                  
+ *                                                                  
+ *                                                                  
+ *                                           *NOTICE: map to same p.addrs haven't been implemented.
  *                                                                  
  */
 
@@ -103,16 +103,14 @@
 #include <sys/sched/sched.h>
 
 
-#define CR3_PWT                                                    0x8
-#define CR3_PCD                                                   0x10
+#define CR0_WP                                             (0x1 << 16)
 
-#define PTE_PRESENTS                                               0x1
-#define PTE_WRITEABLE                                              0x2
-#define PTE_SUPER                                                  0x4
-#define PTE_PWT                                                    0x8
-#define PTE_PCD                                                   0x10
-
-#define PTE_DIRTY                                                 0x40
+#define PTE_PRESENTS                                        (0x1 << 0)
+#define PTE_WRITEABLE                                       (0x1 << 1)
+#define PTE_USER                                            (0x1 << 2)
+#define PTE_PWT                                             (0x1 << 3)
+#define PTE_PCD                                             (0x1 << 4)
+#define PTE_DIRTY                                           (0x1 << 6)
 
 #define PAGE_SIZE_LOG2                                              12
 #define PAGE_SIZE                                (1 << PAGE_SIZE_LOG2)
@@ -171,7 +169,7 @@ void freevmem(kpid_t pid);
 
 void linearmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physstart, uint64_t physend, uint64_t offset);
 
-void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr);
+void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr, uint8_t is_user, uint8_t is_writable);
 void mmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr);
 
 uint64_t *pe2physaddr(uint64_t pe);
@@ -184,12 +182,6 @@ pde_t *getpdep(uint64_t vaddr);
 pte_t *getptep(uint64_t vaddr);
 
 
-static __inline void load_cr3(cr3e_t cr3)
-{
-	__asm__ __volatile__(
-		"movq %0, %%cr3\n\t"
-		: 
-		: "r" (cr3));
-}
+
 
 #endif

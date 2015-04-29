@@ -105,7 +105,6 @@ uint64_t syscall(void)
 //#define SYS_getdents   78
 
 		case SYS_yield:
-			//printf("calling sys_yield()\n");
 			sys_yield();
 			return 0;
 			break;

@@ -32,6 +32,7 @@
 #include <sys/kio.h>
 #include <sys/sbunix.h>
 #include <sys/debug.h>
+#include <sys/register.h>
 
 
 void _init_mem_pools()
@@ -47,10 +48,12 @@ cr3e_t _init_kernel_mem(kpid_t pid, uint64_t physbase, uint64_t physfree, uint64
 	pml4e_t *pml4e_p = (pml4e_t *)newmemtable(pid, 1 << VADDR_PML4E, TRUE);
 
 	for (i = (uint64_t)0; i <= phystop; i+= (PAGE_SIZE))
-		kmmap(pml4e_p, pid, i, i);
+		kmmap(pml4e_p, pid, i, i, FALSE, TRUE);
 
 	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
-		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START);
+		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START, FALSE, TRUE);
+
+	debug_print("Mem", "page_frame_start:%p\n", page_frame_start);
 
 	printf("[Kernel Init Mem]: Kernel memory tables take %d page frames.\n", g_next_free_frame_index);
 
@@ -88,6 +91,8 @@ void init_kernel(void *physbase, void *physfree, void *physbottom, void *phystop
 	g_task_start = (task_t *)(g_physfree + KERNEL_SPACE_START);
 	gp_current_task = g_task_start + KERNEL_PID;
 	gp_current_task->status = PROCESS_RUNNING;
+
+	//clearcr0bit(CR0_WP);
 
 	_init_kernel_process(physbase, physfree, physbottom, phystop);
 	load_cr3(gettask(KERNEL_PID)->cr3);

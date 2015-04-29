@@ -75,6 +75,16 @@ uint64_t get_r10_register(void)
 	return ret;
 }
 
+uint64_t get_cr0_register(void)
+{
+	uint64_t ret = 0;
+	__asm__ __volatile__("movq %%cr0, %0"
+			:"=r"(ret)
+			:
+			);
+	return ret;
+}
+
 uint64_t get_cr2_register(void)
 {
 	uint64_t ret = 0;

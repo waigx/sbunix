@@ -83,7 +83,7 @@ uint64_t load_elf(task_t *task, const char *task_name)
 			//permission =
 
 			page = (uint64_t)allocframe(task->pid);
-			kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr);
+			kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr, TRUE, FALSE);
 			temp_cr3 = get_cr3_register();
 			load_cr3(task->cr3);
 			copymem((uint64_t *)vaddr,(uint64_t *)(offset+ (uint64_t)elfhdr), size);

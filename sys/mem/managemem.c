@@ -52,6 +52,7 @@ uint64_t physaddr2pebase(uint64_t *physaddr)
 
 void newvaddr(kpid_t pid, uint64_t vaddr)
 {
+	uint64_t permission_bits = PTE_PRESENTS | PTE_USER | PTE_WRITEABLE;
 	uint64_t *temp_ptr;
 	int i;
 	pml4e_t pml4e;
@@ -72,7 +73,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 	pml4e = *(pml4e_p + pml4e_offset);
 	if ((pml4e & PTE_PRESENTS) != PTE_PRESENTS) {
 		temp_ptr = allocframe(pid);
-		*(pml4e_p + pml4e_offset) = physaddr2pebase(temp_ptr) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
+		*(pml4e_p + pml4e_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 		for (i=0; i<512; i++)
 		{
 			*(pdpe_p + i) = 0;
@@ -82,7 +83,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 	pdpe = *(pdpe_p + pdpe_offset);
 	if ((pdpe & PTE_PRESENTS) != PTE_PRESENTS) {
 		temp_ptr = allocframe(pid);
-		*(pdpe_p + pdpe_offset) = physaddr2pebase(temp_ptr) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
+		*(pdpe_p + pdpe_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 		for (i=0; i<512; i++)
 		{
 			*(pde_p + i) = 0;
@@ -92,7 +93,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 	pde = *(pde_p + pde_offset);
 	if ((pde & PTE_PRESENTS) != PTE_PRESENTS) {
 		temp_ptr = allocframe(pid);
-		*(pde_p + pde_offset) = physaddr2pebase(temp_ptr) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
+		*(pde_p + pde_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 		for (i=0; i<512; i++)
 		{
 			*(pte_p + i) = 0;
@@ -102,7 +103,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 	pte = *(pte_p + pte_offset);
 	if ((pte & PTE_PRESENTS) != PTE_PRESENTS) {
 		temp_ptr = allocframe(pid);
-		*(pte_p + pte_offset) = physaddr2pebase(temp_ptr) | PTE_PRESENTS | PTE_WRITEABLE | PTE_SUPER;
+		*(pte_p + pte_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 		printf("[page phy]: %p\n", temp_ptr);
 	}
 
@@ -114,28 +115,32 @@ void mmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 }
 
 
-void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
+void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr, uint8_t is_user, uint8_t is_writable)
 {
-	pdpe_t *pdpe_p;
-	pde_t *pde_p;
-	pte_t *pte_p;
+	uint64_t permission_bits = PTE_PRESENTS;
 
 	uint64_t pml4e_offset = vaddr << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDPE + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
 	uint64_t pdpe_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
 	uint64_t pde_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PTE + VADDR_OFFSET);
 	uint64_t pte_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
 
+	pdpe_t *pdpe_p;
+	pde_t *pde_p;
+	pte_t *pte_p;
 	pml4e_t pml4e;
 	pdpe_t pdpe;
 	pde_t pde;
 	pte_t pte;
+
+	if (is_user)
+		permission_bits |= PTE_USER | PTE_WRITEABLE;
 
 	pml4e = *(pml4e_p + pml4e_offset);
 	if ((pml4e & PTE_PRESENTS) == PTE_PRESENTS) {
 		pdpe_p = (pdpe_t *)pe2physaddr(pml4e);
 	} else {
 		pdpe_p = newmemtable(pid, 1 << VADDR_PDPE, FALSE);
-		*(pml4e_p + pml4e_offset) = physaddr2pebase(pdpe_p) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
+		*(pml4e_p + pml4e_offset) = physaddr2pebase(pdpe_p) | permission_bits;
 	}
 
 	pdpe = *(pdpe_p + pdpe_offset);
@@ -143,7 +148,7 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 		pde_p = (pde_t *)pe2physaddr(pdpe);
 	} else {
 		pde_p = newmemtable(pid, 1 << VADDR_PDE, FALSE);
-		*(pdpe_p + pdpe_offset) = physaddr2pebase(pde_p) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
+		*(pdpe_p + pdpe_offset) = physaddr2pebase(pde_p) | permission_bits;
 	}
 
 	pde = *(pde_p + pde_offset);
@@ -151,7 +156,7 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 		pte_p = (pte_t *)pe2physaddr(pde);
 	} else {
 		pte_p = newmemtable(pid, 1 << VADDR_PTE, FALSE);
-		*(pde_p + pde_offset) = physaddr2pebase(pte_p) | PTE_PRESENTS |  PTE_WRITEABLE |PTE_SUPER;
+		*(pde_p + pde_offset) = physaddr2pebase(pte_p) | permission_bits;
 	}
 
 	pte = *(pte_p + pte_offset);
@@ -161,71 +166,14 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
 		debug_pause();
 		return;
 	} else {
-		*(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | PTE_PRESENTS | PTE_WRITEABLE | PTE_SUPER;
+		permission_bits = PTE_PRESENTS;
+		if (is_writable)
+			permission_bits |= PTE_WRITEABLE;
+		if (is_user)
+			permission_bits |= PTE_USER;
+		*(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | permission_bits;
 	}
 	return;
-}
-
-
-void linearmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physstart, uint64_t physend, uint64_t offset)
-{
-	pdpe_t *pdpe_p;
-	pde_t *pde_p;
-	pte_t *pte_p;
-
-	uint64_t pml4e_floor;
-	uint64_t pml4e_ceiling;
-	uint64_t pdpe_floor;
-	uint64_t pdpe_ceiling;
-	uint64_t pde_floor;
-	uint64_t pde_ceiling;
-	uint64_t pte_floor;
-	uint64_t pte_ceiling;
-
-	uint64_t vmemstart = KERNEL_SPACE_START + physstart;
-	uint64_t vmemend = KERNEL_SPACE_START + physend;
-
-	pml4e_floor = vmemstart << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDPE + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
-	pml4e_ceiling = vmemend << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDPE + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
-
-	for (; pml4e_floor <= pml4e_ceiling; pml4e_floor++) {
-		pdpe_floor = vmemstart << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
-		if (pdpe_floor < (pml4e_floor << VADDR_PDPE))
-			pdpe_floor = pml4e_floor << VADDR_PDPE;
-		pdpe_ceiling = vmemend << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
-		if (pdpe_ceiling > (pdpe_floor + (1 << (VADDR_PDPE + 1)) - 1))
-			pdpe_ceiling = pdpe_floor + (1 << (VADDR_PDPE + 1)) - 1;
-
-		pdpe_p = newmemtable(pid, 1 << VADDR_PDPE, FALSE);
-		*(pml4e_p + pml4e_floor) = physaddr2pebase(pdpe_p) << VADDR_OFFSET | PTE_PRESENTS | PTE_SUPER | PTE_WRITEABLE;
-
-		for (; pdpe_floor <= pdpe_ceiling; pdpe_floor++) {
-			pde_floor = vmemstart << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PTE + VADDR_OFFSET);
-			if (pde_floor < (pdpe_floor << VADDR_PDE))
-				pde_floor = pdpe_floor << VADDR_PDE;
-			pde_ceiling = vmemend << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PTE + VADDR_OFFSET);
-			if (pde_ceiling > (pde_floor + (1 << (VADDR_PDE + 1)) - 1))
-				pde_ceiling = pde_floor + (1 << (VADDR_PDE + 1)) - 1;
-
-			pde_p = newmemtable(pid, 1 << VADDR_PDE, FALSE);
-			*(pdpe_p + (pdpe_floor & ((1 << (VADDR_PDPE + 1)) - 1))) = physaddr2pebase(pde_p) << VADDR_OFFSET | PTE_PRESENTS | PTE_SUPER | PTE_WRITEABLE;
- 
-			for (; pde_floor <= pde_ceiling; pde_floor++){
-				pte_floor = vmemstart << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_OFFSET);
-				if (pte_floor < (pde_floor << VADDR_PTE))
-					pte_floor = pde_floor << VADDR_PTE;
-				pte_ceiling = vmemend << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_OFFSET);
-				if (pte_ceiling > (pte_floor + (1 << (VADDR_PTE + 1)) - 1))
-					pte_ceiling = pte_floor + (1 << (VADDR_PTE + 1)) - 1;
-
-				pte_p = newmemtable(pid, 1 << VADDR_PTE, FALSE);
-				*(pde_p + (pde_floor & ((1 << (VADDR_PDE + 1)) - 1))) = physaddr2pebase(pte_p) << VADDR_OFFSET | PTE_PRESENTS | PTE_SUPER | PTE_WRITEABLE;
-
-				for (; pte_floor <= pte_ceiling; pte_floor++)
-					*(pte_p + (pte_floor & ((1 << (VADDR_PTE + 1)) - 1))) = (uint64_t)(pte_floor - offset) << VADDR_OFFSET | PTE_PRESENTS | PTE_WRITEABLE;
-			}
-		}
-	}
 }
 
 
@@ -258,7 +206,7 @@ uint64_t *newmemtable(kpid_t pid, uint64_t table_size, uint8_t is_self_ref)
 		*(start_p + i) = 0;
 
 	if (is_self_ref)
-		*(start_p + 510) = physaddr2pebase(start_p) | PTE_PRESENTS | PTE_SUPER | PTE_WRITEABLE;
+		*(start_p + 510) = physaddr2pebase(start_p) | PTE_PRESENTS | PTE_USER | PTE_WRITEABLE;
 
 	return start_p;
 }
@@ -272,10 +220,10 @@ cr3e_t newvmem(kpid_t pid)
 	pml4e_t *pml4e_p = (pml4e_t *)newmemtable(pid, 1 << VADDR_PML4E, TRUE);
 
 	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
-		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START);
+		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START, FALSE, TRUE);
 
 	for (i = (uint64_t)0; i < (uint64_t)g_physbase; i += (PAGE_SIZE))
-		kmmap(pml4e_p, pid, i, i);
+		kmmap(pml4e_p, pid, i, i, FALSE, TRUE);
 	
 	return (cr3e_t)physaddr2pebase(pml4e_p);
 }
@@ -287,10 +235,10 @@ void freevmem(kpid_t pid)
 	uint8_t is_first_time = TRUE;
 
 	while (i != 0) {
-		debug_print("FreMem", "Examing:%d\n", i);
+//		debug_print("FreMem", "Examing:%d\n", i);
 
 		if (g_page_frame_pool[i] == pid) {
-			debug_print("FreMem", "Hit:%d\n", i);
+//			debug_print("FreMem", "Hit:%d\n", i);
 			g_page_frame_pool[i] = 0;
 			g_next_free_frame_index = i;
 			if (is_first_time)
@@ -304,6 +252,9 @@ void freevmem(kpid_t pid)
 
 	return;
 }
+
+
+
 
 
 pml4e_t *getpml4ep()
