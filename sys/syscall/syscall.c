@@ -25,10 +25,14 @@
  *
  */
 
+
+#include <stdlib.h>
+
 #include <sys/register.h>
 #include <syscall.h>
 #include <sys/sbunix.h>
 #include <sys/sched/sched.h>
+#include <sys/tarfs_api.h>
 #include <sys/debug.h>
 
 
@@ -96,21 +100,45 @@ uint64_t syscall(void)
 			return ret;
 			break;
 
-
 //#define SYS_wait4      61
 //#define SYS_nanosleep  35
 //#define SYS_alarm      37
 //#define SYS_getcwd     79
 //#define SYS_chdir      80
-//#define SYS_open        2
-//#define SYS_read        0
-//#define SYS_write       1
-//#define SYS_lseek       8
-//#define SYS_close       3
+
+		case SYS_open:
+			open_tarfs((const char *)a1, a2);
+			return get_rax_register();
+			break;
+
+		case SYS_read:
+			read_tarfs((int)a1, (void *)a2, (size_t)a3);
+			return get_rax_register();
+			break;
+
+		case SYS_write:
+			sys_write((int)a1, (char *)a2, (size_t)a3);
+			return get_rax_register();
+			break;
+
+		case SYS_lseek:
+			lseek_tarfs((int)a1, (off_t)a2, (int)a3);
+			return get_rax_register();
+			break;
+
+		case SYS_close:
+			close_tarfs((int)a1);
+			return get_rax_register();
+			break;
+
 //#define SYS_pipe       22
 //#define SYS_dup        32
 //#define SYS_dup2       33
-//#define SYS_getdents   78
+
+		case  SYS_getdents:
+			sys_getdentry((uint64_t)a1, (uint64_t *)a2, (uint64_t)a3);
+			return get_rax_register();
+			break;
 
 		case SYS_yield:
 			sys_yield();

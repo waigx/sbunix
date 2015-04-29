@@ -4,12 +4,22 @@
 #include <sys/defs.h>
 #include <stdlib.h>
 
+#define MAX_OPEN_FILE_DESCRIPT  1024
+#define STANDARD_IO_IN		0
+#define STANDARD_IO_OUT		1
+#define STANDARD_IO_ERROR	2
+
+
 struct file_descript
 {
 	struct posix_header_ustar *header;
 	uint64_t ptr;
 	uint64_t mode;
 };
+ssize_t sys_write(int fd, const void *buf, size_t count);
+
+
+uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size);
 
 
 uint64_t find_elf(const char *pathname, int flags);
@@ -26,7 +36,8 @@ int close_tarfs(int fd);
 
 void *opendir_tarfs(const char *name);
 
-struct dirent *readdir_tarfs(void *dir);
+//struct dirent *readdir_tarfs(void *dir);
+struct posix_header_ustar *readdir_tarfs(int fd, uint64_t buf);
 
 int closedir_tarfs(void *dir);
 

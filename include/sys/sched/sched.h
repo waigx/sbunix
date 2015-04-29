@@ -31,6 +31,7 @@
 
 #include <sys/defs.h>
 #include <sys/sched/list.h>
+#include <sys/tarfs_api.h>
 #include <sys/gdt.h>
 
 // SS, RSP, RFLAGS, CS, RIP + registers as ISR //
@@ -68,6 +69,7 @@
 #define GDT_USER_CODE_SEG                       0x1B
 #define GDT_USER_DATA_SEG                       0x23
   
+#define MAX_TASKS		1024
 #define KERNEL_PID                                 1
 #define MAX_PROC_NUM                       (1 << 16)
 #define MAX_TASK_NAME                            256
@@ -127,6 +129,7 @@ typedef struct
 	uint64_t pml4e;
 
 	// Open file descript, stdin, stdout, and stderr are 0, 1, and 2 //
+	struct file_descript	*fd[MAX_OPEN_FILE_DESCRIPT];
 	//struct file_descript	fd[MAX_OPEN_FILE_DESCRIPT];
 } task_t;
 

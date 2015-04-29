@@ -78,11 +78,10 @@ void pagefault_handler(void)
 
 void timer_handler(void)
 {
-	echotime();
 	 __asm volatile("cli");
+	echotime();
 	send_eoi(TIMER_IRQ_NUMBER);
 	scheduler();
-	//send_eoi(TIMER_IRQ_NUMBER);
 }
 
 
