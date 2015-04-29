@@ -75,9 +75,9 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 		temp_ptr = allocframe(pid);
 		*(pml4e_p + pml4e_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 		for (i=0; i<512; i++)
-		{
 			*(pdpe_p + i) = 0;
-		}
+	} else {
+		*(pml4e_p + pml4e_offset) = pml4e | permission_bits;
 	}
 
 	pdpe = *(pdpe_p + pdpe_offset);
@@ -85,28 +85,31 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 		temp_ptr = allocframe(pid);
 		*(pdpe_p + pdpe_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 		for (i=0; i<512; i++)
-		{
 			*(pde_p + i) = 0;
-		}
+	} else {
+		*(pdpe_p + pdpe_offset) = pdpe | permission_bits;
 	}
+
 
 	pde = *(pde_p + pde_offset);
 	if ((pde & PTE_PRESENTS) != PTE_PRESENTS) {
 		temp_ptr = allocframe(pid);
 		*(pde_p + pde_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 		for (i=0; i<512; i++)
-		{
 			*(pte_p + i) = 0;
-		}
+	} else {
+		*(pde_p + pde_offset) = pde | permission_bits;
 	}
+ 
 
 	pte = *(pte_p + pte_offset);
 	if ((pte & PTE_PRESENTS) != PTE_PRESENTS) {
 		temp_ptr = allocframe(pid);
 		*(pte_p + pte_offset) = physaddr2pebase(temp_ptr) | permission_bits;
-		printf("[page phy]: %p\n", temp_ptr);
+	} else {
+		*(pte_p + pte_offset) = pte | permission_bits;
 	}
-
+ 
 	return;
 }
 

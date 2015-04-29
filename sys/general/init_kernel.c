@@ -92,7 +92,7 @@ void init_kernel(void *physbase, void *physfree, void *physbottom, void *phystop
 	gp_current_task = g_task_start + KERNEL_PID;
 	gp_current_task->status = PROCESS_RUNNING;
 
-	//clearcr0bit(CR0_WP);
+	clearcr0bit(CR0_WP);
 
 	_init_kernel_process(physbase, physfree, physbottom, phystop);
 	load_cr3(gettask(KERNEL_PID)->cr3);

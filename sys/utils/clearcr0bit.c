@@ -31,8 +31,9 @@
 
 void clearcr0bit(uint64_t bit)
 {
+	uint64_t temp = -1;
 	cr0e_t cr0e = get_cr0_register();
-	bit = (1 << 63) + (1 << 63) - 1 - bit;
+	bit = temp - bit;
 	load_cr0(cr0e & bit);
 	return;
 }
