@@ -55,7 +55,23 @@ void debug(uint64_t err_code)
 void pagefault_handler(void)
 {
 	uint64_t vaddr = get_cr2_register();
+	vma_t *belonged_vma;
 	debug_print("PagFlt", "Virtual addr: %p\n", vaddr);
+	belonged_vma = lookupvmabyvaddr((void *)vaddr);
+	debug_showvmas(g_vma_start);
+	if (belonged_vma == NULL) {
+		debug_print("PagFlt", "No VMAs \n");
+		printf("Segmentation Fault at address:%p\n", vaddr);
+		sys_exit(-1);
+		return;
+	}
+
+	if ((VMA_WRITEABLE & belonged_vma->permission) == FALSE) {
+		debug_print("PagFlt", "VMAs Permission\n");
+		printf("Segmentation Fault at address:%p\n", vaddr);
+		sys_exit(-1);
+		return;
+	}
 	newvaddr(gp_current_task->pid, vaddr);
 }
 

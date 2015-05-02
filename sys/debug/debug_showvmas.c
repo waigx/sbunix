@@ -25,21 +25,27 @@
  *
  */
 
-#include <sys/sched/sched.h>
-#include <sys/managemem.h>
+
 #include <sys/debug.h>
 #include <sys/sbunix.h>
+#include <sys/defs.h>
+#include <sys/managemem.h>
+#include <sys/pic.h>
 
+#define STR_TRUE "TRUE"
+#define STR_FALSE "FALSE"
 
-struct task_t* get_current_task(void)
+void debug_showvmas(vma_t *vma_start)
 {
-        return (struct task_t*)gp_current_task;
+	uint64_t permission;
+	while (vma_start->vaddr_end != NULL) {
+		permission = vma_start->permission;
+		debug_print("vma", "------ %s -----\n", vma_start->name);
+		debug_print("vma", "Range: [%p-%p]\n", vma_start->vaddr_start, vma_start->vaddr_end);
+		debug_print("vma", "Permission: %s%s%s\n", (permission&VMA_READABLE)?"r":"-", (permission&VMA_WRITEABLE)?"w":"-", (permission&VMA_EXEC)?"x":"-");
+		vma_start ++;
+	}
+	return;
 }
-/*
-uint64_t get_kernel_rsp(void)
-{
-	struct task_t *task = get_current_task();
-	return (uint64_t)task->k_stack_base;
 
-}
-*/
+

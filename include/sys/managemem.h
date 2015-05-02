@@ -215,5 +215,7 @@ pdpe_t *getpdpep(uint64_t vaddr);
 pde_t *getpdep(uint64_t vaddr);
 pte_t *getptep(uint64_t vaddr);
 
+uint64_t sys_brk(uint64_t end_data_segment);
+
 
 #endif

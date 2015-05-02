@@ -46,10 +46,9 @@
 void set_rsp_tss(uint64_t rsp)
 {
 	//	uint64_t rsp0 = get_rax_register();
-	task_t *task;
+	task_t *task = gp_current_task;
 	//struct tss_t *tss;
 	//rsp = get_rax_register();
-	task = (task_t *)get_current_task();
 	//tss = (struct tss_t *)&(task->tss);
 	setup_tss_rsp((struct tss_t *)task->tsss, (uint64_t)(task->k_stack_base) + 4096 - 8);	
 

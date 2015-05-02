@@ -66,7 +66,10 @@ uint64_t syscall(void)
 			return 0;
 			break;
 	
-//#define SYS_brk        12
+		case SYS_brk:
+			ret = sys_brk(a1);
+			return ret;
+			break;
 
 		case SYS_fork:
 			ret = sys_fork();

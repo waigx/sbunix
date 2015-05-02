@@ -73,7 +73,7 @@ task_t *newtask(const char *task_name, process_type_t type)
 	phy_stack_base = allocframe(new_pid);
 	kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, USER_STACK_START, TRUE, FALSE);
 	// Init User stack VMA
-	newvma(g_vma_phy_start + 2, (void *)(USER_STACK_START - USER_STACK_SIZE), (void *)(USER_STACK_START), VMA_STACK_NAME, VMA_READABLE | VMA_WRITEABLE);
+	newvma(g_vma_phy_start + 2, (void *)(USER_STACK_START - USER_STACK_SIZE), (void *)(USER_STACK_START + PAGE_SIZE), VMA_STACK_NAME, VMA_READABLE | VMA_WRITEABLE);
 
 	if(type == KERNEL_PROCESS) {
 //		init_task(task, instruction_addr, virtual_memory_addr);

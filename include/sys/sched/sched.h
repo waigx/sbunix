@@ -159,10 +159,5 @@ void sys_exit(uint64_t res);
 void scheduler(void);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 
-// Legacy
 
-//task_t * create_task(uint64_t instruction_addr, uint8_t *binary , void* virtual_memory_addr, process_type type );
-void add_task_ready_list(struct task_t *task);
-struct task_t* get_current_task(void);
-//uint64_t get_kernel_rsp(void);
 #endif
