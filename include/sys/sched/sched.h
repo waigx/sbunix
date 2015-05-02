@@ -31,6 +31,7 @@
 
 #include <sys/defs.h>
 #include <sys/sched/list.h>
+#include <sys/tarfs_api.h>
 // SS, RSP, RFLAGS, CS, RIP + registers as ISR //
 #define	REGISTERS_CONTEXT_SWITCH	(5 + 19)	
 
@@ -63,7 +64,6 @@
 #define	GDT_KERNEL_DATA_SEG	0x10
   
 #define MAX_TASKS		1024
-#define MAX_OPEN_FILE_DESCRIPT	1024
 
 enum process_status
 {
@@ -104,7 +104,7 @@ struct task_t
 	enum process_type	type;
 
 	// Open file descript, stdin, stdout, and stderr are 0, 1, and 2 //
-	//struct file_descript	fd[MAX_OPEN_FILE_DESCRIPT];
+	struct file_descript	*fd[MAX_OPEN_FILE_DESCRIPT];
 
 };
 

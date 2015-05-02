@@ -82,7 +82,7 @@
 // macro for save all registers and segments for switching context//
 .macro SAVE_ALL_REG
 	pushq %rbp
-	pushq %rax
+	//pushq %rax
 	pushq %rbx
 	pushq %rcx
 	pushq %rdx
@@ -116,7 +116,7 @@
 	popq %rdx
 	popq %rcx
 	popq %rbx
-	popq %rax
+	//popq %rax
 	popq %rbp
 .endm
 

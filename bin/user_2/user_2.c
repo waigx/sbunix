@@ -27,12 +27,22 @@
 #include <stdio.h>
 //#include <sys/sbunix.h>
 #include <syscall.h>
+#include <stdlib.h>
 //#include <sys/kio.h>
 
 int main(int argc, char* argv[], char* envp[]) 
 {
 	uint64_t i = 0;
   //      uint64_t j = 10000;
+	int fd = 0;
+
+	fd = open("bin/user_2", 0);
+
+	printf("open fd = %x \n", fd);
+	//printf("header->name = %s\n", 
+
+	while(1);
+
         while(1)
         {
                 printf("I'm user_2 and count = %x\n",i++);

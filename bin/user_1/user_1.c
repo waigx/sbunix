@@ -32,8 +32,9 @@ int main(int argc, char* argv[], char* envp[])
 //	uint64_t j = 10000;
 
 
-	//printf("1");
-	//while(1);
+	printf("user_1 start \n");
+	yield(1);
+	while(1);
 
 	while(1)
 	{

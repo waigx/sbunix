@@ -28,7 +28,7 @@
 #include <syscall.h>
 #include <sys/sbunix.h>
 #include <sys/sched/sched.h>
-
+#include <sys/tarfs_api.h>
 
 uint64_t syscall(void)
 {
@@ -71,6 +71,11 @@ uint64_t syscall(void)
 			printf((const char *)a1, a2, a3, a4, a5);
 			return 0;
 			break;
+
+		case SYS_open:
+			open_tarfs((const char *)a1, a2);
+			return get_rax_register();
+			break;		
 
 /*
 		SYS_brk:

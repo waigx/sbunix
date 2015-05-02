@@ -30,13 +30,16 @@
 #include <string.h>
 //#include <syscall.h>
 #include <sys/sbunix.h>
-//#include <sys/sched/sched.h>
+#include <sys/sched/sched.h>
+#include <sys/managemem.h>
+
 
 #define	OFFSET_SIZE_TARFS	100 + 8 + 8 + 8
 #define BYTES_SIZE_TARFS	12
 
 uint64_t get_file_size(struct posix_header_ustar *tarfs_header);
-
+int64_t get_fd(struct task_t *cur_task, struct posix_header_ustar *header_addr, int flags);
+struct file_descript* alloc_fd_buf(void);
 
 
 uint64_t find_elf(const char *pathname, int flags)
@@ -87,7 +90,7 @@ int open_tarfs(const char *pathname, int flags)
 {
 	struct posix_header_ustar *tarfs_header;
 	int64_t fd = 0;
-	//uint64_t start_header = 0;
+	uint64_t start_header = 0;
 	uint64_t offset = 0;
 	uint64_t address = 0;
 
@@ -100,7 +103,7 @@ int open_tarfs(const char *pathname, int flags)
 		{
 			printf("finding %s file\n",pathname);
 			//fd = (uint64_t)&tarfs_header;
-	//		start_header = (uint64_t)&tarfs_header;
+			start_header = (uint64_t)&tarfs_header;
 			//return fd;
 			break;
 		}
@@ -123,24 +126,30 @@ int open_tarfs(const char *pathname, int flags)
 	}
 
 	// get file descript
-//	fd = get_fd(get_current_task(), start_header, flags); 
+	fd = get_fd((struct task_t *)get_current_task(), (struct posix_header_ustar *)start_header, flags); 
 	
 	return fd;
 }
-#if(0)
+
+#if(1)
 int64_t get_fd(struct task_t *cur_task, struct posix_header_ustar *header_addr, int flags)
 {
 
 	uint64_t i = 0;
 	struct task_t *task = cur_task;
+	//uint64_t *fd_struct_addr;
 
-	for(i = 0; i < MAX_OPEN_FILE_DESCRIPT; i++)
+	for(i = STANDARD_IO_ERROR + 1; i < MAX_OPEN_FILE_DESCRIPT; i++)
 	{
-		if(task->fd[i] != 0 )
+		if(task->fd[i] == NULL )
 		{
-			task->fd[i].header = header_addr;
-			task->fd[i].ptr = 0;
-			task->fd[i].mode = 0;	
+			// TODO need t modify to use malloc about allocating fd struct //
+			//	fd_struct_addr = (uint64_t *)allocframe(task->pid);  
+			//task->fd[i] = (struct file_descript *)fd_struct_addr;
+			task->fd[i] = alloc_fd_buf();
+			task->fd[i]->header = header_addr;
+			task->fd[i]->ptr = 0;
+			task->fd[i]->mode = 0;	
 			break;
 		} 
 	}
@@ -153,6 +162,19 @@ int64_t get_fd(struct task_t *cur_task, struct posix_header_ustar *header_addr, 
 	return (int64_t)i;  
 }
 #endif
+
+/* temp fd mememory by dongju */
+char temp_fd_buf[1024];
+uint64_t g_fd_index = 0;
+struct file_descript* alloc_fd_buf(void)
+{
+	uint64_t *fd_addr;
+	fd_addr = (uint64_t *)(temp_fd_buf + g_fd_index * sizeof(struct file_descript)); 
+	g_fd_index++;
+	return (struct file_descript *)fd_addr;
+
+}
+
 uint64_t get_file_size(struct posix_header_ustar *tarfs_header)
 {
 	char *size_aray;
@@ -177,15 +199,34 @@ uint64_t get_file_size(struct posix_header_ustar *tarfs_header)
 
 ssize_t read_tarfs(int fd, void *buf, size_t count)
 {
+#if(1)
+	struct file_descript *fdt;
+	char *filetype = "0";
+	char *dirtype = "5";
+	sturct task_t *cur_task;
+
+	cur_task = get_current_task();
+	fdt = cur_task->fd[fd]; 
+	
+
+	if(strcmp(fdt->header->typeflag, dirtype) == 0)
+	{
+		printf("it is directory, cannot read it\n");
+	}
+	else if(strcmp(fdt->header->typeflag, filetype) == 0)
+	{
+		
+
+
+	}
+	
+	
+#endif	
+	
 	;
 	return 0;
 }
 
-ssize_t write_tarfs(int fd, const void *buf, size_t count)
-{
-	;
-	return 0;
-}
 
 off_t lseek_tarfs(int fildes, off_t offset, int whence)
 {
@@ -201,6 +242,54 @@ int close_tarfs(int fd)
 
 void *opendir_tarfs(const char *name)
 {
+
+#if(0)
+	struct posix_header_ustar *tarfs_header;
+        //int64_t fd = 0;
+        uint64_t start_header = 0;
+        uint64_t offset = 0;
+        uint64_t address = 0;
+
+        address = (uint64_t)&(_binary_tarfs_start);
+
+
+	/* Need checking dir or file by dongju */
+        while(1)
+        {
+                tarfs_header = (struct posix_header_ustar *)address;
+                if(strcmp(tarfs_header->name, name) == 0)
+                {
+                        printf("finding %s file\n",name);
+                        //fd = (uint64_t)&tarfs_header;
+                        start_header = (uint64_t)&tarfs_header;
+			printf("%x \n", start_header);
+                        //return fd;
+                        break;
+                }
+
+                if(tarfs_header->name[0] == '\0')
+                {
+                        printf("there is not exist %s file\n");
+                        break;
+			//return -1;
+                }
+
+                offset = get_file_size(tarfs_header);
+
+                if(offset != 0)
+                        printf("offset = %x\n",offset);
+                address += sizeof(struct posix_header_ustar);
+                address += ((((offset ) /512 ) /*+ 1 */) * 512);
+
+                if(offset % 512)
+                        address += 512;
+        }
+
+        // get file descript
+        //fd = get_fd((struct task_t *)get_current_task(), (struct posix_header_ustar *)start_header, flags);
+
+        //return (d *)fd;
+#endif
 	;
 	return 0;
 
@@ -208,7 +297,9 @@ void *opendir_tarfs(const char *name)
 
 struct dirent *readdir_tarfs(void *dir)
 {
-	;
+
+
+	
 	return 0;
 }
 

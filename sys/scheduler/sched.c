@@ -53,8 +53,7 @@ void round_robin_scheduler(void)
 			(uint64_t *)/*temp_stack2*/0xffffffff80302000 , USER_PROCESS);
 
 
-	//printf("opne_tarfs output = %x\n", open_tarfs("bin/user_1", 0));
-
+	 //find_elf("bin/user_2), 0);
 
 	//while(1);
 	//
