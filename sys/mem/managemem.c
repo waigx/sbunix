@@ -203,12 +203,13 @@ cr3e_t newvmem(kpid_t pid)
 
 /* PART 3: These functions should be called under user cr3*/
 
-
-
-
 void removevma(vma_t *vma)
 {
-	
+	long long shift_bytes;
+	shift_bytes = sizeof(vma_t);
+
+	shiftmem(vma, g_vma_end, shift_bytes);
+	return;
 }
 
 
@@ -336,16 +337,111 @@ void insertvma(vma_t vma)
 
 void removeaddrange(uint64_t *vaddr_start, uint64_t *vaddr_end)
 {
-	
+	long long shift_bytes;
+	vma_t *currentvma = g_vma_start;
+	vma_t *tempvma;
+
+	while ( currentvma->vaddr_end != NULL ) {
+		if (vaddr_start < currentvma->vaddr_end) {
+			if (vaddr_start <= currentvma->vaddr_start) {
+				tempvma = currentvma;
+				while (tempvma->vaddr_end != NULL){
+					if (vaddr_end < tempvma->vaddr_end){
+						if (vaddr_end <= tempvma->vaddr_start) {
+							/*
+							 * Case 0
+							 *    New vma --------
+							 *    Old vma  ---     ---
+							 */
+							shift_bytes = tempvma - currentvma;
+							shift_bytes *= sizeof(vma_t);
+							shiftmem(currentvma, g_vma_end, shift_bytes);
+							return;
+						} else {
+							/*
+							 * Case 1
+							 *    New vma ----------
+							 *    Old vma  ---     ---
+							 */
+							shift_bytes = tempvma - currentvma;
+							shift_bytes *= sizeof(vma_t);
+							shiftmem(currentvma, g_vma_end, shift_bytes);
+							currentvma->vaddr_start = vaddr_end;
+							return;
+						}
+					}
+					tempvma += 1;
+				}
+				/*
+				 * Case 2
+				 *    New vma -------------
+				 *    Old vma  ---     ---
+				 */
+				shift_bytes = tempvma - currentvma + 1;
+				shift_bytes *= sizeof(vma_t);
+				shiftmem(currentvma, g_vma_end, shift_bytes);
+				return;
+			} else {
+				tempvma = currentvma;
+				while (tempvma->vaddr_end != NULL){
+					if (vaddr_end < tempvma->vaddr_end){
+						if (vaddr_end < tempvma->vaddr_start) {
+							/*
+							 * Case 3
+							 *    New vma   ------
+							 *    Old vma  ---     ---
+							 */
+							shift_bytes = tempvma - currentvma - 1;
+							shift_bytes *= sizeof(vma_t);
+							shiftmem(currentvma + 1, g_vma_end, shift_bytes);
+							currentvma->vaddr_end = vaddr_start;
+						} else {
+							/*
+							 * Case 4
+							 *    New vma   --------
+							 *    Old vma  ---     ---
+							 */
+							shift_bytes = tempvma - currentvma - 1;
+							shift_bytes *= sizeof(vma_t);
+							shiftmem(currentvma + 1, g_vma_end, shift_bytes);
+							currentvma->vaddr_end = vaddr_start;
+							(currentvma + 1)->vaddr_start = vaddr_end;
+							}
+							return;
+						}
+					}
+					tempvma += 1;
+				}
+			/*
+			 * Case 5
+			 *    New vma   -----------
+			 *    Old vma  ---     ---
+			 */
+			shift_bytes = tempvma - currentvma;
+			shift_bytes *= sizeof(vma_t);
+			shiftmem(currentvma + 1, g_vma_end, shift_bytes);
+			currentvma->vaddr_end = vaddr_start;
+			return;
+			}
+		currentvma += 1;
+	}
+	return;
+
 }
 
 
-//vma_t *lookupvmabyvaddr(uint64_t *vaddr)
-//{
-//	
-//}
-//
-//
+vma_t *lookupvmabyvaddr(uint64_t *vaddr)
+{
+	vma_t *currentvma = g_vma_start;
+	while (currentvma->vaddr_end != NULL) {
+		if ((currentvma->vaddr_start <= vaddr) && (vaddr < currentvma->vaddr_end))
+			return currentvma;
+		currentvma += 1;
+	}
+	return NULL;
+}
+
+
 vma_t *lookupvmabyname(const char *name)
 {
 	vma_t *currentvma = g_vma_start;
