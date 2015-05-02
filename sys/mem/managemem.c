@@ -215,8 +215,8 @@ void removevma(vma_t *vma)
 
 void insertvma(vma_t vma)
 {
-	uint64_t *newvma_start = vma.vaddr_start;
-	uint64_t *newvma_end = vma.vaddr_end;
+	void *newvma_start = vma.vaddr_start;
+	void *newvma_end = vma.vaddr_end;
 	uint64_t newvma_permission = vma.permission;
 	long long shift_bytes;
 	vma_t *currentvma = g_vma_start;
@@ -335,7 +335,7 @@ void insertvma(vma_t vma)
 }
 
 
-void removeaddrange(uint64_t *vaddr_start, uint64_t *vaddr_end)
+void removeaddrange(void *vaddr_start, void *vaddr_end)
 {
 	long long shift_bytes;
 	vma_t *currentvma = g_vma_start;
@@ -430,7 +430,7 @@ void removeaddrange(uint64_t *vaddr_start, uint64_t *vaddr_end)
 }
 
 
-vma_t *lookupvmabyvaddr(uint64_t *vaddr)
+vma_t *lookupvmabyvaddr(void *vaddr)
 {
 	vma_t *currentvma = g_vma_start;
 	while (currentvma->vaddr_end != NULL) {

@@ -42,15 +42,27 @@ void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base)
 struct tss_t tss_buf[16];
 uint8_t kernel_stack[4096 * 2];
 
+
 task_t *newtask(const char *task_name, process_type_t type)
 {
 	uint64_t entry_point;
 	uint64_t *phy_stack_base;
+	uint64_t *physpage;
+	uint64_t i;
 	task_t *task = g_task_start + g_next_task_free_index;
 	kpid_t new_pid = g_next_task_free_index;
 	cr3e_t new_cr3;
 
 	new_cr3 = newvmem(new_pid);
+
+	// Allocate space for init VMAs
+	// Use g_vma_phy_start in kernel cr3.
+	for (i = (uint64_t)g_vma_start; i < (uint64_t)g_vma_end; i += PAGE_SIZE) {
+		physpage = allocframe(new_pid);
+		if (i == (uint64_t)g_vma_start)
+			g_vma_phy_start = (vma_t *)physpage;
+		kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)physpage, i, FALSE, FALSE);
+	}
 
 	task->cr3 = new_cr3;
 	task->pid = new_pid;
@@ -60,6 +72,8 @@ task_t *newtask(const char *task_name, process_type_t type)
 	strcpy(task->name, task_name);
 	phy_stack_base = allocframe(new_pid);
 	kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, USER_STACK_START, TRUE, FALSE);
+	// Init User stack VMA
+	newvma(g_vma_phy_start + 2, (void *)(USER_STACK_START - USER_STACK_SIZE), (void *)(USER_STACK_START), VMA_STACK_NAME, VMA_READABLE | VMA_WRITEABLE);
 
 	if(type == KERNEL_PROCESS) {
 //		init_task(task, instruction_addr, virtual_memory_addr);
@@ -73,6 +87,10 @@ task_t *newtask(const char *task_name, process_type_t type)
 		init_task(task, entry_point, (uint64_t *)USER_STACK_START, (uint64_t *)KERNEL_STACK_START);
 		
 		task->tsss = (struct tss_t *)&(tss_buf[task->pid]);
+
+		// Init User heap VMA
+		newvma(g_vma_phy_start + 1, (void *)(USER_HEAP_START), (void *)(USER_HEAP_START), VMA_HEAP_NAME, VMA_READABLE | VMA_WRITEABLE);
+
 	}
 
 

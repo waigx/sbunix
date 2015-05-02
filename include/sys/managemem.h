@@ -76,7 +76,7 @@
  *                            |                 |                .        
  *                            |                 |               /|\       
  *   _________________________|_________________|________________|______  
- *                            |                 |           g_heap_start                    
+ *   0x0000 0400 0000 0000    |                 |        USER_HEAP_START                    
  *                                                                        
  *                            ~ ~ ~ ~ ~ ~ ~ ~ ~ ~                         
  *                                                                        
@@ -134,9 +134,11 @@
 #define EXTEND_BIT_1                                0xffff000000000000
 
 #define USER_STACK_START              (KERNEL_SPACE_START - PAGE_SIZE)
+#define USER_STACK_SIZE                                    (0x1 << 23)
+#define USER_HEAP_START                             0x0000040000000000
+
 #define KERNEL_STACK_START             (USER_STACK_START + 0x70001000)
 
-#define USER_STACK_SIZE                                    (0x1 << 23)
 
 /* 
  * PML4E self-ref. address;
@@ -164,10 +166,13 @@
 #define VMA_WRITEABLE                                         (1 << 1)
 #define VMA_READABLE                                          (1 << 2)
 #define VMA_START                                   0x0000000000280000
+#define VMA_ELF_NAME                                     "_SBUNIX_ELF"
+#define VMA_STACK_NAME                                 "_SBUNIX_STACK"
+#define VMA_HEAP_NAME                                   "_SBUNIX_HEAP"
 
 typedef struct {
-	uint64_t *vaddr_start;
-	uint64_t *vaddr_end;
+	void *vaddr_start;
+	void *vaddr_end;
 	uint64_t permission;
 	char name[256];
 } vma_t;
@@ -181,6 +186,7 @@ extern void *g_physbase;
 extern void *g_physfree;
 extern vma_t *g_vma_start;
 extern vma_t *g_vma_end;
+extern vma_t *g_vma_phy_start;
 
 
 void *allocframe(kpid_t);
@@ -190,10 +196,15 @@ uint64_t *newmemtable(kpid_t pid, uint64_t table_size, uint8_t is_self_ref);
 cr3e_t newvmem(kpid_t pid);
 void freevmem(kpid_t pid);
 
-void linearmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physstart, uint64_t physend, uint64_t offset);
-
 void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr, uint8_t is_user, uint8_t is_writable);
 void mmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr);
+
+vma_t *newvma(vma_t *vma, void *vaddr_start, void *vaddr_end, const char *name, uint64_t permission);
+void removevma(vma_t *vma);
+void insertvma(vma_t vma);
+void removeaddrange(void *vaddr_start, void *vaddr_end);
+vma_t *lookupvmabyvaddr(void *vaddr);
+vma_t *lookupvmabyname(const char *name);
 
 uint64_t *pe2physaddr(uint64_t pe);
 uint64_t physaddr2pebase(uint64_t *physaddr);
@@ -203,8 +214,6 @@ pml4e_t *getpml4ep();
 pdpe_t *getpdpep(uint64_t vaddr);
 pde_t *getpdep(uint64_t vaddr);
 pte_t *getptep(uint64_t vaddr);
-
-
 
 
 #endif

@@ -84,6 +84,10 @@ uint64_t load_elf(task_t *task, const char *task_name)
 			page = (uint64_t)allocframe(task->pid);
 			kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr, TRUE, FALSE);
 			copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr), size);
+
+			//Init ELF vma field
+			newvma(g_vma_phy_start, (void *)vaddr, (void *)(vaddr + size), task_name, VMA_EXEC | VMA_READABLE | VMA_WRITEABLE);
+
 		}
 
 	}
@@ -100,6 +104,6 @@ uint64_t check_ELF_format(  Elf64_Ehdr *elf)
 		&& (elf->e_ident[3] == 'F'))
 			return TRUE;
 	else
-		return FALSE;	
+		return FALSE;
 
 }

@@ -34,6 +34,7 @@ task_t *g_task_start;
 task_t *gp_current_task;
 vma_t *g_vma_start = (vma_t *)VMA_START;
 vma_t *g_vma_end = ((vma_t *)VMA_START) + MAX_VMA_NUM;
+vma_t *g_vma_phy_start;
 uint32_t g_current_pos = 2 * 21 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
 uint8_t is_shifted = 0;
