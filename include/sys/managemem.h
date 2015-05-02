@@ -50,8 +50,8 @@
  *                            |                 |  KERNEL_PROC_HEAP_SIZE               |
  *                            |  Store tasks    |                                      |
  *   _________________________|_________________|_______________________             
- *                            |                 |           + g_physfree    these v.addrs will map           
- *                            |                 |                             to the same p.addrs  
+ *                            |                 |           + g_physfree    these v.addrs will map
+ *                            |                 |                             to the same p.addrs
  *                            | Used by kernel  |                                  
  *                            |                 |                                      |
  *   _________________________|_________________|_______________________               |
@@ -92,8 +92,8 @@
  *   0x0000 0000 0028 0000    |                 |            g_vma_start
  *   _________________________|_________________|_______________________ _ _ _ _ _ _ _ _ _
  *   0x0000 0000 0020 0000    |                 |             g_physbase              
- *                            | Used by drivers |                           these v.addrs will map  
- *                            |                 |                             to the same p.addrs  
+ *                            | Used by drivers |                           these v.addrs will map
+ *                            |                 |                             to the same p.addrs
  *   _________________________|_________________|_______________________ _ _ _ _ _ _ _ _ _
  *   0x0000 0000 0000 0000                                       
  *                                                                            
@@ -135,6 +135,8 @@
 
 #define USER_STACK_START              (KERNEL_SPACE_START - PAGE_SIZE)
 #define KERNEL_STACK_START             (USER_STACK_START + 0x70001000)
+
+#define USER_STACK_SIZE                                    (0x1 << 23)
 
 /* 
  * PML4E self-ref. address;

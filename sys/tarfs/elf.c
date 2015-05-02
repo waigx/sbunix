@@ -55,7 +55,6 @@ uint64_t load_elf(task_t *task, const char *task_name)
 	uint64_t vaddr = 0;
 	//uint64_t flag = 0;
 	uint64_t page;
-	cr3e_t temp_cr3;
 
 	//fd = open_tarfs(binary, 0);
 	fd = find_elf(task_name, 0);
@@ -84,10 +83,7 @@ uint64_t load_elf(task_t *task, const char *task_name)
 
 			page = (uint64_t)allocframe(task->pid);
 			kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr, TRUE, FALSE);
-			temp_cr3 = get_cr3_register();
-			load_cr3(task->cr3);
-			copymem((uint64_t *)vaddr,(uint64_t *)(offset+ (uint64_t)elfhdr), size);
-			load_cr3(temp_cr3);
+			copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr), size);
 		}
 
 	}
