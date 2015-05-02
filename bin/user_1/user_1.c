@@ -26,6 +26,8 @@
 
 #include <stdio.h>
 #include <syscall.h>
+#include <stdlib.h>
+#include <libsys.h>
 
 void testfun(int i)
 {
@@ -52,6 +54,7 @@ int main(int argc, char* argv[], char* envp[])
 	//while(1);
 
 	printf("I'm user_1 and count = %x\n",i++);
+	printf("break: %p\n",sbrk(0));
 //		*test1_ptr = 123;
 //		*test2_ptr = 124;
 //		*test3_ptr = 125;
