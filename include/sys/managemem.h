@@ -117,6 +117,8 @@
 #define PTE_PCD                                             (0x1 << 4)
 #define PTE_DIRTY                                           (0x1 << 6)
 
+#define PERMITE_BITS                                0xFFF0000000000FFF
+
 #define PAGE_SIZE_LOG2                                              12
 #define PAGE_SIZE                                (1 << PAGE_SIZE_LOG2)
 #define MAX_PAGE_FRAME                                       (1 << 20)
@@ -142,7 +144,7 @@
 
 /* 
  * PML4E self-ref. address;
- * Use index of 510;
+ * Use index of PAGE_SELF_REF_PML4E_INDEX;
  * 
  * 
  *                                 |<-- PTE operate start here 
@@ -159,6 +161,7 @@
  */
 
 #define PAGE_SELF_REF                               0xffffff7fbfdfe000
+#define PAGE_SELF_REF_PML4E_INDEX                                  510
 
 
 #define MAX_VMA_NUM                                           (1 << 7)
@@ -189,15 +192,15 @@ extern vma_t *g_vma_end;
 extern vma_t *g_vma_phy_start;
 
 
-void *allocframe(kpid_t);
+void *allocframe();
 
-void newvaddr(kpid_t pid, uint64_t vaddr);
-uint64_t *newmemtable(kpid_t pid, uint64_t table_size, uint8_t is_self_ref);
-cr3e_t newvmem(kpid_t pid);
+void newvaddr(uint64_t vaddr);
+uint64_t *newmemtable(uint64_t table_size, uint8_t is_self_ref);
+cr3e_t newvmem();
 void freevmem(kpid_t pid);
 
-void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr, uint8_t is_user, uint8_t is_writable);
-void mmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr);
+void kmmap(pml4e_t *pml4e_p, uint64_t physaddr, uint64_t vaddr, uint8_t is_user, uint8_t is_writable);
+void mmap(pml4e_t *pml4e_p, uint64_t physaddr, uint64_t vaddr);
 
 vma_t *newvma(vma_t *vma, void *vaddr_start, void *vaddr_end, const char *name, uint64_t permission);
 void removevma(vma_t *vma);
@@ -206,6 +209,7 @@ void removeaddrange(void *vaddr_start, void *vaddr_end);
 vma_t *lookupvmabyvaddr(void *vaddr);
 vma_t *lookupvmabyname(const char *name);
 
+uint64_t physaddr2frameindex(void *physaddr);
 uint64_t *pe2physaddr(uint64_t pe);
 uint64_t physaddr2pebase(uint64_t *physaddr);
 uint64_t *getphysaddr(pml4e_t *pml4e_p, void *vaddr);

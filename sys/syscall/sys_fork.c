@@ -32,7 +32,6 @@
 #include <sys/debug.h>
 #include <sys/sbunix.h>
 
-#define PERMITE_BITS     0xFFF0000000000FFF
 
 
 uint64_t _clean_bit(uint64_t entry, uint64_t bit)
@@ -45,9 +44,6 @@ uint64_t _clean_bit(uint64_t entry, uint64_t bit)
 
 cr3e_t _copy_mem_table(cr3e_t cr3)
 {
-	
-	kpid_t new_pid = g_next_task_free_index;
-
 	pml4e_t *p_pml4e_p = pe2physaddr(cr3);
 	pdpe_t *p_pdpe_p;
 	pde_t *p_pde_p;
@@ -58,7 +54,7 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 	uint64_t pde_offset;
 	uint64_t pte_offset;
 
-	pml4e_t *c_pml4e_p = newmemtable(new_pid, 1 << VADDR_PML4E, TRUE);
+	pml4e_t *c_pml4e_p = newmemtable(1 << VADDR_PML4E, TRUE);
 	pdpe_t *c_pdpe_p;
 	pde_t *c_pde_p;
 	pte_t *c_pte_p;
@@ -67,11 +63,15 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 	pde_t pde;
 	pte_t pte;
 
-	for (pml4e_offset = 0; pml4e_offset < 510; pml4e_offset++) {
+
+	for (pml4e_offset = 0; pml4e_offset < (1 << VADDR_PDPE); pml4e_offset++) {
+		if (pml4e_offset == PAGE_SELF_REF_PML4E_INDEX)
+			continue;
 		pml4e = *(p_pml4e_p + pml4e_offset);
 		if (pml4e == 0)
 			continue;
-		c_pdpe_p = newmemtable(new_pid, 1 << VADDR_PDPE, FALSE);
+		p_pdpe_p = pe2physaddr(pml4e);
+		c_pdpe_p = newmemtable(1 << VADDR_PDPE, FALSE);
 		pml4e = (pml4e & PERMITE_BITS) | physaddr2pebase(c_pdpe_p);
 		*(c_pml4e_p + pml4e_offset) = pml4e;
 
@@ -79,7 +79,8 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 			pdpe = *(p_pdpe_p + pdpe_offset);
 			if ( pdpe == 0)
 				continue;
-			c_pde_p = newmemtable(new_pid, 1 << VADDR_PDE, FALSE);
+			p_pde_p = pe2physaddr(pdpe);
+			c_pde_p = newmemtable(1 << VADDR_PDE, FALSE);
 			pdpe = (pdpe & PERMITE_BITS) | physaddr2pebase(c_pde_p);
 			*(c_pdpe_p + pdpe_offset) = pdpe;
 
@@ -87,13 +88,15 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 				pde = *(p_pde_p + pde_offset);
 				if ( pde == 0)
 					continue;
-				c_pte_p = newmemtable(new_pid, 1 << VADDR_PTE, FALSE);
+				p_pte_p = pe2physaddr(pde);
+				c_pte_p = newmemtable(1 << VADDR_PTE, FALSE);
 				pde = (pde & PERMITE_BITS) | physaddr2pebase(c_pte_p);
 				*(c_pde_p + pde_offset) = pde;
 
 				for (pte_offset = 0;  pte_offset < (1 << VADDR_PTE); pte_offset++) {
+
 					pte = *(p_pte_p + pte_offset);
-					if ( pte == 0)
+					if ((pte == 0) || (pte && PTE_PRESENTS))
 						continue;
 					pte = _clean_bit(pte, PTE_WRITEABLE);
 					*(p_pte_p + pte_offset) = pte;
@@ -114,6 +117,9 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 		if (g_next_task_free_index >= MAX_PROC_NUM);
 		// max process num exceed error here;
 	}
+
+
+	/*TEMP*/return 0;
 }
 
 
@@ -125,5 +131,5 @@ sys_fork()
 
 
 	load_cr3(gp_current_task->cr3);
+	/*TEMP*/return 0;
 }
-

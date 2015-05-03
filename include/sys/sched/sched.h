@@ -71,7 +71,7 @@
   
 #define KERNEL_PID                                 1
 #define MAX_PROC_NUM                       (1 << 16)
-#define MAX_TASKS                       MAX_PROC_NUM
+#define MAX_TASKS                          (1 << 16)
 #define MAX_TASK_NAME                            256
 
 #define MAX_OPEN_FILE_DESCRIPT                  1024

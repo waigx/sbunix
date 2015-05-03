@@ -88,8 +88,8 @@ uint64_t load_elf(task_t *task, const char *task_name)
 			//flag = phdr->p_flags;
 			//permission =
 
-			page = (uint64_t)allocframe(task->pid);
-			kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr, TRUE, FALSE);
+			page = (uint64_t)allocframe();
+			kmmap(pe2physaddr(task->cr3), page, (uint64_t)vaddr, TRUE, FALSE);
 			copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr), size);
 		}
 

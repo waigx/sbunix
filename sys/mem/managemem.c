@@ -56,37 +56,101 @@ uint64_t physaddr2pebase(uint64_t *physaddr)
 
 void freevmem(kpid_t pid)
 {
-	uint64_t i = g_frame_bump;
-	uint8_t is_first_time = TRUE;
+	pml4e_t *pml4e_p = pe2physaddr((g_task_start + pid)->cr3);
+	pdpe_t *pdpe_p;
+	pde_t *pde_p;
+	pte_t *pte_p;
 
-	while (i != 0) {
+	void *page_frame;
+	uint64_t frame_index;
+	uint64_t lowest_blank_frame_index = g_next_free_frame_index;
+
+	uint64_t pml4e_offset;
+	uint64_t pdpe_offset;
+	uint64_t pde_offset;
+	uint64_t pte_offset;
+
+	pml4e_t pml4e;
+	pdpe_t pdpe;
+	pde_t pde;
+	pte_t pte;
+
+//	uint64_t i = g_frame_bump;
+//	uint8_t is_first_time = TRUE;
+
+//	while (i != 0) {
 //		debug_print("FreMem", "Examing:%d\n", i);
-
-		if (g_page_frame_pool[i] == pid) {
+//
+//		if (g_page_frame_pool[i] == pid) {
 //			debug_print("FreMem", "Hit:%d\n", i);
-			g_page_frame_pool[i] = 0;
-			g_next_free_frame_index = i;
-			if (is_first_time)
-				g_frame_bump -= 1;
-		} else {
-			is_first_time = FALSE;
-		}
+//			g_page_frame_pool[i] = 0;
+//			g_next_free_frame_index = i;
+//			if (is_first_time)
+//				g_frame_bump -= 1;
+//		} else {
+//			is_first_time = FALSE;
+//		}
+//
+//		i -= 1;
+//	}
 
-		i -= 1;
+	for (pml4e_offset = 0; pml4e_offset < (1 << VADDR_PDPE); pml4e_offset++) {
+		if (pml4e_offset == PAGE_SELF_REF_PML4E_INDEX)
+			continue;
+		pml4e = *(pml4e_p + pml4e_offset);
+		if (pml4e == 0)
+			continue;
+		pdpe_p = pe2physaddr(pml4e);
+
+		for (pdpe_offset = 0;  pdpe_offset < (1 << VADDR_PDPE); pdpe_offset++) {
+			pdpe = *(pdpe_p + pdpe_offset);
+			if ( pdpe == 0)
+				continue;
+			pde_p = pe2physaddr(pdpe);
+
+			for (pde_offset = 0; pde_offset < (1 << VADDR_PDE); pde_offset++) {
+				pde = *(pde_p + pde_offset);
+				if ( pde == 0)
+					continue;
+				pte_p = pe2physaddr(pde);
+
+				for (pte_offset = 0;  pte_offset < (1 << VADDR_PTE); pte_offset++) {
+					pte = *(pte_p + pte_offset);
+					if ((pte == 0) || (pte && PTE_PRESENTS))
+						continue;
+					page_frame = pe2physaddr(pte);
+					frame_index = physaddr2frameindex(page_frame);
+					g_page_frame_pool[frame_index] -= 1;
+
+					if (frame_index < lowest_blank_frame_index && g_page_frame_pool[frame_index] == 0)
+						lowest_blank_frame_index = frame_index;
+				}
+			}
+		}
 	}
+
+	g_next_free_frame_index = lowest_blank_frame_index;
 
 	return;
 }
 
 
-void *allocframe(kpid_t pid)
+uint64_t physaddr2frameindex(void *physaddr)
+{
+	uint64_t index;
+	index = ((uint64_t)(physaddr - g_page_frame_start))/(PAGE_SIZE);
+	return index;
+}
+
+
+void *allocframe()
 {
 	void *physadd = g_page_frame_start;
 	physadd += g_next_free_frame_index * (PAGE_SIZE);
 
 //	printf("%d ", g_next_free_frame_index);
 	
-	g_page_frame_pool[g_next_free_frame_index] = (uint16_t)pid;
+	g_page_frame_pool[g_next_free_frame_index] += 1;
 
 	while (g_page_frame_pool[g_next_free_frame_index] != 0) {
 		g_next_free_frame_index++;
@@ -101,12 +165,12 @@ void *allocframe(kpid_t pid)
 
 
 /* PART 2: These functions should be called under kernel cr3*/
-void mmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr)
+void mmap(pml4e_t *pml4e_p, uint64_t physaddr, uint64_t vaddr)
 {
 }
 
 
-void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr, uint8_t is_user, uint8_t is_writable)
+void kmmap(pml4e_t *pml4e_p, uint64_t physaddr, uint64_t vaddr, uint8_t is_user, uint8_t is_writable)
 {
 	uint64_t permission_bits = PTE_PRESENTS;
 
@@ -130,7 +194,7 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr, uint
 	if ((pml4e & PTE_PRESENTS) == PTE_PRESENTS) {
 		pdpe_p = (pdpe_t *)pe2physaddr(pml4e);
 	} else {
-		pdpe_p = newmemtable(pid, 1 << VADDR_PDPE, FALSE);
+		pdpe_p = newmemtable(1 << VADDR_PDPE, FALSE);
 		*(pml4e_p + pml4e_offset) = physaddr2pebase(pdpe_p) | permission_bits;
 	}
 
@@ -138,7 +202,7 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr, uint
 	if ((pdpe & PTE_PRESENTS) == PTE_PRESENTS) {
 		pde_p = (pde_t *)pe2physaddr(pdpe);
 	} else {
-		pde_p = newmemtable(pid, 1 << VADDR_PDE, FALSE);
+		pde_p = newmemtable(1 << VADDR_PDE, FALSE);
 		*(pdpe_p + pdpe_offset) = physaddr2pebase(pde_p) | permission_bits;
 	}
 
@@ -146,7 +210,7 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr, uint
 	if ((pde & PTE_PRESENTS) == PTE_PRESENTS) {
 		pte_p = (pte_t *)pe2physaddr(pde);
 	} else {
-		pte_p = newmemtable(pid, 1 << VADDR_PTE, FALSE);
+		pte_p = newmemtable(1 << VADDR_PTE, FALSE);
 		*(pde_p + pde_offset) = physaddr2pebase(pte_p) | permission_bits;
 	}
 
@@ -168,33 +232,33 @@ void kmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physaddr, uint64_t vaddr, uint
 }
 
 
-uint64_t *newmemtable(kpid_t pid, uint64_t table_size, uint8_t is_self_ref)
+uint64_t *newmemtable(uint64_t table_size, uint8_t is_self_ref)
 {
 	int i;
-	uint64_t *start_p = (uint64_t *)allocframe(pid);
+	uint64_t *start_p = (uint64_t *)allocframe();
 
 	for (i = 0; i < table_size; i++)
 		*(start_p + i) = 0;
 
 	if (is_self_ref)
-		*(start_p + 510) = physaddr2pebase(start_p) | PTE_PRESENTS | PTE_USER | PTE_WRITEABLE;
+		*(start_p + PAGE_SELF_REF_PML4E_INDEX) = physaddr2pebase(start_p) | PTE_PRESENTS | PTE_USER | PTE_WRITEABLE;
 
 	return start_p;
 }
 
 
-cr3e_t newvmem(kpid_t pid)
+cr3e_t newvmem()
 {
 	/*Begin to create a new 4 level table */
 	uint64_t i;
 	uint64_t page_frame_start = (uint64_t)g_page_frame_start;
-	pml4e_t *pml4e_p = (pml4e_t *)newmemtable(pid, 1 << VADDR_PML4E, TRUE);
+	pml4e_t *pml4e_p = (pml4e_t *)newmemtable(1 << VADDR_PML4E, TRUE);
 
 	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
-		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START, FALSE, TRUE);
+		kmmap(pml4e_p, i, i + KERNEL_SPACE_START, FALSE, TRUE);
 
 	for (i = (uint64_t)0; i < (uint64_t)g_physbase; i += (PAGE_SIZE))
-		kmmap(pml4e_p, pid, i, i, FALSE, TRUE);
+		kmmap(pml4e_p, i, i, FALSE, TRUE);
 	
 	return (cr3e_t)physaddr2pebase(pml4e_p);
 }
@@ -476,7 +540,7 @@ pte_t *getptep(uint64_t vaddr)
 	return (pte_t *)((vaddr << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PTE + VADDR_OFFSET) << VADDR_OFFSET) | (PAGE_SELF_REF >> (VADDR_OFFSET + VADDR_PTE + VADDR_PDE + VADDR_PDPE) << (VADDR_OFFSET + VADDR_PTE + VADDR_PDE + VADDR_PDPE)));
 }
 
-void newvaddr(kpid_t pid, uint64_t vaddr)
+void newvaddr(uint64_t vaddr)
 {
 	uint64_t permission_bits = PTE_PRESENTS | PTE_USER | PTE_WRITEABLE;
 	uint64_t *temp_ptr;
@@ -498,7 +562,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 
 	pml4e = *(pml4e_p + pml4e_offset);
 	if ((pml4e & PTE_PRESENTS) != PTE_PRESENTS) {
-		temp_ptr = allocframe(pid);
+		temp_ptr = allocframe();
 		*(pml4e_p + pml4e_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 		for (i=0; i<512; i++)
 			*(pdpe_p + i) = 0;
@@ -508,7 +572,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 
 	pdpe = *(pdpe_p + pdpe_offset);
 	if ((pdpe & PTE_PRESENTS) != PTE_PRESENTS) {
-		temp_ptr = allocframe(pid);
+		temp_ptr = allocframe();
 		*(pdpe_p + pdpe_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 		for (i=0; i<512; i++)
 			*(pde_p + i) = 0;
@@ -519,7 +583,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 
 	pde = *(pde_p + pde_offset);
 	if ((pde & PTE_PRESENTS) != PTE_PRESENTS) {
-		temp_ptr = allocframe(pid);
+		temp_ptr = allocframe();
 		*(pde_p + pde_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 		for (i=0; i<512; i++)
 			*(pte_p + i) = 0;
@@ -530,7 +594,7 @@ void newvaddr(kpid_t pid, uint64_t vaddr)
 
 	pte = *(pte_p + pte_offset);
 	if ((pte & PTE_PRESENTS) != PTE_PRESENTS) {
-		temp_ptr = allocframe(pid);
+		temp_ptr = allocframe();
 		*(pte_p + pte_offset) = physaddr2pebase(temp_ptr) | permission_bits;
 	} else {
 		*(pte_p + pte_offset) = pte | permission_bits;

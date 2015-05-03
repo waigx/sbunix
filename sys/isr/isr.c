@@ -72,7 +72,7 @@ void pagefault_handler(void)
 		sys_exit(-1);
 		return;
 	}
-	newvaddr(gp_current_task->pid, vaddr);
+	newvaddr(vaddr);
 }
 
 

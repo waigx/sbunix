@@ -41,17 +41,17 @@ void _init_mem_pools()
 }
 
 
-cr3e_t _init_kernel_mem(kpid_t pid, uint64_t physbase, uint64_t physfree, uint64_t physbottom, uint64_t phystop)
+cr3e_t _init_kernel_mem(uint64_t physbase, uint64_t physfree, uint64_t physbottom, uint64_t phystop)
 {
 	uint64_t i;
 	uint64_t page_frame_start = (uint64_t)g_page_frame_start;
-	pml4e_t *pml4e_p = (pml4e_t *)newmemtable(pid, 1 << VADDR_PML4E, TRUE);
+	pml4e_t *pml4e_p = (pml4e_t *)newmemtable(1 << VADDR_PML4E, TRUE);
 
 	for (i = (uint64_t)0; i <= phystop; i+= (PAGE_SIZE))
-		kmmap(pml4e_p, pid, i, i, FALSE, TRUE);
+		kmmap(pml4e_p, i, i, FALSE, TRUE);
 
 	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
-		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START, FALSE, TRUE);
+		kmmap(pml4e_p, i, i + KERNEL_SPACE_START, FALSE, TRUE);
 
 	debug_print("Mem", "page_frame_start:%p\n", page_frame_start);
 
@@ -67,7 +67,7 @@ void _init_kernel_process(void *physbase, void *physfree, void *physbottom, void
 	kpid_t kpid = g_next_task_free_index;
 	cr3e_t kcr3;
 
-	kcr3 = _init_kernel_mem(kpid, (uint64_t)physbase, (uint64_t)physfree, (uint64_t)physbottom, (uint64_t)phystop);
+	kcr3 = _init_kernel_mem((uint64_t)physbase, (uint64_t)physfree, (uint64_t)physbottom, (uint64_t)phystop);
 
 	kproc->cr3 = kcr3;
 	kproc->pid = kpid;

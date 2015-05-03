@@ -53,15 +53,15 @@ task_t *newtask(const char *task_name, process_type_t type)
 	kpid_t new_pid = g_next_task_free_index;
 	cr3e_t new_cr3;
 
-	new_cr3 = newvmem(new_pid);
+	new_cr3 = newvmem();
 
 	// Allocate space for init VMAs
 	// Use g_vma_phy_start in kernel cr3.
 	for (i = (uint64_t)g_vma_start; i < (uint64_t)g_vma_end; i += PAGE_SIZE) {
-		physpage = allocframe(new_pid);
+		physpage = allocframe();
 		if (i == (uint64_t)g_vma_start)
 			g_vma_phy_start = (vma_t *)physpage;
-		kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)physpage, i, FALSE, FALSE);
+		kmmap(pe2physaddr(new_cr3), (uint64_t)physpage, i, FALSE, FALSE);
 	}
 
 	task->cr3 = new_cr3;
@@ -70,18 +70,18 @@ task_t *newtask(const char *task_name, process_type_t type)
 	task->type = type;
 	task->status = PROCESS_NEW;
 	strcpy(task->name, task_name);
-	phy_stack_base = allocframe(new_pid);
-	kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, USER_STACK_START, TRUE, FALSE);
+	phy_stack_base = allocframe();
+	kmmap(pe2physaddr(new_cr3), (uint64_t)phy_stack_base, USER_STACK_START, TRUE, FALSE);
 	// Init User stack VMA
 	newvma(g_vma_phy_start + 2, (void *)(USER_STACK_START - USER_STACK_SIZE), (void *)(USER_STACK_START + PAGE_SIZE), VMA_STACK_NAME, VMA_READABLE | VMA_WRITEABLE);
 
 	if(type == KERNEL_PROCESS) {
 //		init_task(task, instruction_addr, virtual_memory_addr);
-//		page = (uint64_t)allocframe(pid);
+//		page = (uint64_t)allocframe();
 	} else if (type == USER_PROCESS) {
 		/* KERNEL STACK Setting */
-		phy_stack_base = allocframe(new_pid);
-		kmmap(pe2physaddr(new_cr3), new_pid, (uint64_t)phy_stack_base, KERNEL_STACK_START, FALSE, TRUE);
+		phy_stack_base = allocframe();
+		kmmap(pe2physaddr(new_cr3), (uint64_t)phy_stack_base, KERNEL_STACK_START, FALSE, TRUE);
 
 		entry_point = load_elf(task, task_name);
 		init_task(task, entry_point, (uint64_t *)USER_STACK_START, (uint64_t *)KERNEL_STACK_START);
