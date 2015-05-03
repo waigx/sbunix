@@ -56,7 +56,7 @@ uint64_t physaddr2pebase(uint64_t *physaddr)
 
 void freevmem(kpid_t pid)
 {
-	pml4e_t *pml4e_p = pe2physaddr((g_task_start + pid)->cr3);
+	pml4e_t *pml4e_p = getpml4ep();
 	pdpe_t *pdpe_p;
 	pde_t *pde_p;
 	pte_t *pte_p;
@@ -70,29 +70,12 @@ void freevmem(kpid_t pid)
 	uint64_t pde_offset;
 	uint64_t pte_offset;
 
+	uint64_t self_ref_temp_addr;
+
 	pml4e_t pml4e;
 	pdpe_t pdpe;
 	pde_t pde;
 	pte_t pte;
-
-//	uint64_t i = g_frame_bump;
-//	uint8_t is_first_time = TRUE;
-
-//	while (i != 0) {
-//		debug_print("FreMem", "Examing:%d\n", i);
-//
-//		if (g_page_frame_pool[i] == pid) {
-//			debug_print("FreMem", "Hit:%d\n", i);
-//			g_page_frame_pool[i] = 0;
-//			g_next_free_frame_index = i;
-//			if (is_first_time)
-//				g_frame_bump -= 1;
-//		} else {
-//			is_first_time = FALSE;
-//		}
-//
-//		i -= 1;
-//	}
 
 	for (pml4e_offset = 0; pml4e_offset < (1 << VADDR_PDPE); pml4e_offset++) {
 		if (pml4e_offset == PAGE_SELF_REF_PML4E_INDEX)
@@ -100,19 +83,22 @@ void freevmem(kpid_t pid)
 		pml4e = *(pml4e_p + pml4e_offset);
 		if (pml4e == 0)
 			continue;
-		pdpe_p = pe2physaddr(pml4e);
+		self_ref_temp_addr = pml4e_offset << (VADDR_OFFSET + VADDR_PTE + VADDR_PDE + VADDR_PDPE);
+		pdpe_p = getpdpep(self_ref_temp_addr);
 
 		for (pdpe_offset = 0;  pdpe_offset < (1 << VADDR_PDPE); pdpe_offset++) {
 			pdpe = *(pdpe_p + pdpe_offset);
 			if ( pdpe == 0)
 				continue;
-			pde_p = pe2physaddr(pdpe);
+			self_ref_temp_addr = ((pml4e_offset << VADDR_PDPE) + pdpe_offset) << (VADDR_OFFSET + VADDR_PTE + VADDR_PDE);
+			pde_p = getpdep(self_ref_temp_addr);
 
 			for (pde_offset = 0; pde_offset < (1 << VADDR_PDE); pde_offset++) {
 				pde = *(pde_p + pde_offset);
 				if ( pde == 0)
 					continue;
-				pte_p = pe2physaddr(pde);
+				self_ref_temp_addr = ((((pml4e_offset << VADDR_PDPE) + pdpe_offset) << VADDR_PDE) + pde_offset) << (VADDR_OFFSET + VADDR_PTE);
+				pte_p = getptep(self_ref_temp_addr);
 
 				for (pte_offset = 0;  pte_offset < (1 << VADDR_PTE); pte_offset++) {
 					pte = *(pte_p + pte_offset);
@@ -227,6 +213,7 @@ void kmmap(pml4e_t *pml4e_p, uint64_t physaddr, uint64_t vaddr, uint8_t is_user,
 		if (is_user)
 			permission_bits |= PTE_USER;
 		*(pte_p + pte_offset) = physaddr2pebase((void *)physaddr) | permission_bits;
+		
 	}
 	return;
 }
@@ -266,6 +253,9 @@ cr3e_t newvmem()
 
 
 /* PART 3: These functions should be called under user cr3*/
+
+
+
 
 void removevma(vma_t *vma)
 {

@@ -106,7 +106,6 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 		}
 	}
 
-
 	/*
 	 * Allocate new pid
 	 */
@@ -117,7 +116,6 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 		if (g_next_task_free_index >= MAX_PROC_NUM);
 		// max process num exceed error here;
 	}
-
 
 	/*TEMP*/return 0;
 }
