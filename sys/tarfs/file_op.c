@@ -29,11 +29,11 @@
 #include <sys/tarfs_api.h>
 #include <string.h>
 #include <sys/sbunix.h>
+#include <sys/keyboard.h>
 #include <sys/sched.h>
 #include <sys/managemem.h>
 #include <sys/mem.h>
 #include <sys/kio.h>
-
 
 
 extern uint64_t g_keyboard_buf;
@@ -71,10 +71,6 @@ ssize_t sys_read(int fd, void *buf, size_t count)
 	 return (ssize_t)ret;
 }
 
-extern char kb_queue[16];
-extern uint64_t start_queue;
-extern uint64_t end_queue;
-
 
 uint64_t read_terminal(void *buf, size_t count)
 {
@@ -82,20 +78,20 @@ uint64_t read_terminal(void *buf, size_t count)
 
 	for(i=0; i< count; i++)
 	{
- 		if(start_queue >  end_queue)
-                {
-                        *((char *)buf+i ) = (char)kb_queue[end_queue++];
+		if(start_queue >  end_queue)
+		{
+			*((char *)buf+i ) = (char)kb_queue[end_queue++];
 			if(start_queue <= end_queue)
 			{
 				start_queue = 0;
 				end_queue = 0;
 			}
-                }
-                else
-                        i = 254 - 1;
+		}
+		else
+			i = 254 - 1;
 
 	}
-	
+
 	return (uint64_t)i;
 }
 

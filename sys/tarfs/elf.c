@@ -30,7 +30,6 @@
 #include <string.h>
 #include <sys/elf.h>
 #include <sys/tarfs_api.h>
-//#include <sys/sched/sched.h>
 
 #include <sys/managemem.h>
 #include <sys/mem.h>
@@ -44,7 +43,6 @@ uint64_t load_elf(task_t *task, const char *task_name)
 {
 	Elf64_Ehdr *elfhdr;
 	Elf64_Phdr *phdr;
-	//struct Elf64_Shdr;
 	uint64_t i = 0;
 	Elf64_Phdr *ph_start;
 	uint64_t ph_num = 0;
@@ -55,17 +53,17 @@ uint64_t load_elf(task_t *task, const char *task_name)
 	uint64_t entry_point = 0;
 	uint64_t vaddr = 0;
 	uint8_t is_entry_point = TRUE;
-	//uint64_t flag = 0;
 	uint64_t page;
 	uint64_t j = 0;
 	uint64_t temp_size = 0;
 
-	//fd = open_tarfs(binary, 0);
 	fd = find_elf(task_name, 0);
 	elfhdr = ( Elf64_Ehdr *)fd;
 
 	if(check_ELF_format(elfhdr) == FALSE) {
+#if DEBUG_ELF
 		debug_print("ELF", "Error, the file is not ELF file.\n");
+#endif
 		return 0;
 	}
 	ph_start = ( Elf64_Phdr *)((uint8_t *)elfhdr + elfhdr->e_phoff);
@@ -84,11 +82,9 @@ uint64_t load_elf(task_t *task, const char *task_name)
 				entry_point = vaddr;
 				is_entry_point = FALSE;
 			}
-
-			//flag = phdr->p_flags;
-			//permission =
-			printf("load_elf: vaddr %x size %x\n", vaddr, size);
-
+#if DEBUG_ELF
+			debug_print("ELF", "Vaddr %x size %x\n", vaddr, size);
+#endif
 			for (j = 0; ; j++) {
 				if(size > PAGE_SIZE) {
 					temp_size = PAGE_SIZE;

@@ -86,8 +86,6 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 
 	struct dirent *dirent = (struct dirent *)buf;
 
-
-
 	printf("start getdentry_tarfs \n");
 	cur_task = gp_current_task;
 	fdt = (struct file_descript *)cur_task->fd[fd];
@@ -104,17 +102,17 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 
 			offset = get_file_size(tarfs_header);
 
+#if DEBUG_FS
 			if(offset != 0)
-				printf("offset = %x\n",offset);
+				debug_print("FS", "Offset is %x\n",offset);
+#endif
 			address += sizeof(struct posix_header_ustar);
-			address += ((((offset ) /512 ) /*+ 1 */) * 512);
+			address += (offset >> 9 << 9);
 
 			if(offset % 512)
 				address += 512;
 
 			tarfs_header = (struct posix_header_ustar *)address;
-
-
 			ret = check_dir(tarfs_header->name, fdt->header->name);
 			if(ret == -2  ){
 				// not directory, file
@@ -137,12 +135,7 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 	}
 
 	return 0;
-
-
-
-
 }
-
 
 
 uint64_t find_elf(const char *pathname, int flags)
@@ -155,34 +148,32 @@ uint64_t find_elf(const char *pathname, int flags)
 
 	address = (uint64_t)&(_binary_tarfs_start);
 	//printf("struct size = %x \n",sizeof(struct posix_header_ustar));
-	while(1)
-	{
+	while(1) {
 		tarfs_header = (struct posix_header_ustar *)address;
-		printf("elf name = %s %x\n", tarfs_header->name,tarfs_header);
-		if(strcmp(tarfs_header->name, pathname) == 0)
-		{
-			printf("finding %s elf\n",pathname);
+#if DEBUG_ELF
+		debug_print("ELF", "ELF name = %s %x\n", tarfs_header->name,tarfs_header);
+#endif
+		if(strcmp(tarfs_header->name, pathname) == 0) {
+#if DEBUG_ELF
+			debug_print("ELF", "Finding %s elf\n", pathname);
+#endif
 			fd = (uint64_t)(tarfs_header) + sizeof(struct posix_header_ustar);
 			return fd;
 			break;
 		}
 
-		if(tarfs_header->name[0] == '\0')
-		{
-			printf("there is not exist %s elf\n");
+		if(tarfs_header->name[0] == '\0') {
+			printf("there is not exist elf\n");
 			return -1;
 		}
 
 		offset = get_file_size(tarfs_header);
 
-		//	if(offset != 0)
-		//		printf("offset = %x\n",offset);
 		address += sizeof(struct posix_header_ustar);
-		address += ((((offset ) /512 ) /*+ 1 */) * 512);
+		address += (offset >> 9 << 9);
 
 		if(offset % 512)
 			address += 512;
-
 	}
 
 	return -1;
@@ -204,10 +195,10 @@ int open_tarfs(const char *pathname, int flags)
 		tarfs_header = (struct posix_header_ustar *)address;
 		if(strcmp(tarfs_header->name, pathname) == 0)
 		{
-			printf("finding %s file\n",pathname);
-			//fd = (uint64_t)&tarfs_header;
+#if DEBUG_FS
+			debug_print("FS", "finding %s file\n",pathname);
+#endif
 			start_header = (uint64_t)tarfs_header;
-			//return fd;
 			break;
 		}
 
@@ -219,21 +210,23 @@ int open_tarfs(const char *pathname, int flags)
 
 		offset = get_file_size(tarfs_header);
 
+#if DEBUG_FS
 		if(offset != 0)
-			printf("offset = %x\n",offset);
-		address += sizeof(struct posix_header_ustar);	
-		address += ((((offset ) /512 ) /*+ 1 */) * 512);
+			debug_print("FS", "Offset is %x\n",offset);
+#endif
+		address += sizeof(struct posix_header_ustar);
+		address += (offset >> 9 << 9);
 
 		if(offset % 512)
 			address += 512;
 
-		//if(address >= _binary_tarfs_end)
-		//	return -1;
 	}
 
 	// get file descript
 	fd = get_fd(gp_current_task, (struct posix_header_ustar *)start_header, flags); 
-	printf("open_tarfs: start_header = %x\n", start_header);	
+#if DEBUG_FS
+	debug_print("FS", "open_tarfs: start_header = %x\n", start_header);
+#endif
 	return fd;
 }
 
@@ -243,7 +236,6 @@ int64_t get_fd(task_t *cur_task, struct posix_header_ustar *header_addr, int fla
 
 	uint64_t i = 0;
 	task_t *task = (task_t *)cur_task;
-	//uint64_t *fd_struct_addr;
 
 	for(i = STANDARD_IO_ERROR + 1; i < MAX_OPEN_FILE_DESCRIPT; i++)
 	{
@@ -305,45 +297,42 @@ uint64_t get_file_size(struct posix_header_ustar *tarfs_header)
 
 ssize_t read_tarfs(int fd, void *buf, size_t count)
 {
-
 	struct file_descript *fdt;
 	char *filetype = "0";
 	char *dirtype = "5";
 	task_t *cur_task;
-	char *start;	
+	char *start;
 	uint64_t size = 0;
 	uint64_t i = 0;
 	uint64_t ptr= 0;
 
-	printf("start read_tarfs \n");
+#if DEBUG_FS
+	debug_print("FS", "Start read tarfs\n");
+#endif
+
 	cur_task = gp_current_task;
 	fdt = (struct file_descript *)cur_task->fd[fd]; 
 
-	if(fdt == NULL)
-	{
+	if(fdt == NULL) {
 		printf("fd is NULL\n");
 		return -1;
 	}
-	printf("read_tarfs: fdt->header: %x\n", fdt->header);	
 
-	if(strcmp(fdt->header->typeflag, dirtype) == 0)
-	{
-		printf("it is directory, cannot read it\n");
-	}
-	else if(strcmp(fdt->header->typeflag, filetype) == 0)
-		//else if((char)*(fdt->header->typeflag) == '0')
-	{
-		//memcpy((uint64_t)(fdt->header + sizeof(struct posix_header_ustar)) + ptr, buf, count);
+#if DEBUG_FS
+	debug_print("FS", "read tarfs: fdt->header: %x\n", fdt->header);
+#endif
+
+	if(strcmp(fdt->header->typeflag, dirtype) == 0) {
+		printf("Trying to read a directory, aborted.\n");
+		return -1;
+	} else if(strcmp(fdt->header->typeflag, filetype) == 0) {
 		ptr = fdt->ptr;
 		start = (char *)((uint64_t)fdt->header + sizeof(struct posix_header_ustar) + ptr);
 		size = get_file_size(fdt->header);
-		//printf("read_tarfs: size = %x\n", size);
-			
-		for(i=0; i < count; i++)
-		{
-			 if( ptr + i >= size)
-                                break;
-			*((char *)buf + i) = (char)*(start + i);
+		for(i = 0; i < count; i++) {
+			if( ptr + i >= size)
+				break;
+			*((char *)buf + i) = *(start + i);
 		}
 	}
 
@@ -357,23 +346,17 @@ off_t lseek_tarfs(int fildes, off_t offset, int whence)
 	task_t *cur_task;
 	struct file_descript *fdt;
 
-
-
 	cur_task = gp_current_task;
 	fdt = (struct file_descript *)cur_task->fd[fildes];
 
-	if(whence == SEEK_SET){
+	if(whence == SEEK_SET) {
 		fdt->ptr = offset;
-	}
-	else if(whence == SEEK_CUR){
+	} else if(whence == SEEK_CUR) {
 		fdt->ptr += offset;
-	}
-	else if(whence == SEEK_END){
+	} else if(whence == SEEK_END) {
 		/* TODO how to do that  The offset is set to the size of the file plus offset bytes.*/
 		fdt->ptr += offset;
 	}
-
-
 
 	return fdt->ptr;
 }
@@ -383,23 +366,21 @@ int close_tarfs(int fd)
 	//struct file_descript *fdt;
 	task_t *cur_task;
 
-	printf("start close_tarfs \n");
+#if DEBUG_FS
+	debug_print("FS", "start close tarfs \n");
+#endif
+
 	cur_task = gp_current_task;
 	//fdt = (struct file_descript *)cur_task->fd[fd];
-	if(fd <= STANDARD_IO_ERROR)
-	{
+	if(fd <= STANDARD_IO_ERROR) {
 		printf("close_tarfs: cannot close fd\n");
 		return -1;
 	}
-	if(cur_task->fd[fd] == NULL)
-	{
+	if(cur_task->fd[fd] == NULL) {
 		printf("close_tarfs: invalid fd\n");
 		return -1;
-
-	}
-	else
+	} else
 		cur_task->fd[fd] = NULL;
-
 
 	return 0;
 }
@@ -423,13 +404,14 @@ void *opendir_tarfs(const char *name)
 	while(1)
 	{
 		tarfs_header = (struct posix_header_ustar *)address;
-		if(strcmp(tarfs_header->name, name) == 0)
-		{
-			printf("finding %s dir\n",name);
-			//fd = (uint64_t)&tarfs_header;
+		if(strcmp(tarfs_header->name, name) == 0) {
+#if DEBUG_FS
+			debug_print("FS", "Finding %s dir\n",name);
+#endif
 			start_header = (uint64_t)tarfs_header;
-			printf("%x \n", start_header);
-			//return fd;
+#if DEBUG_FS
+			debug_print("FS", "%x \n", start_header);
+#endif
 			break;
 		}
 
@@ -439,14 +421,15 @@ void *opendir_tarfs(const char *name)
 			break;
 			//return -1;
 		}
-
 		offset = get_file_size(tarfs_header);
 
+#if DEBUG_FS
 		if(offset != 0)
-			printf("offset = %x\n",offset);
-		address += sizeof(struct posix_header_ustar);
-		address += ((((offset ) /512 ) /*+ 1 */) * 512);
+			debug_print("FS", "Offset is %x\n",offset);
+#endif
 
+		address += sizeof(struct posix_header_ustar);
+		address += (offset >> 9 << 9);
 		if(offset % 512)
 			address += 512;
 	}
@@ -494,51 +477,47 @@ struct posix_header_ustar *readdir_tarfs(int fd, uint64_t buf)
 	int64_t ret = 0;
 	char *dirtype = "5";
 
+#if DEBUG_FS
+	debug_print("FS", "Start read dir in tarfs \n");
+#endif
 
-	printf("start readdir_tarfs \n");
 	cur_task = gp_current_task;
 	fdt = (struct file_descript *)cur_task->fd[fd];
 
 	address = (uint64_t)fdt->header;
 
 	if(strcmp(fdt->header->typeflag, dirtype) != 0){
-		printf("readdir_tarfs: it is not directory\n");
+		printf("Trying to read a non-directory entry, aborted.\n");
 	} else {
 		for(i=0; i <= fdt->ptr ; i++ ){
 
 			tarfs_header = (struct posix_header_ustar *)address;
-
 			offset = get_file_size(tarfs_header);
 
+#if DEBUG_FS
 			if(offset != 0)
-				printf("offset = %x\n",offset);
-			address += sizeof(struct posix_header_ustar);
-			address += ((((offset ) /512 ) /*+ 1 */) * 512);
+				debug_print("FS", "Offset is %x\n",offset);
+#endif
 
+			address += sizeof(struct posix_header_ustar);
+			address += (offset >> 9 << 9);
 			if(offset % 512)
 				address += 512;
 
 			tarfs_header = (struct posix_header_ustar *)address;
-
-
 			ret = check_dir(tarfs_header->name, fdt->header->name);
 			if(ret == -2  ){
-				// not directory, file
 				i = i -1;
 			}else if(ret == 0 ){
-
 				if(i == fdt->ptr){
 					copymem((struct posix_header_ustar *)buf, tarfs_header, sizeof(struct posix_header_ustar));
 					fdt->ptr += 1;
 					return (struct posix_header_ustar *)buf;
 				}
-
-
 			}
 		}
 	}
-
-	return 0;
+	return NULL;
 }
 
 int closedir_tarfs(void *dir)

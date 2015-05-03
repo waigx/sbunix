@@ -33,6 +33,11 @@
 #include <sys/defs.h>
 #include <sys/managemem.h>
 
+#define DEBUG_FS                             0
+#define DEBUG_MEM                            0
+#define DEBUG_ELF                            0
+#define DEBUG_PAGEFAULT                      0
+
 extern uint8_t g_debug_mode;
 
 uint64_t *debug_convadd2phy(cr3e_t cr3e, void *vaddr);
