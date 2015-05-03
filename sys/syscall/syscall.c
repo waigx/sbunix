@@ -67,27 +67,32 @@ uint64_t syscall(void)
 			break;
 	
 		case SYS_brk:
-			ret = sys_brk(a1);
+			sys_brk(a1);
+			ret = get_rax_register();
 			return ret;
 			break;
 
 		case SYS_fork:
-			ret = sys_fork();
+			sys_fork();
+			ret = get_rax_register();
 			return ret;
 			break;
 
 		case SYS_getpid:
-			ret = sys_getpid();
+			sys_getpid();
+			ret = get_rax_register();
 			return ret;
 			break;
 
 		case SYS_getppid:
-			ret = sys_getppid();
+			sys_getppid();
+			ret = get_rax_register();
 			return ret;
 			break;
 
 		case SYS_execve:
-			ret = sys_execve((char *)a1, (char **)a2, (char **)a3);
+			sys_execve((char *)a1, (char **)a2, (char **)a3);
+			ret = get_rax_register();
 			return ret;
 			break;
 
