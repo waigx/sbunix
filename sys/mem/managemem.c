@@ -62,8 +62,6 @@ void freevmem(kpid_t pid)
 	pte_t *pte_p;
 
 	void *page_frame;
-	uint64_t frame_index;
-	uint64_t lowest_blank_frame_index = g_next_free_frame_index;
 
 	uint64_t pml4e_offset;
 	uint64_t pdpe_offset;
@@ -105,17 +103,19 @@ void freevmem(kpid_t pid)
 					if ((pte == 0) || (pte && PTE_PRESENTS))
 						continue;
 					page_frame = pe2physaddr(pte);
-					frame_index = physaddr2frameindex(page_frame);
-					g_page_frame_pool[frame_index] -= 1;
-
-					if (frame_index < lowest_blank_frame_index && g_page_frame_pool[frame_index] == 0)
-						lowest_blank_frame_index = frame_index;
+					freeframe(page_frame);
 				}
+				freeframe(pe2physaddr(pde));
 			}
+			freeframe(pe2physaddr(pdpe));
 		}
+		freeframe(pe2physaddr(pml4e));
 	}
 
-	g_next_free_frame_index = lowest_blank_frame_index;
+	for (g_next_free_frame_index = 0; g_next_free_frame_index <= g_frame_bump + 1; g_next_free_frame_index ++) {
+		if (g_page_frame_pool[g_next_free_frame_index] == 0)
+			break;
+	}
 
 	return;
 }
@@ -129,12 +129,22 @@ uint64_t physaddr2frameindex(void *physaddr)
 }
 
 
+void freeframe(void *physaddr)
+{
+	uint64_t index;
+	index = physaddr2frameindex(physaddr);
+	printf("[Freed]:%p\n", physaddr);
+	if (index < MAX_PAGE_FRAME)
+		g_page_frame_pool[index] -= 1;
+	return;
+}
+
+
 void *allocframe()
 {
 	void *physadd = g_page_frame_start;
 	physadd += g_next_free_frame_index * (PAGE_SIZE);
 
-//	printf("%d ", g_next_free_frame_index);
 	
 	g_page_frame_pool[g_next_free_frame_index] += 1;
 

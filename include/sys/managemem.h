@@ -193,6 +193,7 @@ extern vma_t *g_vma_phy_start;
 
 
 void *allocframe();
+void freeframe(void *physaddr);
 
 void newvaddr(uint64_t vaddr);
 uint64_t *newmemtable(uint64_t table_size, uint8_t is_self_ref);
