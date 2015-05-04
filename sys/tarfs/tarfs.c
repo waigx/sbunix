@@ -375,7 +375,27 @@ off_t lseek_tarfs(int fildes, off_t offset, int whence)
 
 int close_tarfs(int fd)
 {
-	;
+ 	//struct file_descript *fdt;
+        task_t *cur_task;
+
+        printf("start close_tarfs \n");
+        cur_task = (task_t *)get_current_task();
+        //fdt = (struct file_descript *)cur_task->fd[fd];
+	if(fd <= STANDARD_IO_ERROR)
+	{
+		printf("close_tarfs: cannot close fd\n");
+		return -1;
+	}
+	if(cur_task->fd[fd] == NULL)
+	{
+		printf("close_tarfs: invalid fd\n");
+                return -1;
+
+	}
+	else
+		cur_task->fd[fd] = NULL;
+	
+	
 	return 0;
 }
 

@@ -132,6 +132,12 @@ uint64_t syscall(void)
 			sys_write((int)a1, (char *)a2, (size_t)a3);
 			return get_rax_register();
 			break;
+
+		case SYS_close:
+			close_tarfs((int)a1);
+			return get_rax_register();
+			break;
+
 /*
 		SYS_brk:
 
