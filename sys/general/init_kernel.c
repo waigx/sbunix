@@ -27,8 +27,8 @@
 
 
 #include <sys/general.h>
-#include <sys/proc.h>
 #include <sys/managemem.h>
+#include <sys/sched/sched.h>
 #include <sys/kio.h>
 #include <sys/sbunix.h>
 #include <sys/debug.h>
@@ -52,8 +52,6 @@ cr3e_t _init_kernel_mem(kpid_t pid, uint64_t physbase, uint64_t physfree, uint64
 	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
 		kmmap(pml4e_p, pid, i, i + KERNEL_SPACE_START);
 
-	kmmap(pml4e_p, pid, CONSOLE_START, CONSOLE_START);
-	
 	printf("[Kernel Init Mem]: Kernel memory tables take %d page frames.\n", g_next_free_frame_index);
 
 	return (cr3e_t)physaddr2pebase(pml4e_p);
@@ -62,8 +60,8 @@ cr3e_t _init_kernel_mem(kpid_t pid, uint64_t physbase, uint64_t physfree, uint64
 
 void _init_kernel_process(void *physbase, void *physfree, void *physbottom, void *phystop)
 {
-	proc_ent *kproc = g_proc_ent_start + g_next_proc_free_index;
-	kpid_t kpid = g_next_proc_free_index;
+	task_t *kproc = g_task_start + g_next_task_free_index;
+	kpid_t kpid = g_next_task_free_index;
 	cr3e_t kcr3;
 
 	kcr3 = _init_kernel_mem(kpid, (uint64_t)physbase, (uint64_t)physfree, (uint64_t)physbottom, (uint64_t)phystop);
@@ -71,7 +69,8 @@ void _init_kernel_process(void *physbase, void *physfree, void *physbottom, void
 	kproc->cr3 = kcr3;
 	kproc->pid = kpid;
 
-	g_next_proc_free_index += 1;
+	g_next_task_free_index += 1;
+	g_task_bump = KERNEL_PID;
 	return;
 }
 
@@ -86,9 +85,11 @@ void init_kernel(void *physbase, void *physfree, void *physbottom, void *phystop
 	g_page_frame_start = physfree + KERNEL_PROC_HEAP_SIZE + PAGE_SIZE;
 	// align page table to PAGE_SIZE
 	g_page_frame_start = (void *)(((uint64_t)g_page_frame_start) >> PAGE_SIZE_LOG2 << PAGE_SIZE_LOG2);
-	g_proc_ent_start = (proc_ent *)g_physfree;
+	g_task_start = (task_t *)(g_physfree + KERNEL_SPACE_START);
+	gp_current_task = g_task_start + KERNEL_PID;
+	gp_current_task->status = PROCESS_RUNNING;
 
 	_init_kernel_process(physbase, physfree, physbottom, phystop);
-	loadproc(KERNEL_PID);
+	load_cr3(gettask(KERNEL_PID)->cr3);
 	return;
 }

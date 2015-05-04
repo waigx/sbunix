@@ -28,29 +28,105 @@
 //#include <sys/sbunix.h>
 #include <syscall.h>
 #include <stdlib.h>
-//#include <sys/kio.h>
+//#include <sys/mem.h>
+#include <const.h>
+#include <libstr.h>
+#include <string.h>
+
+
+void file_read_test(void);
+void file_opendir_test(void);
+void write_test(void);
+
 
 int main(int argc, char* argv[], char* envp[]) 
 {
 	uint64_t i = 0;
-  //      uint64_t j = 10000;
-	int fd = 0;
 
-	fd = open("bin/user_2", 0);
-
-	printf("open fd = %x \n", fd);
-	//printf("header->name = %s\n", 
+	write_test();
+	//file_read_test();
+	//file_opendir_test();
 
 	while(1);
 
         while(1)
         {
                 printf("I'm user_2 and count = %x\n",i++);
+//		  __asm volatile("cli");		
 //		printfat(10, 10,"I'm user 222 \n");
-  //              while(j--);
-    //            j = 1000000;
+//                while(j--);
+  //              j = 1000000;
       //          if(i % 5 == 0)
-                        yield(13);
+ //                       yield(13);
         }
         return 0;
+}
+
+void write_test(void)
+{
+	char* buf = "testing sys write";
+
+        write(STDOUT_FD, buf, 17);
+        write(STDOUT_FD, buf, 10);
+        write(STDOUT_FD, buf, 7);
+
+}
+
+
+void file_read_test(void)
+{
+	uint64_t i = 0;
+        int fd = 0;
+        char buf[128];
+        uint64_t size = 0;
+
+
+	 fd = open("bin/user_2", 0);
+
+        printf("open fd = %x \n", fd);
+
+        printf("buf = %x\n", buf);
+        size = read(fd, buf, 8);
+
+        printf("read size = %x\n", size);
+
+        for(i = 0; i < 8; i++)
+        {
+                printf("buf[%x]", i);
+                printf("=%x\n", buf[i]);
+        }
+
+        size = read(fd, buf, 8);
+        printf("read size = %x\n", size);
+
+        for(i = 0; i < 8; i++)
+        {
+                printf("buf[%x]", i);
+                printf("=%x\n", buf[i]);
+        }
+        size = read(fd, buf, 8);
+        printf("read size = %x\n", size);
+
+        for(i = 0; i < 8; i++)
+        {
+                printf("buf[%x]", i);
+                printf("=%x\n", buf[i]);
+        }
+}
+
+void file_opendir_test(void)
+{
+//	uint64_t i = 0;
+        DIR *pDir;
+        struct dirent *pDirent;
+
+	pDir = opendir("bin/"   /*"bin/"*/);
+        printf("pDir ->fd = %x\n", pDir->dir_fd);
+
+         while ((pDirent = readdir(pDir)) != NULL){
+                printf("ls:%s\n", pDirent->d_name);
+        }
+
+
+
 }

@@ -30,41 +30,113 @@
 #define _MANAGEMEM_H
 
 
+
+/*
+ *
+ *                     ---- Virtual Memory Space Layout ----
+ *
+ *
+ *                             _________________                                         
+ *                            |                 |                         
+ *   _________________________|_________________|_______________________
+ *   0xFFFF FFFF F000 0000    |                 |     KERNEL_STACK_START
+ *                            |                 |                |                
+ *                            |                 |               \|/               
+ *                            |                 |                `               
+ *   _________________________|_________________|_______________________
+ *                            |                 |  KERNEL_PROC_HEAP_SIZE
+ *                            |  Store tasks    |                         
+ *   _________________________|_________________|_______________________
+ *                            |                 |             g_physfree            
+ *                            |                 |                         
+ *                            | Used by kernel  |                         
+ *                            |                 |                         
+ *   _________________________|_________________|_______________________
+ *                            |                 |             g_physbase
+ *                            | Used by drivers |             
+ *                            |                 |             
+ *   _________________________|_________________|_______________________
+ *   0xFFFF FFFF 8000 0000    |                 |     KERNEL_SPACE_START
+ *   _________________________|_________________|_______________________
+ *   0xFFFF FFFF 7FFF F000    |                 |       USER_STACK_START
+ *                            |                 |                |                
+ *                            |                 |               \|/               
+ *                            |                 |                `               
+ *                            |                 |                         
+ *                            |                 |                         
+ *                            |                 |                         
+ *   _________________________|_________________|_______________________
+ *   0xFFFF FF7F FFFF FFFF    |  For self-ref   |  
+ *   _________________________|_________________|_______________________
+ *   0xFFFF FF00 0000 0000    |                 |              
+ *                            |                 |                         
+ *                            |                 |                         
+ *                                                                        
+ *                            ~ ~ ~ ~ ~ ~ ~ ~ ~ ~                         
+ *                                                                        
+ *                            |                 |                         
+ *                            |                 |                .        
+ *                            |                 |               /|\       
+ *   _________________________|_________________|________________|______  
+ *                            |                 |           g_heap_start                    
+ *                            |                 |                         
+ *                                                                        
+ *                            ~ ~ ~ ~ ~ ~ ~ ~ ~ ~                         
+ *                                                                        
+ *                            |                 |                         
+ *                            |                 |                .        
+ *                            |                 |               /|\       
+ *   _________________________|_________________|________________|______  
+ *                            |                 |            Entry point                 
+ *                            |                 |                         
+ *   _________________________|_________________|_______________________
+ *                            |                 |             g_physbase                                 
+ *                            | Used by drivers |                         
+ *                            |                 |                         
+ *   _________________________|_________________|_______________________
+ *   0x0000 0000 0000 0000                                       
+ *                                                                            
+ *                                                                  
+ */
+
 #include <sys/defs.h>
-#include <sys/proc.h>
+#include <sys/sched/sched.h>
 
 
-#define CR3_PWT                                        0x8
-#define CR3_PCD                                       0x10
+#define CR3_PWT                                                    0x8
+#define CR3_PCD                                                   0x10
 
-#define PTE_PRESENTS                                   0x1
-#define PTE_WRITEABLE                                  0x2
-#define PTE_SUPER                                      0x4
-#define PTE_PWT                                        0x8
-#define PTE_PCD                                       0x10
+#define PTE_PRESENTS                                               0x1
+#define PTE_WRITEABLE                                              0x2
+#define PTE_SUPER                                                  0x4
+#define PTE_PWT                                                    0x8
+#define PTE_PCD                                                   0x10
 
-#define PTE_DIRTY                                     0x40
+#define PTE_DIRTY                                                 0x40
 
-#define PAGE_SIZE_LOG2                                  12
-#define PAGE_SIZE                    (1 << PAGE_SIZE_LOG2)
-#define MAX_PAGE_FRAME                           (1 << 20)
-#define PAGE_TABLE_ENTRY_NUM                      (1 << 9)
-#define KERNEL_SPACE_START              0xffffffff80000000
-#define KERNEL_PROC_HEAP_SIZE                      0xfffff
+#define PAGE_SIZE_LOG2                                              12
+#define PAGE_SIZE                                (1 << PAGE_SIZE_LOG2)
+#define MAX_PAGE_FRAME                                       (1 << 20)
+#define PAGE_TABLE_ENTRY_NUM                                  (1 << 9)
+#define KERNEL_SPACE_START                          0xffffffff80000000
+#define KERNEL_PROC_HEAP_SIZE                                  0xfffff
 
-#define VADDR_SIGN_EXTEND                               16
-#define VADDR_PML4E                                      9
-#define VADDR_PDPE                                       9
-#define VADDR_PDE                                        9
-#define VADDR_PTE                                        9
-#define VADDR_OFFSET                                    12
+#define VADDR_SIGN_EXTEND                                           16
+#define VADDR_PML4E                                                  9
+#define VADDR_PDPE                                                   9
+#define VADDR_PDE                                                    9
+#define VADDR_PTE                                                    9
+#define VADDR_OFFSET                                                12
 
-#define EXTEND_BIT_1                    0xffff000000000000
+#define EXTEND_BIT_1                                0xffff000000000000
 
+#define USER_STACK_START              (KERNEL_SPACE_START - PAGE_SIZE)
+#define KERNEL_STACK_START             (USER_STACK_START + 0x70001000)
 
 /* 
  * PML4E self-ref. address;
  * Use index of 510;
+ * 
  * 
  *                                 |<-- PTE operate start here 
  *                                 |           |<-- PDE operate start here
@@ -76,12 +148,15 @@
  *         Sign Extend|       PML4E|       PDPE|        PDE|        PTE|         Offset
  * -------------------| -----------|-----------|-----------|-----------| --------------
  *                    |            |           |           |           | 
+ * 
  */
+
 #define PAGE_SELF_REF                  0xffffff7fbfdfe000
 
 
 extern uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
 extern uint64_t g_next_free_frame_index;
+extern uint64_t g_frame_bump;
 extern void *g_page_frame_start;
 extern void *g_physbase;
 extern void *g_physfree;
@@ -89,8 +164,10 @@ extern void *g_physfree;
 
 void *allocframe(kpid_t);
 
+void newvaddr(kpid_t pid, uint64_t vaddr);
 uint64_t *newmemtable(kpid_t pid, uint64_t table_size, uint8_t is_self_ref);
-cr3e_t newvmem(kpid_t);
+cr3e_t newvmem(kpid_t pid);
+void freevmem(kpid_t pid);
 
 void linearmmap(pml4e_t *pml4e_p, kpid_t pid, uint64_t physstart, uint64_t physend, uint64_t offset);
 

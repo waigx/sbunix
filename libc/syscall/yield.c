@@ -30,5 +30,6 @@
 void yield(uint64_t user)
 {
 //	printf("yield called by %x\n", user);
+//	 __asm volatile("cli");
 	syscall_1(SYS_yield,user);
 }

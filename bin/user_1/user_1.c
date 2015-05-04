@@ -26,24 +26,17 @@
 
 #include <stdio.h>
 #include <syscall.h>
+
 int main(int argc, char* argv[], char* envp[]) 
 {
 	uint64_t i = 0;
-//	uint64_t j = 10000;
 
 
-	printf("user_1 start \n");
-	yield(1);
-	while(1);
+	while(1) {
 
-	while(1)
-	{
 		printf("I'm user_1 and count = %x\n",i++);
-	//	while(j--);
-	//	j = 1000000;
-		//if(i % 5 == 0)
-		      i = i + 3;
-                       yield(1);
+		yield(1);
 	}
 	return 0;
 }
+

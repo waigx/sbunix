@@ -5,6 +5,8 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -23,17 +25,33 @@
  *
  */
 
+#include <sys/sched/sched.h>
+#include <sys/sbunix.h>
+#include <sys/debug.h>
 
-#include <sys/proc.h>
 #include <sys/managemem.h>
 
 
-void loadproc(kpid_t pid)
+
+
+void load_test_tasks(void)
 {
-	proc_ent *proc = getproc(pid);
-	cr3e_t cr3e = proc->cr3;
+	task_t *task1;
+	task_t *task2;
+//	task_t *task3;
+//	task_t *task4;
+//	task_t *task5;
 
-	load_cr3(cr3e);
+	task1 = newtask("bin/user_1", USER_PROCESS);
+	task2 = newtask("bin/user_2", USER_PROCESS);
+//	task3 = newtask("bin/user_3", USER_PROCESS);
+//	task4 = newtask("bin/user_4", USER_PROCESS);
+//	task5 = newtask("bin/user_5", USER_PROCESS);
 
-	return;
+	loadtask(task1);
+	loadtask(task2);
+//	loadtask(task3);
+//	loadtask(task4);
+//	loadtask(task5);
+
 }

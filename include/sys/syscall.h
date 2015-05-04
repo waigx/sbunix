@@ -23,7 +23,7 @@
 #define SYS_getdents   78
 
 // Added by Dongju 
-#define SYS_yield	100	
-#define SYS_printf	101
+#define SYS_yield     100
+#define SYS_printf    101
 
 #endif

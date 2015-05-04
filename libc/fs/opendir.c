@@ -30,12 +30,17 @@
 #include <const.h>
 
 
+/* temp code */
+char temp_buf[DIR_READ_BUF];
+char temp_buf1[DIR_READ_BUF];
+
 
 void *opendir(const char *name)
 {
 	DIR *dir;
 	int fd = open(name, O_RDONLY);
-	char *buf = malloc(DIR_READ_BUF);
+	//char *buf = malloc(DIR_READ_BUF);
+	char *buf = temp_buf;
 	uint64_t sys_call_res;
 
 	sys_call_res = syscall_3(SYS_getdents, (uint64_t)fd, (uint64_t)buf, (uint64_t)DIR_READ_BUF);
@@ -43,7 +48,8 @@ void *opendir(const char *name)
 	if ((ssize_t)sys_call_res < 0)
 		return NULL;
 
-	dir = malloc(sizeof(DIR)); 
+	//dir = malloc(sizeof(DIR)); 
+	dir = (DIR *)temp_buf1;
 
 	dir->dir_fd = fd;
 	dir->size = sys_call_res;

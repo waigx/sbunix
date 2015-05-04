@@ -57,6 +57,21 @@ void reload_gdt() {
 	_x86_64_asm_lgdt(&gdtr, 8, 16);
 }
 
+void setup_tss_rsp(struct tss_t *tss, uint64_t rsp) {
+        struct sys_segment_descriptor* sd = (struct sys_segment_descriptor*)&gdt[5]; // 6th&7th entry in GDT
+        sd->sd_lolimit = sizeof(struct tss_t)-1;
+        sd->sd_lobase = ((uint64_t)tss);
+        sd->sd_type = 9; // 386 TSS
+        sd->sd_dpl = 0;
+        sd->sd_p = 1;
+        sd->sd_hilimit = 0;
+        sd->sd_gran = 0;
+        sd->sd_hibase = ((uint64_t)tss) >> 24;
+
+	tss->rsp0 = (uint64_t)rsp;
+}
+
+
 void setup_tss() {
 	struct sys_segment_descriptor* sd = (struct sys_segment_descriptor*)&gdt[5]; // 6th&7th entry in GDT
 	sd->sd_lolimit = sizeof(struct tss_t)-1;

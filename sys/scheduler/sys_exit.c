@@ -25,18 +25,14 @@
  *
  */
 
-
-#ifndef _DEBUG_H
-#define _DEBUG_H
-
-
-#include <sys/defs.h>
+#include <sys/sched/sched.h>
 #include <sys/managemem.h>
+#include <sys/debug.h>
 
-extern uint8_t g_debug_mode;
 
-uint64_t *debug_convadd2phy(cr3e_t cr3e, void *vaddr);
-void debug_pause();
-void debug_print(const char *category, const char *format, ...);
+uint64_t
+sys_exit(uint64_t res)
+{
+	return res;
+}
 
-#endif

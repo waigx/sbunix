@@ -5,6 +5,8 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -22,27 +24,22 @@
  *  along with sbunix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+// reference to : http://wiki.osdev.org/Getting_to_Ring_3
+
+_switch_to_ring3:
+
+	movq $0x23, %rax
+	movq %rax, %ds
+	movq %rax, %es
+	movq %rax, %fs
+	movq %rax, %gs
+
+	movq %rsp, %rax
+	pushq $0x23
+	pushq %rax
+	pushfq 
+	pushq $0x1b
+
+	iretq
 
 
-#include <sys/proc.h>
-#include <sys/managemem.h>
-
-proc_ent *newproc()
-{
-	proc_ent *new_proc = g_proc_ent_start + g_next_proc_free_index;
-	kpid_t new_pid = g_next_proc_free_index;
-	cr3e_t new_cr3;
-
-	new_cr3 = newvmem(new_pid);
-
-	new_proc->cr3 = new_cr3;
-	new_proc->pid = new_pid;
-
-	while ((g_proc_ent_start + g_next_proc_free_index)->pid != 0) {
-		g_next_proc_free_index += 1;
-		if (g_next_proc_free_index >= MAX_PROC_NUM);
-			// max process num exceed error here;
-	}
-
-	return new_proc;
-}

@@ -5,8 +5,6 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
- *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
- *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -26,17 +24,11 @@
  */
 
 
-#ifndef _DEBUG_H
-#define _DEBUG_H
+#include <sys/sched/sched.h>
 
 
-#include <sys/defs.h>
-#include <sys/managemem.h>
-
-extern uint8_t g_debug_mode;
-
-uint64_t *debug_convadd2phy(cr3e_t cr3e, void *vaddr);
-void debug_pause();
-void debug_print(const char *category, const char *format, ...);
-
-#endif
+task_t *gettask(kpid_t pid)
+{
+	task_t *task = g_task_start + pid;
+	return task;
+}

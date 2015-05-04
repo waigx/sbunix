@@ -13,7 +13,6 @@
 #include <sys/keyboard.h>
 #include <sys/managemem.h>
 #include <sys/general.h>
-#include <sys/proc.h>
 #include <sys/debug.h>
 #include <stdarg.h>
 #include <string.h>
@@ -24,19 +23,23 @@
 char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
 uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
 uint64_t g_next_free_frame_index = 0;
-uint16_t g_next_proc_free_index = 1;
+uint16_t g_next_task_free_index = 1;
+uint16_t g_next_task_index = 1;
+uint16_t g_task_bump;
+uint64_t g_frame_bump;
 void *g_physbase;
 void *g_physfree;
 void *g_page_frame_start;
-proc_ent *g_proc_ent_start;
+task_t *g_task_start;
+task_t *gp_current_task;
 uint32_t g_current_pos = 2 * 21 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
 uint8_t is_shifted = 0;
 uint8_t is_ctrled = 0;
-uint8_t g_timer_count = 0;
+uint16_t g_timer_count = 0;
+uint16_t g_switch_timer = 0;
 uint8_t g_debug_mode = 0;
 struct rtc_t g_time_boot = TIMEZONE_UTC;
-
 
 void start(uint32_t* modulep, void* physbase, void* physfree)
 {
@@ -65,28 +68,22 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	printf("physbase: %p, physfree: %p\n", physbase, physfree);
 
 	// kernel starts here
-	rollscreen(4);
-
 	// Initial kernel
-	printf("[Kernel]: Initializing kernel memory ...\n");
+	debug_print("info", "Initializing kernel memory ...\n");
 	init_kernel(physbase, physfree, physbottom, phystop);
-	printf("[Kernel]: Finished.\n");
+	debug_print("info", "Finished ...\n");
 
-	// scheduler
-	reload_idt();
-	__asm volatile("sti");
-	round_robin_scheduler();
-	while(1);
-	///////////////////////
 
 	reload_idt();
 	// only Keyboard intrrupt enable, others are masked by PIC.
-	init_pic(ENABLE_KEYBOARD_INT | ENABLE_TIMER_INT);
+//	init_pic(ENABLE_KEYBOARD_INT | ENABLE_TIMER_INT);
 	// now, Dongju disable timer interrupt because it makes me to debug difficult.
 	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
-	set_timer(100);
-	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
 
+	load_test_tasks();
+	set_timer(100);
+//	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
+yield(1);
 	while (1);
 
 }

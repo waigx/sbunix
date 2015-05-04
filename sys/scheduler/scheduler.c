@@ -5,6 +5,8 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -24,11 +26,17 @@
  */
 
 
-#include <sys/proc.h>
+#include <sys/sched/sched.h>
 
-
-proc_ent *getproc(kpid_t pid)
+void scheduler()
 {
-	proc_ent *proc = g_proc_ent_start + pid;
-	return proc;
+
+//	sys_yield();
+
+	if (g_switch_timer == SWITCH_TIME_IN_MS){
+		sys_yield();
+		g_switch_timer = 0;
+	} else {
+		g_switch_timer += 1;
+	}
 }

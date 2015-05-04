@@ -35,18 +35,18 @@
 #include <sys/managemem.h>
 #include <sys/mem.h>
 #include <sys/register.h>
+#include <sys/debug.h>
 
 uint64_t check_ELF_format( Elf64_Ehdr *elf);
 
 
-uint64_t load_elf(struct task_t *task, char *binary)
+uint64_t load_elf(task_t *task, const char *task_name)
 {
-
-	 Elf64_Ehdr *elfhdr;
-	 Elf64_Phdr *phdr;
+	Elf64_Ehdr *elfhdr;
+	Elf64_Phdr *phdr;
 	//struct Elf64_Shdr;
 	uint64_t i = 0;
-	 Elf64_Phdr *ph_start;
+	Elf64_Phdr *ph_start;
 	uint64_t ph_num = 0;
 	uint64_t  fd = 0;
 
@@ -54,16 +54,16 @@ uint64_t load_elf(struct task_t *task, char *binary)
 	uint64_t size = 0;
 	uint64_t vaddr = 0;
 	//uint64_t flag = 0;
-	uint64_t page = 0;
-	uint64_t temp_cr3 = 0;
+	uint64_t page;
+	cr3e_t temp_cr3;
 
 	//fd = open_tarfs(binary, 0);
-	fd = find_elf((char *)binary,0);
+	fd = find_elf(task_name, 0);
 	elfhdr = ( Elf64_Ehdr *)fd;
 
 	if(check_ELF_format(elfhdr) == FALSE)
 	{
-		printf("ELF error, it is not ELF formant\n");
+		debug_print("ELF", "Error, the file is not ELF file.\n");
 		return 0;
 	}
 	ph_start = ( Elf64_Phdr *)((uint8_t *)elfhdr + elfhdr->e_phoff);
@@ -81,18 +81,13 @@ uint64_t load_elf(struct task_t *task, char *binary)
 			vaddr = phdr->p_va;
 			//flag = phdr->p_flags;
 			//permission =
+
 			page = (uint64_t)allocframe(task->pid);
-
-			kmmap((pml4e_t*)task->pml4e, task->pid, page, (uint64_t)vaddr);
-			
+			kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr);
 			temp_cr3 = get_cr3_register();
-
-			load_cr3((cr3e_t)task->cr3);		
-	
-			copymem((uint64_t*)vaddr,(uint64_t *)(offset+ (uint64_t)elfhdr), size);			
-			
+			load_cr3(task->cr3);
+			copymem((uint64_t *)vaddr,(uint64_t *)(offset+ (uint64_t)elfhdr), size);
 			load_cr3(temp_cr3);
-
 		}
 
 	}

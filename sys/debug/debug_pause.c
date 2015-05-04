@@ -27,25 +27,15 @@
 
 
 #include <sys/debug.h>
+#include <sys/sbunix.h>
 #include <sys/defs.h>
 #include <sys/managemem.h>
-#include <sys/sbunix.h>
+#include <sys/pic.h>
 
 
-uint64_t *debug_convadd2phy(cr3e_t cr3e, void *vaddr)
+void debug_pause()
 {
-	uint64_t *physaddr;
-	uint64_t *pml4e_p = pe2physaddr(cr3e);
-	uint64_t vaddr_uint = (uint64_t)vaddr;
-	uint64_t pml4e_offset = vaddr_uint << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDPE + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
-	uint64_t pdpe_offset = vaddr_uint << (VADDR_SIGN_EXTEND + VADDR_PML4E) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
-	uint64_t pde_offset = vaddr_uint << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PTE + VADDR_OFFSET);
-	uint64_t pte_offset = vaddr_uint << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
-
-	physaddr = pe2physaddr(*(pe2physaddr(*(pe2physaddr(*(pe2physaddr(*(pml4e_p + pml4e_offset)) + pdpe_offset)) + pde_offset)) + pte_offset));
-
-	printf("[Debug]: %p -> %p\n", vaddr, physaddr);
-	return physaddr;
+	while (1);
 }
 
 

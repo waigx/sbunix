@@ -10,6 +10,7 @@ uint64_t get_rsi_register(void);
 uint64_t get_rdx_register(void);
 uint64_t get_r10_register(void);
 
+uint64_t get_cr2_register(void);
 uint64_t get_cr3_register(void);
 
 #endif

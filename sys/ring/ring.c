@@ -24,19 +24,36 @@
  *  along with sbunix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+//#include <sys/register.h>
+//#include <syscall.h>
+#include <sys/sbunix.h>
+#include <string.h>
+//#include <sys/elf.h>
+//#include <sys/tarfs_api.h>
+//#include <sys/sched/sched.h>
 
 
-#ifndef _DEBUG_H
-#define _DEBUG_H
+#include <sys/ring.h>
+#include <sys/gdt.h>
+#include <sys/sched/sched.h>
+//#include <sys/managemem.h>
+//#include <sys/mem.h>
+#include <sys/register.h>
+//#include <sys/debug.h>
+
+//uint64_t check_ELF_format( Elf64_Ehdr *elf);
+
+void set_rsp_tss(uint64_t rsp)
+{
+	//	uint64_t rsp0 = get_rax_register();
+	task_t *task;
+	//struct tss_t *tss;
+	//rsp = get_rax_register();
+	task = (task_t *)get_current_task();
+	//tss = (struct tss_t *)&(task->tss);
+	setup_tss_rsp((struct tss_t *)task->tsss, (uint64_t)(task->k_stack_base) + 4096 - 8);	
 
 
-#include <sys/defs.h>
-#include <sys/managemem.h>
+}
 
-extern uint8_t g_debug_mode;
 
-uint64_t *debug_convadd2phy(cr3e_t cr3e, void *vaddr);
-void debug_pause();
-void debug_print(const char *category, const char *format, ...);
-
-#endif

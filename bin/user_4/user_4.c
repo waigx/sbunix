@@ -24,30 +24,25 @@
  */
 
 
-#ifndef _CONST_H
-#define _CONST_H
+#include <stdio.h>
+//#include <sys/sbunix.h>
+#include <syscall.h>
+//#include <sys/kio.h>
 
+int main(int argc, char* argv[], char* envp[]) 
+{
+	uint64_t i = 0;
+    //    uint64_t j = 10000;
 
-#define STDIN_FD 0
-#define STDOUT_FD 1
-
-
-#define EXIT_SUCCESS 0
-#define EXIT_FAILURE 1
-
-
-#define PS_MAX_LEN 2048
-#define DIR_MAX_DEPTH 256
-#define DIR_READ_BUF 256
-
-#define MAXLINE 2048
-#define HOSTNAME_FILE "/proc/sys/kernel/hostname"
-
-#define MAX_ARGS 128
-#define MAX_ENVP 128
-
-#define UINT64_LEN 21
-
-#define PRINTF_LEN 256
-
-#endif
+        while(1)
+        {
+                printf("I'm user_4 and count = %x\n",i++);
+//		  __asm volatile("sti");		
+//		printfat(10, 10,"I'm user 222 \n");
+//                while(j--);
+  //              j = 1000000;
+      //          if(i % 5 == 0)
+//                        yield(13);
+        }
+        return 0;
+}

@@ -24,217 +24,22 @@
  *  along with sbunix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
 #include <sys/sched/sched.h>
-#include <sys/sched/list.h>
-#include <sys/mem.h>
-
-#include <sys/proc.h>
 #include <sys/managemem.h>
-#include <sys/elf.h>
+#include <sys/debug.h>
+#include <sys/sbunix.h>
 
-void init_task(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
-void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stack_base);
-struct	task_t*	alloc_task(uint64_t pid);
-uint64_t get_newpid(void);
-
-
-static uint64_t	next_pid = 0;
-static struct task_t *gp_current_task;
-uint8_t task_buf[5][4096];
-struct list_manager_struct g_ready_task_list;
-
-struct task_t tasks[MAX_TASKS];
-
-
-struct task_t*
-create_task(uint64_t instruction_addr, 
-		char *binary , 
-		void* virtual_memory_addr, 
-		enum process_type type )
-{
-	struct	task_t	*task;
-	uint64_t pid = 0;
-	cr3e_t new_cr3 = 0;
-	pml4e_t *pml4e_p;
-	uint64_t page = 0;
-	uint64_t entry = 0;
-//	uint64_t kern_base = 0xffffffff80000000;
-	// allocate new task
-	//task = alloc_task();
-
-	// get new pid
-	pid = get_newpid();
-	task = alloc_task(pid);
-	task->pid = pid;
-
-
-	//TODO using kmalloc
-	//task->name = binary;
-
-
-	// alloc pml4e, TODO how to get pml4e address?
-	new_cr3 = newvmem(pid);
-	task->cr3 = new_cr3;
-	pml4e_p = pe2physaddr(new_cr3);
-	task->pml4e = (uint64_t)pml4e_p;
-
-
-	kmmap((pml4e_t*)pml4e_p, pid, ((uint64_t)task>>12)<<12, (uint64_t)((uint64_t)task>>12)<<12);
-
-	if(type == KERNEL_PROCESS)
-	{
-		task->type = KERNEL_PROCESS;
-		init_task(task, instruction_addr, virtual_memory_addr);
-		page = (uint64_t)allocframe(pid);
-
-		kmmap((pml4e_t*)pml4e_p, pid, page, (uint64_t)virtual_memory_addr);
-
-	}
-	else if(type == USER_PROCESS)
-	{
-		//set_cr3();
-		//task->stack_base = virtual_memory_addr;
-		task->type = USER_PROCESS;
-		entry = load_elf(task, binary);
-		init_task(task, entry /*instruction_addr*/, virtual_memory_addr);
-                page = (uint64_t)allocframe(pid);
-                kmmap((pml4e_t*)pml4e_p, pid, page, (uint64_t)virtual_memory_addr);
-
-	}
-
-	// setting pml4e map 
-
-	// allocate_virtual_addr()
-	//task->stack_base = virtual_memory_addr;
-
-	task->status = PROCESS_RUNNABLE;
-	//task->process_type = USER_PROCESS;
-
-	// TODO. dealing with elf format
-
-	// add task list
-	return (struct task_t*)task;
-}
-
-
-struct task_t*
-get_next_task(void)
-{
-	struct task_t *new_task = NULL;
-	//uint64_t i = 0;
-	new_task = (struct task_t*)remove_list_from_header(&g_ready_task_list);
-	return (struct task_t*)new_task;
-}
-
-void add_task_ready_list(struct task_t *task)
-{
-	add_list_to_tail(&g_ready_task_list, task);
-
-}
-
-
-void init_task(struct task_t *task, uint64_t entry_point, uint64_t *stack_base)
-{
-
-	task->stack_base = stack_base;
-	init_task_context(task, entry_point, stack_base);
-
-
-}
-
-void init_task_context(struct task_t *task, uint64_t entry_point, uint64_t *stack_base )
-{
-	//setmem(task->context, (uint64_t*)((uint64_t)task->context + sizeof(struct regs_struct)), 0x00);
-	setmem((uint64_t *)task->context.regs, (uint64_t *)task->context.regs + sizeof(struct regs_struct), 0x00);
-
-	// TODO stack_base will be allocated size or memory menagement by dongju
-	task->context.regs[CONTEXT_RSP_OFFSET] = (uint64_t)stack_base + 4096 -8;
-	task->context.regs[CONTEXT_RBP_OFFSET] = (uint64_t)stack_base + 4096 -8;
-
-	task->context.regs[CONTEXT_CS_OFFSET] = GDT_KERNEL_CODE_SEG;
-	task->context.regs[CONTEXT_DS_OFFSET] = GDT_KERNEL_DATA_SEG;
-	task->context.regs[CONTEXT_ES_OFFSET] = GDT_KERNEL_DATA_SEG;
-	task->context.regs[CONTEXT_FS_OFFSET] = GDT_KERNEL_DATA_SEG;
-	task->context.regs[CONTEXT_GS_OFFSET] = GDT_KERNEL_DATA_SEG;
-	task->context.regs[CONTEXT_SS_OFFSET] = GDT_KERNEL_DATA_SEG;
-	
-	task->context.regs[CONTEXT_RIP_OFFSET] = entry_point;
-	// TODO needed to enable interrupt by dongju
-	//task->context.regs[CONTEXT_RFLAG_OFFSET] |= (0x1 << 9);	// IF(bit 9) enable	
-}
-
-void
-sys_yield(void)
-{
-	struct task_t *next_task;
-	struct task_t *current_task;
-	// TODO how to get current task pointer and next task point
-	next_task = (struct task_t*)get_next_task();
-	current_task = gp_current_task;
-
-	// switch context
-	gp_current_task = next_task;
-	//if(current_task != NULL)
-	add_task_ready_list(next_task);
-
-
-	//load_cr3(cr3e_t cr3)
-	load_cr3((cr3e_t)next_task->cr3);
-
-	if(current_task == NULL)
-	{
-		switch_context((struct regs_struct*)NULL, (struct regs_struct*)next_task->context.regs); 
-	}
-	else
-		switch_context((struct regs_struct*)current_task->context.regs, (struct regs_struct*)next_task->context.regs);
-}
-
-void
-free_task()
-{
-	;
-
-}
-
-//static uint64_t task_num = 1;
-
-struct task_t*
-alloc_task(uint64_t pid)
-{
-	uint64_t *addr;
-	addr =(uint64_t*)&tasks[pid];
-	
-
-	// addr = kmalloc
-	//addr = allocframe(task_num++);
-
-//	addr = (uint64_t)task_buf[task_num];
-//	task_num ++; 
-
-	return (struct task_t*)addr;
-}
-
-void
-add_task_list(void)
-{
-	;
-}
-
-void
-free_task_list(void)
-{
-	;
-}
-
-
-uint64_t get_newpid(void)
-{
-	//TODO how to deal with pid=0 because pid=0 means child process.
-	next_pid += 1;
-	return next_pid;
-}
 
 struct task_t* get_current_task(void)
 {
-	return (struct task_t*)gp_current_task;
+        return (struct task_t*)gp_current_task;
 }
+/*
+uint64_t get_kernel_rsp(void)
+{
+	struct task_t *task = get_current_task();
+	return (uint64_t)task->k_stack_base;
+
+}
+*/

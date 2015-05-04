@@ -26,17 +26,44 @@
  */
 
 
-#ifndef _DEBUG_H
-#define _DEBUG_H
-
-
+#include <sys/debug.h>
+#include <sys/sbunix.h>
 #include <sys/defs.h>
-#include <sys/managemem.h>
+#include <sys/kio.h>
+#include <stdarg.h>
+#include <const.h>
+#include <string.h>
 
-extern uint8_t g_debug_mode;
+#define CATE_LEN 6
 
-uint64_t *debug_convadd2phy(cr3e_t cr3e, void *vaddr);
-void debug_pause();
-void debug_print(const char *category, const char *format, ...);
 
-#endif
+void debug_print(const char *category, const char *format, ...)
+{
+	va_list val;
+	char buf[PRINTF_LEN] = "[Kernel ";
+	char *buf_ptr;
+	int temp_len;
+	int i;
+
+	temp_len = strlen(buf);
+	for (i = strlen(category); i < CATE_LEN; i++)
+		buf[temp_len++] = ' ';
+	strncpy(buf + temp_len, category, CATE_LEN);
+	temp_len = strlen(buf);
+	buf[temp_len++] = ']';
+	buf[temp_len++] = ' ';
+
+	va_start(val, format);
+
+	strlistprintf(buf + temp_len, format, val);
+
+	for (buf_ptr = buf; *buf_ptr != '\0'; buf_ptr++) {
+		writechar(*buf_ptr);
+	}
+
+	va_end(val);
+
+	return;
+}
+
+
