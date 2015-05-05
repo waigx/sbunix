@@ -81,9 +81,7 @@ task_t *newtask(const char *task_name, process_type_t type)
 	} else if (type == USER_PROCESS) {
 		/* KERNEL STACK Setting */
 		phy_stack_base = allocframe();
-		printf("[KERNELSTACK]%p\n", phy_stack_base);
 		kmmap(pe2physaddr(new_cr3), (uint64_t)phy_stack_base, KERNEL_STACK_START, FALSE, TRUE);
-		newvma(g_vma_phy_start + 1, (void *)(KERNEL_STACK_START), (void *)(KERNEL_STACK_START + PAGE_SIZE), VMA_HEAP_NAME, VMA_READABLE | VMA_WRITEABLE);
 
 		entry_point = load_elf(task, task_name);
 		init_task(task, entry_point, (uint64_t *)USER_STACK_START, (uint64_t *)KERNEL_STACK_START);

@@ -54,6 +54,28 @@ uint64_t physaddr2pebase(uint64_t *physaddr)
 }
 
 
+void cow_pagefault_handler(uint64_t vaddr)
+{
+	uint64_t pte_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
+	uint64_t *pte_p = getptep(vaddr) + pte_offset;
+	void *new_frame_p;
+	pte_t pte = *pte_p;
+
+	if (g_page_frame_pool[physaddr2frameindex(pe2physaddr(pte))] == 1) {
+		*pte_p = pte | PTE_WRITEABLE;
+		return;
+	}
+
+	copymem(g_page_frame_buf, (void *)(vaddr >> VADDR_OFFSET << VADDR_OFFSET), PAGE_SIZE);
+	new_frame_p = allocframe();
+	*pte_p = (pte & PERMITE_BITS) | physaddr2pebase(new_frame_p) | PTE_WRITEABLE;
+	copymem((void *)(vaddr >> VADDR_OFFSET << VADDR_OFFSET), g_page_frame_buf, PAGE_SIZE);
+	g_page_frame_pool[physaddr2frameindex(pe2physaddr(pte))] -= 1;
+
+	return;
+}
+
+
 void freevmem(kpid_t pid)
 {
 	pml4e_t *pml4e_p = getpml4ep();
@@ -263,9 +285,6 @@ cr3e_t newvmem()
 
 
 /* PART 3: These functions should be called under user cr3*/
-
-
-
 
 void removevma(vma_t *vma)
 {

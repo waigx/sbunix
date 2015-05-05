@@ -22,6 +22,7 @@
 
 char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
 uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
+uint8_t g_page_frame_buf[PAGE_SIZE];
 uint64_t g_next_free_frame_index = 0;
 uint16_t g_next_task_free_index = 1;
 uint16_t g_next_task_index = 1;

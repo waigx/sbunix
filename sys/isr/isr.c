@@ -55,10 +55,15 @@ void debug(uint64_t err_code)
 void pagefault_handler(void)
 {
 	uint64_t vaddr = get_cr2_register();
+	uint64_t pte_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
 	vma_t *belonged_vma;
+	pte_t pte;
+
+
 	debug_print("PagFlt", "Virtual addr: %p\n", vaddr);
 	belonged_vma = lookupvmabyvaddr((void *)vaddr);
 	debug_showvmas(g_vma_start);
+
 	if (belonged_vma == NULL) {
 		debug_print("PagFlt", "No VMAs \n");
 		printf("Segmentation Fault at address:%p\n", vaddr);
@@ -72,6 +77,11 @@ void pagefault_handler(void)
 		sys_exit(-1);
 		return;
 	}
+
+	pte = *(getptep(vaddr) + pte_offset);
+	if ((pte & PTE_WRITEABLE) == FALSE && (pte & PTE_PRESENTS) == TRUE && g_page_frame_pool[physaddr2frameindex(pe2physaddr(pte))] > 0)
+		cow_pagefault_handler(vaddr);
+
 	newvaddr(vaddr);
 }
 

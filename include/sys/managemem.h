@@ -182,6 +182,7 @@ typedef struct {
 
 
 extern uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
+extern uint8_t g_page_frame_buf[PAGE_SIZE];
 extern uint64_t g_next_free_frame_index;
 extern uint64_t g_frame_bump;
 extern void *g_page_frame_start;
@@ -196,6 +197,7 @@ void *allocframe();
 void freeframe(void *physaddr);
 
 void newvaddr(uint64_t vaddr);
+void cow_pagefault_handler(uint64_t vaddr);
 uint64_t *newmemtable(uint64_t table_size, uint8_t is_self_ref);
 cr3e_t newvmem();
 void freevmem(kpid_t pid);

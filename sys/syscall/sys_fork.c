@@ -30,6 +30,7 @@
 #include <sys/managemem.h>
 #include <sys/register.h>
 #include <sys/debug.h>
+#include <sys/mem.h>
 #include <sys/sbunix.h>
 
 
@@ -44,6 +45,7 @@ uint64_t _clean_bit(uint64_t entry, uint64_t bit)
 
 cr3e_t _copy_mem_table(cr3e_t cr3)
 {
+	cr3e_t new_cr3;
 	pml4e_t *p_pml4e_p = pe2physaddr(cr3);
 	pdpe_t *p_pdpe_p;
 	pde_t *p_pde_p;
@@ -62,7 +64,6 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 	pdpe_t pdpe;
 	pde_t pde;
 	pte_t pte;
-
 
 	for (pml4e_offset = 0; pml4e_offset < (1 << VADDR_PDPE); pml4e_offset++) {
 		if (pml4e_offset == PAGE_SELF_REF_PML4E_INDEX)
@@ -96,16 +97,40 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 				for (pte_offset = 0;  pte_offset < (1 << VADDR_PTE); pte_offset++) {
 
 					pte = *(p_pte_p + pte_offset);
-					if ((pte == 0) || (pte && PTE_PRESENTS))
+					if ((pte & PTE_PRESENTS) == 0)
 						continue;
 					pte = _clean_bit(pte, PTE_WRITEABLE);
 					*(p_pte_p + pte_offset) = pte;
 					*(c_pte_p + pte_offset) = pte;
+					g_page_frame_pool[physaddr2frameindex(pe2physaddr(pte))] += 1;
 				}
 			}
 		}
 	}
 
+	new_cr3 = physaddr2pebase(c_pml4e_p);
+
+	return new_cr3;
+}
+
+
+uint64_t
+sys_fork()
+{
+	kpid_t childpid;
+	task_t *kernel_task = gettask(KERNEL_PID);
+	load_cr3(kernel_task->cr3);
+
+	kpid_t newpid = g_next_task_free_index;
+	cr3e_t newcr3 = _copy_mem_table(gp_current_task->cr3);
+	copymem((g_task_start + newpid), gp_current_task, sizeof(task_t));
+	(g_task_start + newpid)->pid = newpid;
+	(g_task_start + newpid)->parent = gp_current_task->pid;
+	(g_task_start + newpid)->cr3 = newcr3;
+	(g_task_start + newpid)->status = PROCESS_READY;
+
+	load_cr3(gp_current_task->cr3);
+	childpid = g_next_task_free_index;
 	/*
 	 * Allocate new pid
 	 */
@@ -116,18 +141,5 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 		if (g_next_task_free_index >= MAX_PROC_NUM);
 		// max process num exceed error here;
 	}
-
-	/*TEMP*/return 0;
-}
-
-
-uint64_t
-sys_fork()
-{
-	task_t *kernel_task = gettask(KERNEL_PID);
-	load_cr3(kernel_task->cr3);
-
-
-	load_cr3(gp_current_task->cr3);
-	/*TEMP*/return 0;
+	return childpid;
 }

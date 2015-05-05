@@ -30,7 +30,6 @@
 #define _SCHED_H
 
 #include <sys/defs.h>
-#include <sys/sched/list.h>
 #include <sys/tarfs_api.h>
 #include <sys/gdt.h>
 
@@ -123,10 +122,6 @@ typedef struct
 
 	// ring active
 	uint64_t b_ring;
-
-	// Legacy
-	struct task_t *next_task;
-	uint64_t pml4e;
 
 	// Open file descript, stdin, stdout, and stderr are 0, 1, and 2 //
 	struct file_descript	*fd[MAX_OPEN_FILE_DESCRIPT];
