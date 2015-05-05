@@ -25,16 +25,105 @@
  *
  */
 
+
 #include <sys/sched/sched.h>
 #include <sys/managemem.h>
+#include <sys/register.h>
 #include <sys/debug.h>
 #include <sys/sbunix.h>
+
+#define PERMITE_BITS     0xFFF0000000000FFF
+
+
+uint64_t _clean_bit(uint64_t entry, uint64_t bit)
+{
+	uint64_t util_bits = -1;
+	util_bits -= bit;
+	return entry & util_bits;
+}
+
+
+cr3e_t _copy_mem_table(cr3e_t cr3)
+{
+	
+	kpid_t new_pid = g_next_task_free_index;
+
+	pml4e_t *p_pml4e_p = pe2physaddr(cr3);
+	pdpe_t *p_pdpe_p;
+	pde_t *p_pde_p;
+	pte_t *p_pte_p;
+
+	uint64_t pml4e_offset;
+	uint64_t pdpe_offset;
+	uint64_t pde_offset;
+	uint64_t pte_offset;
+
+	pml4e_t *c_pml4e_p = newmemtable(new_pid, 1 << VADDR_PML4E, TRUE);
+	pdpe_t *c_pdpe_p;
+	pde_t *c_pde_p;
+	pte_t *c_pte_p;
+	pml4e_t pml4e;
+	pdpe_t pdpe;
+	pde_t pde;
+	pte_t pte;
+
+	for (pml4e_offset = 0; pml4e_offset < 510; pml4e_offset++) {
+		pml4e = *(p_pml4e_p + pml4e_offset);
+		if (pml4e == 0)
+			continue;
+		c_pdpe_p = newmemtable(new_pid, 1 << VADDR_PDPE, FALSE);
+		pml4e = (pml4e & PERMITE_BITS) | physaddr2pebase(c_pdpe_p);
+		*(c_pml4e_p + pml4e_offset) = pml4e;
+
+		for (pdpe_offset = 0;  pdpe_offset < (1 << VADDR_PDPE); pdpe_offset++) {
+			pdpe = *(p_pdpe_p + pdpe_offset);
+			if ( pdpe == 0)
+				continue;
+			c_pde_p = newmemtable(new_pid, 1 << VADDR_PDE, FALSE);
+			pdpe = (pdpe & PERMITE_BITS) | physaddr2pebase(c_pde_p);
+			*(c_pdpe_p + pdpe_offset) = pdpe;
+
+			for (pde_offset = 0; pde_offset < (1 << VADDR_PDE); pde_offset++) {
+				pde = *(p_pde_p + pde_offset);
+				if ( pde == 0)
+					continue;
+				c_pte_p = newmemtable(new_pid, 1 << VADDR_PTE, FALSE);
+				pde = (pde & PERMITE_BITS) | physaddr2pebase(c_pte_p);
+				*(c_pde_p + pde_offset) = pde;
+
+				for (pte_offset = 0;  pte_offset < (1 << VADDR_PTE); pte_offset++) {
+					pte = *(p_pte_p + pte_offset);
+					if ( pte == 0)
+						continue;
+					pte = _clean_bit(pte, PTE_WRITEABLE);
+					*(p_pte_p + pte_offset) = pte;
+					*(c_pte_p + pte_offset) = pte;
+				}
+			}
+		}
+	}
+
+
+	/*
+	 * Allocate new pid
+	 */
+	while ((g_task_start + g_next_task_free_index)->pid != 0) {
+		g_next_task_free_index += 1;
+		if (g_next_task_free_index > g_task_bump)
+			g_task_bump++;
+		if (g_next_task_free_index >= MAX_PROC_NUM);
+		// max process num exceed error here;
+	}
+}
 
 
 uint64_t
 sys_fork()
 {
-	uint64_t ret = 0;
-	return ret;
+	task_t *kernel_task = gettask(KERNEL_PID);
+	load_cr3(kernel_task->cr3);
+
+
+	load_cr3(gp_current_task->cr3);
 }
 

@@ -85,7 +85,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 
 	load_test_tasks();
 	set_timer(100);
-	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
+//	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
 //	yield(1);
 	while (1);
 

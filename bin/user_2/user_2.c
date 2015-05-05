@@ -31,6 +31,7 @@
 //#include <sys/mem.h>
 #include <const.h>
 #include <libstr.h>
+#include <libio.h>
 #include <string.h>
 
 
@@ -44,10 +45,10 @@ int main(int argc, char* argv[], char* envp[])
 	uint64_t i = 0;
 
 	//write_test();
-	//file_read_test();
-	//file_opendir_test();
+//	file_read_test();
+	file_opendir_test();
 
-	//while(1);
+	while(1);
 
         while(1)
         {
@@ -76,51 +77,61 @@ void write_test(void)
 void file_read_test(void)
 {
 	uint64_t i = 0;
-        int fd = 0;
-        char buf[128];
-        uint64_t size = 0;
+  int fd = 0;
+  char buf[128];
+	uint64_t size = 0;
 
 
-	 fd = open("bin/user_2", 0);
+	fd = open("etc/SBUsh.SBUshrc", 0);
+	readline(buf, fd);
+	printf("BUF: %s\n", buf);
+	while(1);
 
-        printf("open fd = %x \n", fd);
-
-        printf("buf = %x\n", buf);
-        size = read(fd, buf, 8);
-
+//        printf("open fd = %x \n", fd);
+//
+//        printf("buf = %x\n", buf);
+        size = read(fd, buf, 30);
+//
         printf("read size = %x\n", size);
 
-        for(i = 0; i < 8; i++)
+
+        for(i = 0; i < 25; i++)
         {
-                printf("buf[%x]", i);
-                printf("=%x\n", buf[i]);
+                printf("%d ", buf[i]);
+        }
+		
+		printf("\n");
+		for(i = 0; i < 25; i++)
+        {
+                printf("%c ", buf[i]);
         }
 
-        size = read(fd, buf, 8);
-        printf("read size = %x\n", size);
-
-        for(i = 0; i < 8; i++)
-        {
-                printf("buf[%x]", i);
-                printf("=%x\n", buf[i]);
-        }
-        size = read(fd, buf, 8);
-        printf("read size = %x\n", size);
-
-        for(i = 0; i < 8; i++)
-        {
-                printf("buf[%x]", i);
-                printf("=%x\n", buf[i]);
-        }
+//        size = read(fd, buf, 8);
+//        printf("read size = %x\n", size);
+//
+//        for(i = 0; i < 8; i++)
+//        {
+//                printf("buf[%x]", i);
+//                printf("=%x\n", buf[i]);
+//        }
+//        size = read(fd, buf, 8);
+//        printf("read size = %x\n", size);
+//
+//        for(i = 0; i < 8; i++)
+//        {
+//                printf("buf[%x]", i);
+//                printf("=%x\n", buf[i]);
+//        }
 }
 
 void file_opendir_test(void)
 {
+
 //	uint64_t i = 0;
         DIR *pDir;
         struct dirent *pDirent;
 
-	pDir = opendir("bin/"   /*"bin/"*/);
+	pDir = opendir("/etc/"   /*"bin/"*/);
         printf("pDir ->fd = %x\n", pDir->dir_fd);
 
          while ((pDirent = readdir(pDir)) != NULL){
