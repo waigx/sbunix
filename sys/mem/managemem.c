@@ -100,7 +100,7 @@ void freevmem(kpid_t pid)
 
 				for (pte_offset = 0;  pte_offset < (1 << VADDR_PTE); pte_offset++) {
 					pte = *(pte_p + pte_offset);
-					if ((pte == 0) || (pte && PTE_PRESENTS))
+					if ((pte & PTE_PRESENTS) == 0)
 						continue;
 					page_frame = pe2physaddr(pte);
 					freeframe(page_frame);
@@ -133,9 +133,9 @@ void freeframe(void *physaddr)
 {
 	uint64_t index;
 	index = physaddr2frameindex(physaddr);
-	printf("[Freed]:%p\n", physaddr);
 	if (index < MAX_PAGE_FRAME)
 		g_page_frame_pool[index] -= 1;
+
 	return;
 }
 
