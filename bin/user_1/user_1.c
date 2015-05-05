@@ -63,6 +63,7 @@ int main(int argc, char* argv[], char* envp[])
 		printf("test3_ptr-> %d\n",*test3_ptr);
 
 	testfun(i);
+	while(1);
 	return 0;
 }
 

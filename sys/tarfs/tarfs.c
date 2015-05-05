@@ -28,14 +28,15 @@
 #include <sys/tarfs.h>
 #include <sys/tarfs_api.h>
 #include <string.h>
+#include <sys/debug.h>
 #include <sys/sbunix.h>
 #include <sys/sched/sched.h>
 #include <sys/managemem.h>
 #include <sys/mem.h>
 #include <sys/kio.h>
 
-#define	OFFSET_SIZE_TARFS	(100 + 8 + 8 + 8)
-#define BYTES_SIZE_TARFS	12
+#define OFFSET_SIZE_TARFS           (100 + 8 + 8 + 8)
+#define BYTES_SIZE_TARFS                           12
 
 uint64_t get_file_size(struct posix_header_ustar *tarfs_header);
 int64_t get_fd(task_t *cur_task, struct posix_header_ustar *header_addr, int flags);
@@ -47,22 +48,18 @@ ssize_t sys_write(int fd, const void *buf, size_t count)
 	task_t *cur_task;
 	struct file_descript *fdt;
 	uint64_t i = 0;
+	char *buf_ptr = (char *)buf;
+
 	cur_task = gp_current_task;
 	fdt = (struct file_descript *)cur_task->fd[fd];
 
-	//printf("sys_write: starting \n");
-
-	/* TODO sys_write is allowed only to STAND_OUT by dongju */
-	if(fd != STANDARD_IO_OUT)
-	{
-		printf("sys_write: fd is not allowed");
+	if(fd != STANDARD_IO_OUT) {
+		debug_print("write", "Invalid file discriptor.");
 		return 0;
 	}
 
-	rollscreen(1);
-	//int printfat(10, 0, const char *fmt, ...);
-	for(i=0; i< count; i++)
-		writechar(*((char *)buf+i));
+	for(i = 0; i < count; i++)
+		writechar(*(buf_ptr + i));
 
 	fdt->ptr += i;
 	return (ssize_t)i;

@@ -35,7 +35,7 @@ int
 strlistprintf(char *buf, const char *format, va_list val)
 {
 	int var_int;
-	uint32_t var_uint;
+	uint64_t var_uint;
 	char var_char;
 	char *var_charp;
 	char num_buf[UINT64_LEN];
@@ -65,6 +65,26 @@ strlistprintf(char *buf, const char *format, va_list val)
 			case 'u':
 				var_uint = va_arg(val, uint32_t);
 				utoa(num_buf, var_uint, 10);
+				strcpy(buf + printed, num_buf);
+				printed += strlen(num_buf) - 1;
+				break;
+			case 'b':
+				var_uint = va_arg(val, uint32_t);
+				utoa(num_buf, var_uint, 2);
+				strcpy(buf + printed, num_buf);
+				printed += strlen(num_buf) - 1;
+				break;
+			case 'x':
+				var_uint = va_arg(val, uint64_t);
+				utoa(num_buf, var_uint, 16);
+				strcpy(buf + printed, num_buf);
+				printed += strlen(num_buf) - 1;
+				break;
+			case 'p':
+				strcpy(buf + printed, "0x");
+				printed += 2;
+				var_uint = va_arg(val, uint64_t);
+				utoa(num_buf, var_uint, 16);
 				strcpy(buf + printed, num_buf);
 				printed += strlen(num_buf) - 1;
 				break;

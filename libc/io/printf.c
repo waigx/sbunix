@@ -39,18 +39,9 @@ int printf(const char *format, ...) {
 	int printed;
 	va_start(val, format);
 
-// Temp code for using printf in USER program //
-
-if(1)
-{
-	syscall_1(SYS_printf, (uint64_t)format);
-	printed = 0;
-}
-else	
-{
 	printed = strlistprintf(buf, format, val);
 	writeline(buf, STDOUT_FD);
-}
+
 	va_end(val);
 
 	return printed;
