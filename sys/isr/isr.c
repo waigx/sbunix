@@ -38,10 +38,6 @@
 #include <sys/sched/sched.h>
 
 
-uint64_t g_keyboard_buf;
-uint64_t g_valid_keyboard= FALSE;
-
-
 void divide_handler(uint64_t entry_num)
 {
 	printf("entry_num = %x\n", entry_num);
@@ -59,23 +55,23 @@ void debug(uint64_t err_code)
 void pagefault_handler(void)
 {
 	uint64_t vaddr = get_cr2_register();
-//	vma_t *belonged_vma;
+	vma_t *belonged_vma;
 	debug_print("PagFlt", "Virtual addr: %p\n", vaddr);
-//	belonged_vma = lookupvmabyvaddr((void *)vaddr);
-//	debug_showvmas(g_vma_start);
-//	if (belonged_vma == NULL) {
-//		debug_print("PagFlt", "No VMAs \n");
-//		printf("Segmentation Fault at address:%p\n", vaddr);
-//		sys_exit(-1);
-//		return;
-//	}
-//
-//	if ((VMA_WRITEABLE & belonged_vma->permission) == FALSE) {
-//		debug_print("PagFlt", "VMAs Permission\n");
-//		printf("Segmentation Fault at address:%p\n", vaddr);
-//		sys_exit(-1);
-//		return;
-//	}
+	belonged_vma = lookupvmabyvaddr((void *)vaddr);
+	debug_showvmas(g_vma_start);
+	if (belonged_vma == NULL) {
+		debug_print("PagFlt", "No VMAs \n");
+		printf("Segmentation Fault at address:%p\n", vaddr);
+		sys_exit(-1);
+		return;
+	}
+
+	if ((VMA_WRITEABLE & belonged_vma->permission) == FALSE) {
+		debug_print("PagFlt", "VMAs Permission\n");
+		printf("Segmentation Fault at address:%p\n", vaddr);
+		sys_exit(-1);
+		return;
+	}
 	newvaddr(gp_current_task->pid, vaddr);
 }
 
@@ -91,13 +87,6 @@ void timer_handler(void)
 
 void keyboard_handler(void)
 {
-
-
-	printf("ISR keyboard\n");
-	g_keyboard_buf = echokeyboard();
-	if(g_keyboard_buf != 0)
-		g_valid_keyboard = TRUE;
+	echokeyboard();
 	send_eoi(KEYBOARD_IRQ_NUMBER);
-	
-
 }

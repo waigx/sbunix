@@ -39,13 +39,12 @@ static char g_ascii2char[] = ASCII2CHAR;
 static char g_sc2char[] = SC2CHAR;
 
 
-char echokeyboard(void)
+void echokeyboard(void)
 {
 	uint8_t sc = 0;
 	char ch = 0;
 	char ctrlch = 0;
 	char display[4];
-	char ret_ch = 0;
 	sc = get_scancode_keyboard();
 	
 	switch (sc) {
@@ -79,7 +78,6 @@ char echokeyboard(void)
 
 	if ((ch < 128 && ch >31) || ch == 0x8 || ch == 0xA || ch == 0xD) {
 		writechar(ch);
-		ret_ch = ch;
 	}
 	if (ctrlch < 128 && ctrlch > 31) {
 		printfat(CONSOLE_ROW - 1, CONSOLE_COL / 2 + 4, "%c", ctrlch);
@@ -107,5 +105,4 @@ char echokeyboard(void)
 		printfat(CONSOLE_ROW - 1, CONSOLE_COL / 2 - 3, "%s", display);
 	}
 
-	return ret_ch;
 }
