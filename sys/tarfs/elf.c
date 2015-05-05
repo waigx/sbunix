@@ -52,7 +52,9 @@ uint64_t load_elf(task_t *task, const char *task_name)
 
 	uint64_t offset = 0;
 	uint64_t size = 0;
+	uint64_t entry_point = 0;
 	uint64_t vaddr = 0;
+	uint8_t is_entry_point = TRUE;
 	//uint64_t flag = 0;
 	uint64_t page;
 
@@ -78,19 +80,22 @@ uint64_t load_elf(task_t *task, const char *task_name)
 			offset = phdr->p_offset;
 			size = phdr->p_memsz;
 			vaddr = phdr->p_va;
+			if (is_entry_point) {
+				entry_point = vaddr;
+				is_entry_point = FALSE;
+			}
+			
 			//flag = phdr->p_flags;
 			//permission =
 
 			page = (uint64_t)allocframe(task->pid);
 			kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr, TRUE, FALSE);
 			copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr), size);
-
-			//Init ELF vma field
-			newvma(g_vma_phy_start, (void *)vaddr, (void *)(vaddr + size), task_name, VMA_EXEC | VMA_READABLE | VMA_WRITEABLE);
-
 		}
 
 	}
+	//Init ELF vma field
+	newvma(g_vma_phy_start, (void *)entry_point, (void *)(vaddr + size), task_name, VMA_EXEC | VMA_READABLE | VMA_WRITEABLE);
 
 	return elfhdr->e_entry;
 }
