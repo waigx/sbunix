@@ -32,7 +32,7 @@
 #include <const.h>
 #include <libstr.h>
 #include <string.h>
-
+#include <libio.h>
 
 void file_read_test(void);
 void file_opendir_test(void);
@@ -42,6 +42,15 @@ void write_test(void);
 int main(int argc, char* argv[], char* envp[]) 
 {
 	uint64_t i = 0;
+
+	char buf[128];
+
+	for(i=0; i<128; i++)
+		*(buf+i) = 0;
+
+//	while(1);
+//	readline(buf, STDIN_FD);
+//	printf("buf = %s\n", buf);
 
 	//write_test();
 	//file_read_test();
