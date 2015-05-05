@@ -110,6 +110,6 @@ uint8_t get_scancode_keyboard(void);
 
 uint64_t is_output_buf_full(void);
 uint64_t is_input_buf_full(void);
-void echokeyboard(void);
+char echokeyboard(void);
 
 #endif        
