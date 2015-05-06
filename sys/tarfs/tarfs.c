@@ -132,7 +132,6 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 					//return (struct posix_header_ustar *)buf;
 				}
 
-
 			}
 		}
 	}
@@ -227,6 +226,9 @@ int open_tarfs(const char *pathname, int flags)
 
 		if(offset % 512)
 			address += 512;
+
+		//if(address >= _binary_tarfs_end)
+		//	return -1;
 	}
 
 	// get file descript
@@ -317,6 +319,11 @@ ssize_t read_tarfs(int fd, void *buf, size_t count)
 	cur_task = gp_current_task;
 	fdt = (struct file_descript *)cur_task->fd[fd]; 
 
+	if(fdt == NULL)
+	{
+		printf("fd is NULL\n");
+		return -1;
+	}
 	printf("read_tarfs: fdt->header: %x\n", fdt->header);	
 
 	if(strcmp(fdt->header->typeflag, dirtype) == 0)
@@ -330,11 +337,13 @@ ssize_t read_tarfs(int fd, void *buf, size_t count)
 		ptr = fdt->ptr;
 		start = (char *)((uint64_t)fdt->header + sizeof(struct posix_header_ustar) + ptr);
 		size = get_file_size(fdt->header);
+		//printf("read_tarfs: size = %x\n", size);
+			
 		for(i=0; i < count; i++)
 		{
+			 if( ptr + i >= size)
+                                break;
 			*((char *)buf + i) = (char)*(start + i);
-			if( ptr + i >= size)
-				break;
 		}
 	}
 

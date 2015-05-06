@@ -48,6 +48,6 @@
 
 #define UINT64_LEN 21
 
-#define PRINTF_LEN 512
+#define PRINTF_LEN 128 /*512*/
 
 #endif

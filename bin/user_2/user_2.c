@@ -37,20 +37,23 @@
 void file_read_test(void);
 void file_opendir_test(void);
 void write_test(void);
+void readline_test(void);
+//void read_syscall_test(void);
+
 
 
 int main(int argc, char* argv[], char* envp[]) 
 {
 	uint64_t i = 0;
-
+//	volatile uint64_t j = 100000000;
 	char buf[128];
 
 	for(i=0; i<128; i++)
 		*(buf+i) = 0;
 
-//	while(1);
-//	readline(buf, STDIN_FD);
-//	printf("buf = %s\n", buf);
+//	read_syscall_test();
+readline_test();	
+
 
 	//write_test();
 	//file_read_test();
@@ -60,7 +63,7 @@ int main(int argc, char* argv[], char* envp[])
 
         while(1)
         {
-                printf("I'm user_2 and count = %x\n",i++);
+//                printf("I'm user_2 and count = %x\n",i++);
 //		  __asm volatile("cli");		
 //		printfat(10, 10,"I'm user 222 \n");
 //                while(j--);
@@ -69,6 +72,41 @@ int main(int argc, char* argv[], char* envp[])
  //                       yield(13);
         }
         return 0;
+}
+
+#if(0)
+void read_syscall_test(void)
+{
+	uint64_t i = 0;
+        char buf[128];
+
+        for(i=0; i<128; i++)
+                *(buf+i) = 0;
+
+        while(1)
+        {
+                read(STDIN_FD, buf, 5);
+		buf[5 + 1] = '\0';
+                printf("user2 buf = %s\n",buf);
+        }
+
+
+}
+#endif
+
+void readline_test(void)
+{
+	uint64_t i = 0;
+	char buf[128];
+
+        for(i=0; i<128; i++)
+                *(buf+i) = 0;
+
+	while(1)
+	{
+		readline(buf, STDIN_FD);
+		printf("user2 buf = %s\n",buf);
+	}
 }
 
 void write_test(void)
@@ -84,42 +122,51 @@ void write_test(void)
 
 void file_read_test(void)
 {
-	uint64_t i = 0;
+	//uint64_t i = 0;
         int fd = 0;
         char buf[128];
         uint64_t size = 0;
 
 
-	 fd = open("bin/user_2", 0);
+	fd = open("/etc/SBUsh.SBUshrc", 0);
+	if(fd == -1){
+		printf("open error\n");
+		while(1);
+	}
+
 
         printf("open fd = %x \n", fd);
 
         printf("buf = %x\n", buf);
-        size = read(fd, buf, 8);
+        size = read(fd, buf, 16);
 
         printf("read size = %x\n", size);
 
-        for(i = 0; i < 8; i++)
+        //for(i = 0; i < ; i++)
         {
-                printf("buf[%x]", i);
-                printf("=%x\n", buf[i]);
+                //printf("buf[%x]", i);
+                //printf("=%x\n", buf[i]);
+		printf("buf=%s\n", buf);
+		
         }
 
-        size = read(fd, buf, 8);
+        size = read(fd, buf, 20);
         printf("read size = %x\n", size);
 
-        for(i = 0; i < 8; i++)
+        //for(i = 0; i < 8; i++)
         {
-                printf("buf[%x]", i);
-                printf("=%x\n", buf[i]);
+                //printf("buf[%x]", i);
+                //printf("=%x\n", buf[i]);
+		printf("buf=%s\n",buf);
         }
         size = read(fd, buf, 8);
         printf("read size = %x\n", size);
 
-        for(i = 0; i < 8; i++)
+        //for(i = 0; i < 8; i++)
         {
-                printf("buf[%x]", i);
-                printf("=%x\n", buf[i]);
+                //printf("buf[%x]", i);
+                //printf("=%x\n", buf[i]);
+		printf("buf=%s\n",buf);
         }
 }
 

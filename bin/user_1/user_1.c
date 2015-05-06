@@ -46,12 +46,12 @@ int main(int argc, char* argv[], char* envp[])
 	uint64_t i = 0;
 //	volatile uint64_t *test1_ptr = (uint64_t *)0xffffffff7ffec748;
 //	volatile uint64_t *test2_ptr = (uint64_t *)0xffffffff7ffec648;
-	volatile uint64_t *test3_ptr = (uint64_t *)0xffffffff70000000;
+//	volatile uint64_t *test3_ptr = (uint64_t *)0xffffffff70000000;
 	//uint64_t *test_ptr = (uint64_t *)0xadeadbeef;
 
 
 	//printf("1");
-	//while(1);
+	while(1);
 
 	printf("I'm user_1 and count = %x\n",i++);
 	printf("break: %p\n",sbrk(0));
@@ -60,7 +60,7 @@ int main(int argc, char* argv[], char* envp[])
 //		*test3_ptr = 125;
 //		printf("test1_ptr-> %d\n",*test1_ptr);
 //		printf("test2_ptr-> %d\n",*test2_ptr);
-		printf("test3_ptr-> %d\n",*test3_ptr);
+//		printf("test3_ptr-> %d\n",*test3_ptr);
 
 	testfun(i);
 	while(1);

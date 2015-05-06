@@ -37,6 +37,10 @@
 #include <sys/debug.h>
 #include <sys/sched/sched.h>
 
+uint64_t g_keyboard_buf;
+uint64_t g_valid_keyboard= FALSE;
+uint64_t  g_diable_scheduler = 0;
+
 
 void divide_handler(uint64_t entry_num)
 {
@@ -85,8 +89,21 @@ void timer_handler(void)
 }
 
 
+char kb_queue[16];
+uint64_t start_queue = 0;
+uint64_t end_queue = 0;
+
 void keyboard_handler(void)
 {
-	echokeyboard();
-	send_eoi(KEYBOARD_IRQ_NUMBER);
+
+	g_keyboard_buf = echokeyboard();
+	if(g_keyboard_buf != 0)
+	{
+		kb_queue[start_queue++] = g_keyboard_buf;
+        	if(start_queue >= 15)
+			start_queue = 0;
+
+		g_valid_keyboard = TRUE;
+	}
+ 	send_eoi(KEYBOARD_IRQ_NUMBER);		 	
 }

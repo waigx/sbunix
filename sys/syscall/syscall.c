@@ -34,8 +34,8 @@
 #include <sys/sched/sched.h>
 #include <sys/tarfs_api.h>
 #include <sys/debug.h>
-
-
+#include <sys/file_op.h>
+extern uint64_t   g_diable_scheduler;
 uint64_t syscall(void)
 {
 	uint64_t ret = 0;
@@ -45,7 +45,6 @@ uint64_t syscall(void)
 	uint64_t a3 = 0;
 	uint64_t a4 = 0;
 	uint64_t a5 = 0;
-
 
 	__asm__ __volatile__("movq %%rax, %0"
 			:"=r"(ret)
@@ -112,7 +111,10 @@ uint64_t syscall(void)
 			break;
 
 		case SYS_read:
-			read_tarfs((int)a1, (void *)a2, (size_t)a3);
+			//read_tarfs((int)a1, (void *)a2, (size_t)a3);
+			sys_read((int)a1, (void *)a2, (size_t)a3);
+		//	  g_diable_scheduler = FALSE;
+
 			return get_rax_register();
 			break;
 
