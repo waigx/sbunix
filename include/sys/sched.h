@@ -124,8 +124,7 @@ typedef struct
 	uint64_t b_ring;
 
 	// Open file descript, stdin, stdout, and stderr are 0, 1, and 2 //
-	struct file_descript	*fd[MAX_OPEN_FILE_DESCRIPT];
-	//struct file_descript	fd[MAX_OPEN_FILE_DESCRIPT];
+	struct file_descript *fd[MAX_OPEN_FILE_DESCRIPT];
 } task_t;
 
 

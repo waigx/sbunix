@@ -38,7 +38,6 @@
 
 uint64_t *pe2physaddr(uint64_t pe)
 {
-//	uint64_t baseaddr = pe << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_OFFSET) << VADDR_OFFSET;
 	uint64_t baseaddr = pe << 12 >> 24 << 12;
 	if ( (baseaddr >> (VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_PTE + VADDR_OFFSET - 1)) & 1 )
 		baseaddr |= EXTEND_BIT_1;
@@ -48,7 +47,6 @@ uint64_t *pe2physaddr(uint64_t pe)
 
 uint64_t physaddr2pebase(uint64_t *physaddr)
 {
-//	uint64_t pebase = (uint64_t)physaddr << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_OFFSET ) << VADDR_OFFSET;
 	uint64_t pebase = (uint64_t)physaddr << 12 >> 24 << 12;
 	return pebase;
 }

@@ -114,7 +114,7 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 
 			tarfs_header = (struct posix_header_ustar *)address;
 			ret = check_dir(tarfs_header->name, fdt->header->name);
-			if(ret == -2  ){
+			if(ret == -2){
 				// not directory, file
 				i = i -1;
 			}else if(ret == 0 && i == fdt->ptr){
@@ -122,7 +122,7 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 				dirent->d_ino = (long)tarfs_header;
 				dirent->d_off = (off_t)tarfs_header->size;
 				dirent->d_reclen = sizeof(struct dirent);
-				copymem(dirent->d_name, tarfs_header->name, 100);
+				copymem(dirent->d_name, tarfs_header->name + strlen(fdt->header->name), 100 - strlen(fdt->header->name));
 				fdt->ptr += 1;
 				return dirent->d_reclen;
 				//return (struct posix_header_ustar *)buf;

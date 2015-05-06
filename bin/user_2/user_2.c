@@ -45,23 +45,23 @@ void read_syscall_test(void);
 
 int main(int argc, char* argv[], char* envp[]) 
 {
-	uint64_t i = 0;
-	//	volatile uint64_t j = 100000000;
-	char buf[128];
-
-	for(i=0; i<128; i++)
-		*(buf+i) = 0;
+//	uint64_t i = 0;
+//	//	volatile uint64_t j = 100000000;
+//	char buf[128];
+//
+//	for(i=0; i<128; i++)
+//		*(buf+i) = 0;
 
 
 	//write_test();
 	//file_read_test();
-	//	file_opendir_test();
+	file_opendir_test();
 
 	//while(1);
 
 	while(1)
 	{
-		printf("I'm user_2 and count = %x\n",i++);
+	//	printf("I'm user_2 and count = %x\n",i++);
 		//		  __asm volatile("cli");		
 		//		printfat(10, 10,"I'm user 222 \n");
 		//                while(j--);
@@ -170,7 +170,4 @@ void file_opendir_test(void)
 	while ((pDirent = readdir(pDir)) != NULL){
 		printf("ls:%s\n", pDirent->d_name);
 	}
-
-
-
 }

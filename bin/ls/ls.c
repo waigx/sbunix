@@ -25,10 +25,9 @@
 
 
 #include <stdio.h>
+#include <const.h>
 #include <libio.h>
 #include <stdlib.h>
-#include <const.h>
-#include <libstr.h>
 #include <string.h>
 
 int main (int argc, char* argv[], char* envp[]) {
