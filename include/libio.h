@@ -38,7 +38,7 @@ char * readline(char *, int);
 char * writeline(const char *, int);
 
 int pathtype(const char *);
-
+int sprintf(char *buf, const char *format, ...);
 int strlistprintf(char *buf, const char *format, va_list val);
 
 #endif

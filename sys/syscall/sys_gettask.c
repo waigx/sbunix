@@ -1,34 +1,42 @@
 /*
  *
- *  This file is part of SBUsh.
- *        SBUsh is a simple shell implementation, basically, it is
+ *  This file is part of sbunix.
+ *        sbunix is a simple linux implementation, basically, it is
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
- *  SBUsh is free software: you can redistribute it and/or modify
+ *  sbunix is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
  *  the Free Software Foundation, either version 3 of the License, or
  *  (at your option) any later version.
  * 
- *  SBUsh is distributed in the hope that it will be useful,
+ *  sbunix is distributed in the hope that it will be useful,
  *  but WITHOUT ANY WARRANTY; without even the implied warranty of
  *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  *  GNU General Public License for more details.
  * 
  *  You should have received a copy of the GNU General Public License
- *  along with SBUsh.  If not, see <http://www.gnu.org/licenses/>.
+ *  along with sbunix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
 
 
-#ifndef _LIBSYS_H
-#define _LIBSYS_H
-
 #include <sys/sched.h>
+#include <sys/managemem.h>
+#include <sys/mem.h>
+#include <sys/debug.h>
 
-void *sbrk(intptr_t increment);
 
-#endif
+uint64_t
+sys_gettask(void *buf, kpid_t pid)
+{
+	if (pid > g_task_bump)
+		return -1;
+	copymem(buf, (void *)(g_task_start + pid), sizeof(task_t));
+	return 0;
+}

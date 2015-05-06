@@ -82,8 +82,7 @@ task_t *newtask(const char *task_name, process_type_t type)
 	newvma(g_vma_phy_start + 2, (void *)(USER_STACK_START - USER_STACK_SIZE), (void *)(USER_STACK_START + PAGE_SIZE), VMA_STACK_NAME, VMA_READABLE | VMA_WRITEABLE);
 
 	if(type == KERNEL_PROCESS) {
-//		init_task(task, instruction_addr, virtual_memory_addr);
-//		page = (uint64_t)allocframe();
+		//
 	} else if (type == USER_PROCESS) {
 		/* KERNEL STACK Setting */
 		phy_stack_base = allocframe();
@@ -110,9 +109,6 @@ task_t *newtask(const char *task_name, process_type_t type)
 		if (g_next_task_free_index >= MAX_PROC_NUM);
 		// max process num exceed error here;
 	}
-
-
-	// add task list
 
 	return task;
 }

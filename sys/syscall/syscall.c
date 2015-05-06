@@ -44,8 +44,8 @@ uint64_t syscall(void)
 	uint64_t a1 = 0;
 	uint64_t a2 = 0;
 	uint64_t a3 = 0;
-	uint64_t a4 = 0;
-	uint64_t a5 = 0;
+//	uint64_t a4 = 0;
+//	uint64_t a5 = 0;
 
 	__asm__ __volatile__("movq %%rax, %0"
 			:"=r"(ret)
@@ -58,10 +58,8 @@ uint64_t syscall(void)
 	a1 = get_rdi_register();
 	a2 = get_rsi_register();
 	a3 = get_rdx_register();
-	a4 = get_r10_register();
-	a5 = get_rsi_register();
-
-//	printf("a1=%x, a2=%x, a3=%x, a4=%x\n",a1, a2, a3, a4);
+//	a4 = get_r10_register();
+//	a5 = get_rsi_register();
 
 	switch(syscall_num) {
 
@@ -148,9 +146,9 @@ uint64_t syscall(void)
 			return 0;
 			break;
 
-		case SYS_printf: 
-			printf((const char *)a1, a2, a3, a4, a5);
-			return 0;
+		case SYS_gettask: 
+			sys_gettask((void *)a1, (kpid_t)a2);
+			return get_rax_register();
 			break;
 
 		default:

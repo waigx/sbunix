@@ -67,13 +67,13 @@ void pagefault_handler(void)
 
 #if DEBUG_PAGEFAULT
 	debug_print("PagFlt", "Virtual addr: %p\n", vaddr);
-	debug_showvmas(g_vma_start);
 #endif
 
 	belonged_vma = lookupvmabyvaddr((void *)vaddr);
 
 	if (belonged_vma == NULL) {
 #if DEBUG_PAGEFAULT
+		debug_showvmas(g_vma_start);
 		debug_print("PagFlt", "No VMAs \n");
 #endif
 		printf("Segmentation Fault at address:%p\n", vaddr);
@@ -83,6 +83,7 @@ void pagefault_handler(void)
 
 	if ((VMA_WRITEABLE & belonged_vma->permission) == FALSE) {
 #if DEBUG_PAGEFAULT
+		debug_showvmas(g_vma_start);
 		debug_print("PagFlt", "VMAs Permission\n");
 #endif
 		printf("Segmentation Fault at address:%p\n", vaddr);

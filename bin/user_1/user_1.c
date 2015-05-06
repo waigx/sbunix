@@ -51,7 +51,6 @@ int main(int argc, char* argv[], char* envp[])
 
 
 	//printf("1");
-	while(1);
 
 	printf("I'm user_1 and count = %x\n",i++);
 	printf("break: %p\n",sbrk(0));

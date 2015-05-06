@@ -69,8 +69,8 @@
 #define GDT_USER_DATA_SEG                       0x23
   
 #define KERNEL_PID                                 1
-#define MAX_PROC_NUM                       (1 << 16)
-#define MAX_TASKS                          (1 << 16)
+#define MAX_PROC_NUM                        (1 << 8)
+#define MAX_TASKS                           (1 << 8)
 #define MAX_TASK_NAME                            256
 
 #define MAX_OPEN_FILE_DESCRIPT                  1024
@@ -149,6 +149,7 @@ uint64_t sys_fork(void);
 
 uint64_t sys_getpid(void);
 uint64_t sys_getppid(void);
+uint64_t sys_gettask(void *buf, kpid_t pid);
 void sys_yield(void);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 void sys_exit(uint64_t res);
