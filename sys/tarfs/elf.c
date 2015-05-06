@@ -64,8 +64,7 @@ uint64_t load_elf(task_t *task, const char *task_name)
 	fd = find_elf(task_name, 0);
 	elfhdr = ( Elf64_Ehdr *)fd;
 
-	if(check_ELF_format(elfhdr) == FALSE)
-	{
+	if(check_ELF_format(elfhdr) == FALSE) {
 		debug_print("ELF", "Error, the file is not ELF file.\n");
 		return 0;
 	}
@@ -75,6 +74,7 @@ uint64_t load_elf(task_t *task, const char *task_name)
 	// CR3 setting
 
 	for(i=0; i< ph_num; i++) {
+
 		phdr =( Elf64_Phdr *)(ph_start + i);
 		if(phdr->p_type == 0x01) {
 			offset = phdr->p_offset;
@@ -89,8 +89,7 @@ uint64_t load_elf(task_t *task, const char *task_name)
 			//permission =
 			printf("load_elf: vaddr %x size %x\n", vaddr, size);
 
-			j = 0;
-			do {
+			for (j = 0; ; j++) {
 				if(size > PAGE_SIZE) {
 					temp_size = PAGE_SIZE;
 					size = size - PAGE_SIZE;
@@ -104,9 +103,10 @@ uint64_t load_elf(task_t *task, const char *task_name)
 
 				if(temp_size <= PAGE_SIZE)
 					break;
-			} while (j++);
-
+			} 
+		}
 	}
+
 	//Init ELF vma field
 	newvma(g_vma_phy_start, (void *)entry_point, (void *)(vaddr + size), task_name, VMA_EXEC | VMA_READABLE | VMA_WRITEABLE);
 
