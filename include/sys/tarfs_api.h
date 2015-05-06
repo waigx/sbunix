@@ -4,10 +4,10 @@
 #include <sys/defs.h>
 #include <stdlib.h>
 
-#define MAX_OPEN_FILE_DESCRIPT  1024
-#define STANDARD_IO_IN		0
-#define STANDARD_IO_OUT		1
-#define STANDARD_IO_ERROR	2
+#define MAX_OPEN_FILE_DESCRIPT   1024
+#define STANDARD_IO_IN              0
+#define STANDARD_IO_OUT             1
+#define STANDARD_IO_ERROR           2
 
 
 struct file_descript

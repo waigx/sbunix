@@ -64,6 +64,12 @@ task_t *newtask(const char *task_name, process_type_t type)
 		kmmap(pe2physaddr(new_cr3), (uint64_t)physpage, i, FALSE, FALSE);
 	}
 
+	// Allocate space for init file discriptors;
+	for (i = (uint64_t)g_fdt_start; i < (uint64_t)g_fdt_end; i += PAGE_SIZE) {
+		physpage = allocframe();
+		kmmap(pe2physaddr(new_cr3), (uint64_t)physpage, i, FALSE, FALSE);
+	}
+
 	task->cr3 = new_cr3;
 	task->pid = new_pid;
 	task->parent = gp_current_task->pid;

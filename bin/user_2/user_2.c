@@ -164,7 +164,7 @@ void file_opendir_test(void)
 	DIR *pDir;
 	struct dirent *pDirent;
 
-	pDir = opendir("bin/");
+	pDir = opendir("");
 	printf("pDir ->fd = %x\n", pDir->dir_fd);
 
 	while ((pDirent = readdir(pDir)) != NULL){

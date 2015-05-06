@@ -114,7 +114,7 @@ typedef struct
 
 	uint64_t *u_stack_base;
 	uint64_t *k_stack_base;
-	uint64_t reserved[4];	/* Don't remove because k_stack_base is scrached, by dongju */
+	uint64_t reserved[4]; /* Don't remove because k_stack_base is scrached, by dongju */
 	struct regs_struct context;
 
 	// TSS

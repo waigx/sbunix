@@ -42,10 +42,15 @@
  *   0xFFFF FFFF F000 0000    |                 |     KERNEL_STACK_START
  *                            |                 |                |                
  *                            |                 |               \|/               
- *                            |                 |                `               
- *   _________________________|_________________|_______________________ _ _ _ _ _ _ _ _ _
+ *                            ~ ~ ~ ~ ~ ~ ~ ~ ~ ~                `
+ *                            |                 |
+ *   _________________________|_________________|_______________________
+ *                            |                 |      _binary_tarfs_end
+ *   _________________________|___For tarfs_____|_______________________ _ _ _ _ _ _ _ _ _
  *   0xFFFF FFFF 8080 0000    |                 |                                      .     
- *                            |                 |                                     /|\
+ *   _________________________|_________________|_______________________              /|\
+ *                            |                 |    _binary_tarfs_start               | 
+ *                            |                 |                                      | 
  *   _________________________|_________________|_______________________               |
  *                            |                 |  KERNEL_PROC_HEAP_SIZE               |
  *                            |  Store tasks    |                                      |
@@ -86,8 +91,12 @@
  *                            |                 |            Entry point                 
  *                            |                 |                         
  *                            |                 |                         
+ *                            |                 |                         
  *   _________________________|_________________|_______________________  
- *                            | For VMA structs |              g_vma_end          
+ *                            |                 |              g_fdt_end
+ *                            |  For FD structs |                         
+ *   _________________________|_________________|_______________________  
+ *                            | For VMA structs |  g_vma_end/g_fdt_start         
  *   _________________________|_________________|_______________________  
  *   0x0000 0000 0028 0000    |                 |            g_vma_start
  *   _________________________|_________________|_______________________ _ _ _ _ _ _ _ _ _
@@ -106,6 +115,7 @@
 
 #include <sys/defs.h>
 #include <sys/sched.h>
+#include <sys/tarfs_api.h>
 
 
 #define CR0_WP                                             (0x1 << 16)
@@ -177,7 +187,7 @@ typedef struct {
 	void *vaddr_start;
 	void *vaddr_end;
 	uint64_t permission;
-	char name[256];
+	char name[100];
 } vma_t;
 
 
@@ -192,6 +202,8 @@ extern vma_t *g_vma_start;
 extern vma_t *g_vma_end;
 extern vma_t *g_vma_phy_start;
 
+extern struct file_descript *g_fdt_start;
+extern struct file_descript *g_fdt_end;
 
 void *allocframe();
 void freeframe(void *physaddr);

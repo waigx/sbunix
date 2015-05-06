@@ -36,6 +36,8 @@ task_t *gp_current_task;
 vma_t *g_vma_start = (vma_t *)VMA_START;
 vma_t *g_vma_end = ((vma_t *)VMA_START) + MAX_VMA_NUM;
 vma_t *g_vma_phy_start;
+struct file_descript *g_fdt_start = (struct file_descript *)(((vma_t *)VMA_START) + MAX_VMA_NUM); 
+struct file_descript *g_fdt_end = (struct file_descript *)(((vma_t *)VMA_START) + MAX_VMA_NUM) + MAX_OPEN_FILE_DESCRIPT;
 uint32_t g_current_pos = 2 * 21 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
 uint8_t is_shifted = 0;

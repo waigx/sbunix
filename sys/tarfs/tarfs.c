@@ -224,7 +224,7 @@ int open_tarfs(const char *pathname, int flags)
 	return fd;
 }
 
-#if(1)
+
 int64_t get_fd(task_t *cur_task, struct posix_header_ustar *header_addr, int flags)
 {
 
@@ -238,10 +238,10 @@ int64_t get_fd(task_t *cur_task, struct posix_header_ustar *header_addr, int fla
 			// TODO need t modify to use malloc about allocating fd struct //
 			//	fd_struct_addr = (uint64_t *)allocframe(task->pid);  
 			//task->fd[i] = (struct file_descript *)fd_struct_addr;
-			task->fd[i] = alloc_fd_buf();
+			task->fd[i] = g_fdt_start + i;
 			task->fd[i]->header = header_addr;
 			task->fd[i]->ptr = 0;
-			task->fd[i]->mode = 0;	
+			task->fd[i]->mode = 0;
 			break;
 		} 
 	}
@@ -253,19 +253,7 @@ int64_t get_fd(task_t *cur_task, struct posix_header_ustar *header_addr, int fla
 	}
 	return (int64_t)i;  
 }
-#endif
 
-/* temp fd mememory by dongju */
-char temp_fd_buf[1024];
-uint64_t g_fd_index = 0;
-struct file_descript* alloc_fd_buf(void)
-{
-	uint64_t *fd_addr;
-	fd_addr = (uint64_t *)(temp_fd_buf + g_fd_index * sizeof(struct file_descript)); 
-	g_fd_index++;
-	return (struct file_descript *)fd_addr;
-
-}
 
 uint64_t get_file_size(struct posix_header_ustar *tarfs_header)
 {
