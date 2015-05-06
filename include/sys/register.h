@@ -8,6 +8,7 @@ uint64_t get_rax_register(void);
 uint64_t get_rdi_register(void);
 uint64_t get_rsi_register(void);
 uint64_t get_rdx_register(void);
+uint64_t get_rsp_register(void);
 uint64_t get_r10_register(void);
 
 uint64_t get_cr0_register(void);

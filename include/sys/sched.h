@@ -62,8 +62,8 @@
 #define CONTEXT_RSP_OFFSET                        22
 #define CONTEXT_SS_OFFSET                         23
 
-//#define GDT_KERNEL_CODE_SEG                     0x08
-//#define GDT_KERNEL_DATA_SEG                     0x10
+#define GDT_KERNEL_CODE_SEG                     0x08
+#define GDT_KERNEL_DATA_SEG                     0x10
 
 #define GDT_USER_CODE_SEG                       0x1B
 #define GDT_USER_DATA_SEG                       0x23

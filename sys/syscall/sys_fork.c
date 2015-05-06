@@ -32,7 +32,7 @@
 #include <sys/debug.h>
 #include <sys/mem.h>
 #include <sys/sbunix.h>
-
+#include <sys/register.h>
 
 
 uint64_t _clean_bit(uint64_t entry, uint64_t bit)
@@ -118,9 +118,19 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 }
 
 
+/* temp code */
+extern struct tss_t tss_buf[16];
+#define	RSP_OFFSET	( 0x50 )
+
 uint64_t
 sys_fork()
 {
+	/* If you add/subtract local variable, you should change RSP_OFFSET */
+	uint64_t rsp = get_rsp_register();
+	rsp = rsp + RSP_OFFSET;
+
+
+
 	copymem(g_page_frame_buf, (void *)KERNEL_STACK_START, PAGE_SIZE);
 	kpid_t childpid;
 	task_t *kernel_task = gettask(KERNEL_PID);
@@ -153,6 +163,21 @@ sys_fork()
 		// max process num exceed error here;
 	}
 
-	init_task_context((g_task_start + childpid), gp_current_task->context.regs[CONTEXT_RIP_OFFSET], (uint64_t *)gp_current_task->context.regs[CONTEXT_RSP_OFFSET]);
+	init_task_context((g_task_start + childpid), (uint64_t)*((uint64_t *)rsp), (uint64_t *)rsp);
+	(g_task_start + childpid)->context.regs[CONTEXT_RSP_OFFSET] = rsp +8;
+	(g_task_start + childpid)->context.regs[CONTEXT_RIP_OFFSET] = (uint64_t)*(uint64_t *)rsp;
+	
+	(g_task_start + childpid)->context.regs[CONTEXT_CS_OFFSET] = GDT_KERNEL_CODE_SEG;
+        (g_task_start + childpid)->context.regs[CONTEXT_DS_OFFSET] = GDT_KERNEL_DATA_SEG;
+        (g_task_start + childpid)->context.regs[CONTEXT_ES_OFFSET] = GDT_KERNEL_DATA_SEG;
+        (g_task_start + childpid)->context.regs[CONTEXT_FS_OFFSET] = GDT_KERNEL_DATA_SEG;
+        (g_task_start + childpid)->context.regs[CONTEXT_GS_OFFSET] = GDT_KERNEL_DATA_SEG;
+        (g_task_start + childpid)->context.regs[CONTEXT_SS_OFFSET] = GDT_KERNEL_DATA_SEG;
+
+	(g_task_start + childpid)->tsss = (struct tss_t *)&(tss_buf[childpid]);
+	
+
+
+	//init_task_context((g_task_start + childpid), gp_current_task->context.regs[CONTEXT_RIP_OFFSET], (uint64_t *)gp_current_task->context.regs[CONTEXT_RSP_OFFSET]);
 	return childpid;
 }
