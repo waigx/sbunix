@@ -38,7 +38,7 @@ void file_read_test(void);
 void file_opendir_test(void);
 void write_test(void);
 void readline_test(void);
-//void read_syscall_test(void);
+void read_syscall_test(void);
 
 
 
@@ -51,8 +51,8 @@ int main(int argc, char* argv[], char* envp[])
 	for(i=0; i<128; i++)
 		*(buf+i) = 0;
 
-//	read_syscall_test();
-readline_test();	
+	read_syscall_test();
+//readline_test();	
 
 
 	//write_test();
@@ -74,7 +74,7 @@ readline_test();
         return 0;
 }
 
-#if(0)
+#if(1)
 void read_syscall_test(void)
 {
 	uint64_t i = 0;

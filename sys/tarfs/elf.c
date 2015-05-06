@@ -51,12 +51,14 @@ uint64_t load_elf(task_t *task, const char *task_name)
 	uint64_t  fd = 0;
 
 	uint64_t offset = 0;
-	uint64_t size = 0;
+	int64_t size = 0;
 	uint64_t entry_point = 0;
 	uint64_t vaddr = 0;
 	uint8_t is_entry_point = TRUE;
 	//uint64_t flag = 0;
 	uint64_t page;
+	uint64_t j = 0;
+	uint64_t temp_size = 0;
 
 	//fd = open_tarfs(binary, 0);
 	fd = find_elf(task_name, 0);
@@ -87,10 +89,43 @@ uint64_t load_elf(task_t *task, const char *task_name)
 			
 			//flag = phdr->p_flags;
 			//permission =
+			printf("load_elf: vaddr %x size %x\n", vaddr, size);		
 
-			page = (uint64_t)allocframe(task->pid);
-			kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr, TRUE, FALSE);
-			copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr), size);
+#if(1)
+			for(j=0;  ; j++)
+			{
+				if(size > 4096 )
+				{
+					temp_size = 4096;
+					size = size - 4096;
+				}
+				else
+					temp_size = size;
+
+				page = (uint64_t)allocframe(task->pid);
+                                kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr + 4096 * j, TRUE, FALSE);
+                                copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr + 4096 * j), temp_size);
+
+				if(temp_size <= 4096)
+					break;
+			}	
+#else	
+			if(size <= 4096)
+			{
+				page = (uint64_t)allocframe(task->pid);
+				kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr, TRUE, FALSE);
+				copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr), size);
+			}else{
+				page = (uint64_t)allocframe(task->pid);
+                                kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr, TRUE, FALSE);
+                                copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr), 4096);
+
+				page = (uint64_t)allocframe(task->pid);
+                                kmmap(pe2physaddr(task->cr3), task->pid, page, (uint64_t)vaddr+ 4096, TRUE, FALSE);
+                                copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr+ 4096), size- 4096);
+			}
+#endif
+				
 		}
 
 	}
