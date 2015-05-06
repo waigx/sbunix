@@ -26,7 +26,7 @@
  */
 
 
-#include <sys/sched/sched.h>
+#include <sys/sched.h>
 #include <sys/mem.h>
 #include <sys/defs.h>
 #include <sys/managemem.h>

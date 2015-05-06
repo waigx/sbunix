@@ -27,9 +27,39 @@
 #include <syscall.h>
 #include <stdlib.h>
 
+#include <stdio.h>
+//#include <sys/sbunix.h>
+#include <syscall.h>
+#include <stdlib.h>
+//#include <sys/mem.h>
+#include <const.h>
+#include <libstr.h>
+#include <string.h>
+#include <libio.h>
+
+
 ssize_t read(int fd, void *buf, size_t count)
 {
-	ssize_t length;
+	ssize_t length = 0;
+	uint64_t i = 0;
+	/* test code dongju */
+#if(1)
+	if(fd == STDIN_FD){
+		for(i = 0; i< count; i++){
+			length = 0;
+			while( length == 0 || length == 254){  
+				length = syscall_3(SYS_read, fd, (uint64_t)((char *)buf + i), 1); 
+				}
+		}
+		return i;
+	}else{
+		 length = syscall_3(SYS_read, fd, (uint64_t)buf, count);
+	}  
+
+
+#else
+
 	length = syscall_3(SYS_read, fd, (uint64_t)buf, count);
+#endif
 	return length;
 }

@@ -3,7 +3,7 @@
 
 #include <sys/defs.h>
 #include <stdlib.h>
-#include <sys/sched/sched.h>
+#include <sys/sched.h>
 //int open_tarfs(const char *pathname, int flags);
 /*
 

@@ -105,7 +105,7 @@
  */
 
 #include <sys/defs.h>
-#include <sys/sched/sched.h>
+#include <sys/sched.h>
 
 
 #define CR0_WP                                             (0x1 << 16)

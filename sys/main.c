@@ -18,7 +18,7 @@
 #include <string.h>
 #include <const.h>
 #include <type.h>
-#include <sys/sched/sched.h>
+#include <sys/sched.h>
 
 char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
 uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
@@ -44,6 +44,11 @@ uint16_t g_timer_count = 0;
 uint16_t g_switch_timer = 0;
 uint8_t g_debug_mode = 0;
 struct rtc_t g_time_boot = TIMEZONE_UTC;
+char kb_queue[KEYBOARD_BUF_SIZE];
+uint64_t start_queue = 0;
+uint64_t end_queue = 0;
+
+
 
 void start(uint32_t* modulep, void* physbase, void* physfree)
 {

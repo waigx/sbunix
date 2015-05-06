@@ -30,12 +30,11 @@
 #include <string.h>
 //#include <sys/elf.h>
 //#include <sys/tarfs_api.h>
-//#include <sys/sched/sched.h>
 
 
 #include <sys/ring.h>
 #include <sys/gdt.h>
-#include <sys/sched/sched.h>
+#include <sys/sched.h>
 //#include <sys/managemem.h>
 //#include <sys/mem.h>
 #include <sys/register.h>

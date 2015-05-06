@@ -24,7 +24,7 @@
  */
 
 
-#include <sys/sched/sched.h>
+#include <sys/sched.h>
 
 
 task_t *gettask(kpid_t pid)

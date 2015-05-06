@@ -51,12 +51,14 @@ uint64_t load_elf(task_t *task, const char *task_name)
 	uint64_t  fd = 0;
 
 	uint64_t offset = 0;
-	uint64_t size = 0;
+	int64_t size = 0;
 	uint64_t entry_point = 0;
 	uint64_t vaddr = 0;
 	uint8_t is_entry_point = TRUE;
 	//uint64_t flag = 0;
 	uint64_t page;
+	uint64_t j = 0;
+	uint64_t temp_size = 0;
 
 	//fd = open_tarfs(binary, 0);
 	fd = find_elf(task_name, 0);
@@ -72,11 +74,9 @@ uint64_t load_elf(task_t *task, const char *task_name)
 
 	// CR3 setting
 
-	for(i=0; i< ph_num; i++)
-	{
+	for(i=0; i< ph_num; i++) {
 		phdr =( Elf64_Phdr *)(ph_start + i);
-		if(phdr->p_type == 0x01)
-		{
+		if(phdr->p_type == 0x01) {
 			offset = phdr->p_offset;
 			size = phdr->p_memsz;
 			vaddr = phdr->p_va;
@@ -84,14 +84,27 @@ uint64_t load_elf(task_t *task, const char *task_name)
 				entry_point = vaddr;
 				is_entry_point = FALSE;
 			}
-			
+
 			//flag = phdr->p_flags;
 			//permission =
+			printf("load_elf: vaddr %x size %x\n", vaddr, size);
 
-			page = (uint64_t)allocframe();
-			kmmap(pe2physaddr(task->cr3), page, (uint64_t)vaddr, TRUE, FALSE);
-			copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr), size);
-		}
+			j = 0;
+			do {
+				if(size > PAGE_SIZE) {
+					temp_size = PAGE_SIZE;
+					size = size - PAGE_SIZE;
+				}
+				else
+					temp_size = size;
+
+				page = (uint64_t)allocframe(task->pid);
+				kmmap(pe2physaddr(task->cr3), page, (uint64_t)vaddr + PAGE_SIZE * j, TRUE, FALSE);
+				copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr + PAGE_SIZE * j), temp_size);
+
+				if(temp_size <= PAGE_SIZE)
+					break;
+			} while (j++);
 
 	}
 	//Init ELF vma field

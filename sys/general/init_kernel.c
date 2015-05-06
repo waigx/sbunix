@@ -28,7 +28,7 @@
 
 #include <sys/general.h>
 #include <sys/managemem.h>
-#include <sys/sched/sched.h>
+#include <sys/sched.h>
 #include <sys/kio.h>
 #include <sys/sbunix.h>
 #include <sys/debug.h>

@@ -125,13 +125,14 @@
  * Switch context
  */
 syscall_handler:
-	
+
+	cli	
 	SAVE_ALL_REG
 	
 	//call syscall(%rax, %rdx,%rcx ,%rbx,%rdi ,%rsi,0x8)
 	call syscall 	
 	
 	LOAD_ALL_REG
-	
+	sti	
 	iretq 
 

@@ -97,6 +97,7 @@
 #define SC_CTRL_LEFT      0x1D
 
 #define SC_RELEASE_OFFSET 0x80
+#define KEYBOARD_BUF_SIZE   32
 
 #define ASCII2CHAR "NULSOHSTXETXEOTENQACKBEL BSTAB LF VT FF CR SO SIDLEDC1DC2DC3DC4NAKSYNETBCAN EMSUBESC FS GS RS USSPC  !  \"  #  $  \%  &  \'  (  )  *  +  ,  -  .  /  0  1  2  3  4  5  6  7  8  9  :  ;  <  =  >  ?  @  A  B  C  D  E  F  G  H  I  J  K  L  M  N  O  P  Q  R  S  T  U  V  W  X  Y  Z  [  \\  ]  ^  _  `  a  b  c  d  e  f  g  h  i  j  k  l  m  n  o  p  q  r  s  t  u  v  w  x  y  z  {  |  }  ~DEL"
 
@@ -105,11 +106,17 @@
 extern uint8_t is_shifted;
 extern uint8_t is_ctrled;
 
+extern char kb_queue[KEYBOARD_BUF_SIZE];
+extern uint64_t start_queue;
+extern uint64_t end_queue;
+
+
+
 uint64_t init_keyboard(void);
 uint8_t get_scancode_keyboard(void);
 
 uint64_t is_output_buf_full(void);
 uint64_t is_input_buf_full(void);
-void echokeyboard(void);
+char echokeyboard(void);
 
 #endif        
