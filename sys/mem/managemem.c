@@ -62,7 +62,6 @@ void cow_pagefault_handler(uint64_t vaddr)
 	pte_t pte = *pte_p;
 
 	if (g_page_frame_pool[physaddr2frameindex(pe2physaddr(pte))] == 1) {
-		debug_pause();
 		*pte_p = pte | PTE_WRITEABLE;
 		return;
 	}
