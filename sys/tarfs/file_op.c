@@ -29,7 +29,7 @@
 #include <sys/tarfs_api.h>
 #include <string.h>
 #include <sys/sbunix.h>
-#include <sys/sched/sched.h>
+#include <sys/sched.h>
 #include <sys/managemem.h>
 #include <sys/mem.h>
 #include <sys/kio.h>

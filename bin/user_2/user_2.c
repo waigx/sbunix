@@ -55,13 +55,13 @@ int main(int argc, char* argv[], char* envp[])
 
 	//write_test();
 	//file_read_test();
-	file_opendir_test();
+//	file_opendir_test();
 
 	//while(1);
 
 	while(1)
 	{
-		//                printf("I'm user_2 and count = %x\n",i++);
+		                printf("I'm user_2 and count = %x\n",i++);
 		//		  __asm volatile("cli");		
 		//		printfat(10, 10,"I'm user 222 \n");
 		//                while(j--);
@@ -164,7 +164,7 @@ void file_opendir_test(void)
 	DIR *pDir;
 	struct dirent *pDirent;
 
-	pDir = opendir("/etc/"   /*"bin/"*/);
+	pDir = opendir("bin/");
 	printf("pDir ->fd = %x\n", pDir->dir_fd);
 
 	while ((pDirent = readdir(pDir)) != NULL){
