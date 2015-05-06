@@ -53,6 +53,9 @@ cr3e_t _init_kernel_mem(uint64_t physbase, uint64_t physfree, uint64_t physbotto
 	for (i = (uint64_t)0; i < page_frame_start; i += (PAGE_SIZE))
 		kmmap(pml4e_p, i, i + KERNEL_SPACE_START, FALSE, TRUE);
 
+	kmmap(pml4e_p, (uint64_t)allocframe(), KERNEL_STACK_START, TRUE, TRUE);
+
+
 	debug_print("Mem", "page_frame_start:%p\n", page_frame_start);
 
 	printf("[Kernel Init Mem]: Kernel memory tables take %d page frames.\n", g_next_free_frame_index);

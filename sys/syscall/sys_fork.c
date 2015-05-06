@@ -45,6 +45,8 @@ uint64_t _clean_bit(uint64_t entry, uint64_t bit)
 
 cr3e_t _copy_mem_table(cr3e_t cr3)
 {
+	uint64_t frame_index;
+
 	cr3e_t new_cr3;
 	pml4e_t *p_pml4e_p = pe2physaddr(cr3);
 	pdpe_t *p_pdpe_p;
@@ -102,7 +104,9 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 					pte = _clean_bit(pte, PTE_WRITEABLE);
 					*(p_pte_p + pte_offset) = pte;
 					*(c_pte_p + pte_offset) = pte;
-					g_page_frame_pool[physaddr2frameindex(pe2physaddr(pte))] += 1;
+					frame_index = physaddr2frameindex(pe2physaddr(pte));
+					if (frame_index < MAX_PAGE_FRAME)
+						g_page_frame_pool[frame_index] += 1;
 				}
 			}
 		}
@@ -117,12 +121,19 @@ cr3e_t _copy_mem_table(cr3e_t cr3)
 uint64_t
 sys_fork()
 {
+	copymem(g_page_frame_buf, (void *)KERNEL_STACK_START, PAGE_SIZE);
 	kpid_t childpid;
 	task_t *kernel_task = gettask(KERNEL_PID);
 	load_cr3(kernel_task->cr3);
 
+	void *newkernelstackphysaddr = allocframe();
+
 	kpid_t newpid = g_next_task_free_index;
 	cr3e_t newcr3 = _copy_mem_table(gp_current_task->cr3);
+	kmmap(pe2physaddr(newcr3), (uint64_t)newkernelstackphysaddr, KERNEL_STACK_START, FALSE, TRUE);
+	copymem(newkernelstackphysaddr, g_page_frame_buf, PAGE_SIZE);
+
+
 	copymem((g_task_start + newpid), gp_current_task, sizeof(task_t));
 	(g_task_start + newpid)->pid = newpid;
 	(g_task_start + newpid)->parent = gp_current_task->pid;
@@ -141,5 +152,7 @@ sys_fork()
 		if (g_next_task_free_index >= MAX_PROC_NUM);
 		// max process num exceed error here;
 	}
+
+	init_task_context((g_task_start + childpid), gp_current_task->context.regs[CONTEXT_RIP_OFFSET], (uint64_t *)gp_current_task->context.regs[CONTEXT_RSP_OFFSET]);
 	return childpid;
 }

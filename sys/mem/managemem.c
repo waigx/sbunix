@@ -234,7 +234,7 @@ void kmmap(pml4e_t *pml4e_p, uint64_t physaddr, uint64_t vaddr, uint8_t is_user,
 
 	pte = *(pte_p + pte_offset);
 
-	if ((pte & PTE_PRESENTS) == PTE_PRESENTS) {
+	if ((pte & PTE_PRESENTS) == PTE_PRESENTS && vaddr != KERNEL_STACK_START) {
 		debug_print("Mem", "Error, duplicated page table entry mapping.\n");
 		debug_pause();
 		return;

@@ -157,5 +157,6 @@ void sys_exit(uint64_t res);
 void scheduler(void);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 
+void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base );
 
 #endif

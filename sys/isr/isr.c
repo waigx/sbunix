@@ -79,10 +79,13 @@ void pagefault_handler(void)
 	}
 
 	pte = *(getptep(vaddr) + pte_offset);
-	if ((pte & PTE_WRITEABLE) == FALSE && (pte & PTE_PRESENTS) == TRUE && g_page_frame_pool[physaddr2frameindex(pe2physaddr(pte))] > 0)
+	if ((pte & PTE_WRITEABLE) == FALSE && (pte & PTE_PRESENTS) == TRUE && g_page_frame_pool[physaddr2frameindex(pe2physaddr(pte))] > 0){
 		cow_pagefault_handler(vaddr);
+		return;
+	}
 
 	newvaddr(vaddr);
+	return;
 }
 
 
