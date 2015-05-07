@@ -25,9 +25,35 @@
 
 
 #include <stdio.h>
-//#include <sys/sbunix.h>
-#include <syscall.h>
-//#include <sys/kio.h>
+#include <stdlib.h>
+#include <const.h>
+#include <libstr.h>
+#include <libio.h>
+
+void read_file_test(void)
+{
+	char buf[128];
+	int fd1 = open("etc/SBUsh.SBUshrc", O_RDONLY);
+	int fd3 = open("etc/testfile2.txt", O_RDONLY);
+	printf("[U5]fd1 %d\n", fd1);
+	while ( readline(buf, fd1) != NULL) {
+		printf("[U5]%s\n", buf);
+	}
+	close(fd1);
+	int fd2 = open("etc/testfile1.txt", O_RDONLY);
+	printf("[U5]fd2 %d\n", fd2);
+	while ( readline(buf, fd2) != NULL) {
+		printf("[U5]%s\n", buf);
+	}
+	printf("[U5]fd3 %d\n", fd3);
+	while ( readline(buf, fd3) != NULL) {
+		printf("[U5]%s\n", buf);
+	}
+	close(fd2);
+	close(fd3);
+	return;
+}
+
 
 int main(int argc, char* argv[], char* envp[]) 
 {
@@ -36,6 +62,7 @@ int main(int argc, char* argv[], char* envp[])
 
 	while(1)
 	{
+	read_file_test();
 		//		printf("I'm user_5 and count = %x\n",i++);
 		//		  __asm volatile("sti");		
 		//		printfat(10, 10,"I'm user 222 \n");

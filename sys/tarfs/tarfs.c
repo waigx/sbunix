@@ -70,8 +70,6 @@ ssize_t sys_write(int fd, const void *buf, size_t count)
 
 uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 {
-	//	struct posix_header_ustar *readdir_tarfs(int fd, uint64_t buf);
-
 	struct posix_header_ustar *tarfs_header;
 	//int64_t fd = 0;
 	task_t *cur_task;
@@ -86,7 +84,9 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 
 	struct dirent *dirent = (struct dirent *)buf;
 
-	printf("start getdentry_tarfs \n");
+#if DEBUG_FS
+	debug_print("FS", "Start getdentry_tarfs \n");
+#endif
 	cur_task = gp_current_task;
 	fdt = (struct file_descript *)cur_task->fd[fd];
 
@@ -117,19 +117,15 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 			if(ret == -2  ){
 				// not directory, file
 				i = i -1;
-			}else if(ret == 0 ){
-
-				if(i == fdt->ptr){
-					//copymem((struct posix_header_ustar *)buf, tarfs_header, sizeof(struct posix_header_ustar));
-					dirent->d_ino = (long)tarfs_header;
-					dirent->d_off = (off_t)tarfs_header->size;
-					dirent->d_reclen = sizeof(struct dirent);
-					copymem(dirent->d_name, tarfs_header->name, 100);
-					fdt->ptr += 1;
-					return dirent->d_reclen;
-					//return (struct posix_header_ustar *)buf;
-				}
-
+			}else if(ret == 0 && i == fdt->ptr){
+				//copymem((struct posix_header_ustar *)buf, tarfs_header, sizeof(struct posix_header_ustar));
+				dirent->d_ino = (long)tarfs_header;
+				dirent->d_off = (off_t)tarfs_header->size;
+				dirent->d_reclen = sizeof(struct dirent);
+				copymem(dirent->d_name, tarfs_header->name, 100);
+				fdt->ptr += 1;
+				return dirent->d_reclen;
+				//return (struct posix_header_ustar *)buf;
 			}
 		}
 	}
@@ -193,8 +189,7 @@ int open_tarfs(const char *pathname, int flags)
 	while(1)
 	{
 		tarfs_header = (struct posix_header_ustar *)address;
-		if(strcmp(tarfs_header->name, pathname) == 0)
-		{
+		if(strcmp(tarfs_header->name, pathname) == 0) {
 #if DEBUG_FS
 			debug_print("FS", "finding %s file\n",pathname);
 #endif
@@ -202,8 +197,7 @@ int open_tarfs(const char *pathname, int flags)
 			break;
 		}
 
-		if(tarfs_header->name[0] == '\0')
-		{
+		if(tarfs_header->name[0] == '\0') {
 			printf("there is not exist %s file\n");
 			return -1;
 		}
@@ -390,7 +384,6 @@ void *opendir_tarfs(const char *name)
 
 #if(1)
 	struct posix_header_ustar *tarfs_header;
-	//struct file_descript *fdt;
 
 	int64_t fd = 0;
 	uint64_t start_header = 0;
@@ -419,7 +412,6 @@ void *opendir_tarfs(const char *name)
 		{
 			printf("there is not exist %s file\n");
 			break;
-			//return -1;
 		}
 		offset = get_file_size(tarfs_header);
 

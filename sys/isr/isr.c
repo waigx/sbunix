@@ -50,9 +50,11 @@ void divide_handler(uint64_t entry_num)
 
 void debug(uint64_t err_code)
 {
+#if DEBUG_FATAL
 	debug_print("ISR", "Fault number: %d\n", err_code);
 	debug_print("ISR", "Intentional pause now.\n");
 	debug_pause();
+#endif
 }
 
 

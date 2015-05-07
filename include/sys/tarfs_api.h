@@ -16,11 +16,10 @@ struct file_descript
 	uint64_t ptr;
 	uint64_t mode;
 };
+
 ssize_t sys_write(int fd, const void *buf, size_t count);
 
-
 uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size);
-
 
 uint64_t find_elf(const char *pathname, int flags);
 
