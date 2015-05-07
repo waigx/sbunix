@@ -30,14 +30,15 @@
 
 int main(int argc, char* argv[], char* envp[]) 
 {
-	uint64_t i = 0;
-	pid_t pid;
+//	uint64_t i = 0;
+	pid_t pid = 0;
 
 	pid = fork();
 
 	while(1)
 	{
-		printf("Returned pid is %d and count = %x\n", pid, i++);
+		printf("pid=%x\n",pid);
+		//printf("Returned pid is %d and count = %x\n", pid, i++);
 	}
 	return 0;
 }

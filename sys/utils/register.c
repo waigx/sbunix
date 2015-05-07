@@ -65,6 +65,17 @@ uint64_t get_rdx_register(void)
 	return ret;
 }
 
+uint64_t get_rsp_register(void)
+{
+        uint64_t ret = 0;
+        __asm__ __volatile__("movq %%rsp, %0"
+                        :"=r"(ret)
+                        :
+                        );
+        return ret;
+}
+
+
 uint64_t get_r10_register(void)
 {
 	uint64_t ret = 0;
