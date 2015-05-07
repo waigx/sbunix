@@ -40,8 +40,12 @@ sys_yield(void)
 	// TODO how to get current task pointer and next task point
 	next_task = get_next_task();
 	current_task = gp_current_task;
-//	debug_print("yield", "Current task pid: %d\n", current_task->pid);
-//	debug_print("yield", "Next task pid: %d\n", next_task->pid);
+
+#if DEBUG_SCHED
+	debug_print("yield", "Current task pid: %d\n", current_task->pid);
+	debug_print("yield", "Next task pid: %d\n", next_task->pid);
+#endif
+
 	// switch context
 	if (current_task->status != PROCESS_TERMINATED)
 		current_task->status = PROCESS_READY;
