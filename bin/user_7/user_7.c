@@ -25,27 +25,30 @@
 
 
 #include <stdio.h>
-#include <syscall.h>
 #include <stdlib.h>
+#include <string.h>
+#include <const.h>
+#include <libstr.h>
+#include <libio.h>
 
-int main(int argc, char* argv[], char* envp[]) 
+
+void std_input_test(void);
+
+
+int main(int argc, char *argv[], char *envp[])
 {
-	while (1);
-	pid_t pid;
-	pid_t this_pid;
-	pid_t p_pid;
-	int x=0;
-
-	pid = fork();
-	if (pid == 0)
-		x = 95;
-	this_pid = getpid();
-	p_pid = getppid();
-
-	while(1)
-	{
-		printf("Returned Pid is %d, Parent Pid is %d, This Pid is %d\n", pid, p_pid, this_pid);
-		printf("x value: %d\n", x++);
-	}
+	writeline("---Start Standrad Input---\n", STDOUT_FD);
+	std_input_test();
+	printf("Input Test Returnd.\n");
+	while(1);
 	return 0;
+}
+
+
+void std_input_test(void)
+{
+	char buf[512];
+	while (readline(buf, STDIN_FD), strcmp(buf, "end")!=0) {
+		printf("%s\n", buf);
+	}
 }

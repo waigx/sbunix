@@ -46,23 +46,19 @@ ssize_t sys_read(int fd, void *buf, size_t count)
 {
 	uint64_t ret = 0;
 
-	//printf("sys_read: starting \n");
-	//*((char*)buf) = (char)1;
 	if(fd < STANDARD_IO_IN){
 		printf("sys_read: fd is invalid\n");
 		return 0;
-	}
-	else if(fd == STANDARD_IO_IN){
-	
+
+	} else if(fd == STANDARD_IO_IN){
 		ret = read_terminal(buf, count);
-		//printf("ret=   %c   \n",(char)g_keyboard_buf);
 
 	}else if(fd == STANDARD_IO_OUT){
 		printf("sys_read: fd error\n");
 		return 0;
 
 	}else if(fd == STANDARD_IO_ERROR){
-		;
+
 	}else
 		ret = read_tarfs(fd, (char *)buf, count);
 
@@ -76,13 +72,10 @@ uint64_t read_terminal(void *buf, size_t count)
 {
 	uint64_t i = 0;
 
-	for(i=0; i< count; i++)
-	{
-		if(start_queue >  end_queue)
-		{
+	for(i = 0; i < count; i++) {
+		if(start_queue > end_queue) {
 			*((char *)buf+i ) = (char)kb_queue[end_queue++];
-			if(start_queue <= end_queue)
-			{
+			if(start_queue <= end_queue) {
 				start_queue = 0;
 				end_queue = 0;
 			}
