@@ -92,7 +92,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	// If you want to enable timer interrupt, add ENABLE_TIMER_INT with '|'
 
 	load_test_tasks();
-	set_timer(100);
+	set_timer(1000);
 	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
 //	yield(1);
 	while (1);

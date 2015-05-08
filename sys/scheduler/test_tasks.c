@@ -44,7 +44,6 @@ void load_test_tasks(void)
 //	task_t *task6;
 
 
-	ps = newtask("bin/ps", USER_PROCESS);
 
 	task1 = newtask("bin/user_1", USER_PROCESS);
 //	task2 = newtask("bin/user_2", USER_PROCESS);
@@ -52,6 +51,7 @@ void load_test_tasks(void)
 //	task4 = newtask("bin/user_4", USER_PROCESS);
 //	task5 = newtask("bin/user_5", USER_PROCESS);
 //	task6 = newtask("bin/user_6", USER_PROCESS);
+	ps = newtask("bin/ps", USER_PROCESS);
 
 
 	loadtask(ps);

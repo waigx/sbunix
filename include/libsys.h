@@ -30,5 +30,6 @@
 #include <sys/sched.h>
 
 void *sbrk(intptr_t increment);
+int obtaintask(task_t *task, pid_t pid);
 
 #endif

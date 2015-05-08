@@ -30,6 +30,7 @@
 #include <sys/managemem.h>
 #include <sys/sched.h>
 #include <sys/kio.h>
+#include <string.h>
 #include <sys/sbunix.h>
 #include <sys/debug.h>
 #include <sys/register.h>
@@ -74,6 +75,7 @@ void _init_kernel_process(void *physbase, void *physfree, void *physbottom, void
 
 	kproc->cr3 = kcr3;
 	kproc->pid = kpid;
+	strcpy(kproc->name, "Kernel");
 
 	g_next_task_free_index += 1;
 	g_task_bump = KERNEL_PID;

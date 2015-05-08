@@ -125,6 +125,11 @@ extern struct tss_t tss_buf[16];
 uint64_t
 sys_fork()
 {
+	uint64_t pte_offset = KERNEL_STACK_START << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
+	pte_t *pte_p = getptep(KERNEL_STACK_START); 
+	void *kernelphyaddr = pe2physaddr(*(pte_p + pte_offset));
+	freeframe(kernelphyaddr);
+
 	/* If you add/subtract local variable, you should change RSP_OFFSET */
 	uint64_t rsp = get_rsp_register();
 	rsp = rsp + RSP_OFFSET;

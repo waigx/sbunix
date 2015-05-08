@@ -42,22 +42,20 @@
 
 void _tracetask(pid_t pid)
 {
-	int i;
-	char task_buf[sizeof(task_t)];
+	task_t target_task;
 	char buf[BUFSIZE];
-	i = syscall_2(SYS_gettask, (uint64_t)task_buf, pid);
-	task_t *target_task = (task_t *)task_buf;
+	int i = obtaintask(&target_task, pid);
 
 	if (i < 0)
 		return;
 	for (i = 0; i < BUFSIZE; i++)
 		buf[i] = ' ';
 
-	i = sprintf(buf + PID_POS, "%d", target_task->pid);
+	i = sprintf(buf + PID_POS, "%d", target_task.pid);
 	buf[PID_POS + i] = ' ';
-	i = sprintf(buf + PARENT_PID_POS, "%d", target_task->parent);
+	i = sprintf(buf + PARENT_PID_POS, "%d", target_task.parent);
 	buf[PARENT_PID_POS + i] = ' ';
-	switch (target_task->status){
+	switch (target_task.status){
 		case PROCESS_NEW:
 			i = sprintf(buf + STATUS_POS, "new");
 			break;
@@ -77,7 +75,7 @@ void _tracetask(pid_t pid)
 			i = sprintf(buf + STATUS_POS, "unknown");
 	}
 	buf[STATUS_POS + i] = ' ';
-	i = sprintf(buf + NAME_POS, "%s\n", target_task->name);
+	i = sprintf(buf + NAME_POS, "%s\n", target_task.name);
 	writeline(buf, STDOUT_FD);
 	return;
 }

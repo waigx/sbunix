@@ -30,11 +30,10 @@
 
 int main(int argc, char* argv[], char* envp[]) 
 {
-	while (1);
-	int x = 12;
-	pid_t pid = 0;
+	pid_t pid;
 	pid_t this_pid;
 	pid_t p_pid;
+	int x=0;
 
 	pid = fork();
 	if (pid == 0)

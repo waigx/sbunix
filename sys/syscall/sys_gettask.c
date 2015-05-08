@@ -37,6 +37,6 @@ sys_gettask(void *buf, kpid_t pid)
 {
 	if (pid > g_task_bump)
 		return -1;
-	copymem(buf, (void *)(g_task_start + pid), sizeof(task_t));
+	copymem(buf, (void *)(gettask(pid)), sizeof(task_t));
 	return 0;
 }
