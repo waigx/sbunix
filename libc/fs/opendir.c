@@ -28,28 +28,23 @@
 #include <sys/defs.h>
 #include <syscall.h>
 #include <const.h>
-
-
-/* temp code */
-char temp_buf[DIR_READ_BUF];
-char temp_buf1[DIR_READ_BUF];
+#include <stdio.h>
 
 
 void *opendir(const char *name)
 {
 	DIR *dir;
 	int fd = open(name, O_RDONLY);
-	//char *buf = malloc(DIR_READ_BUF);
-	char *buf = temp_buf;
+	char *buf = malloc(DIR_READ_BUF);
 	uint64_t sys_call_res;
 
+	printf("Here\n");
 	sys_call_res = syscall_3(SYS_getdents, (uint64_t)fd, (uint64_t)buf, (uint64_t)DIR_READ_BUF);
 
 	if ((ssize_t)sys_call_res < 0)
 		return NULL;
 
-	//dir = malloc(sizeof(DIR)); 
-	dir = (DIR *)temp_buf1;
+	dir = malloc(sizeof(DIR)); 
 
 	dir->dir_fd = fd;
 	dir->size = sys_call_res;

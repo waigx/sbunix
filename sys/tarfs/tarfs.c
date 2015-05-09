@@ -66,8 +66,6 @@ ssize_t sys_write(int fd, const void *buf, size_t count)
 }
 
 
-
-
 uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 {
 	struct posix_header_ustar *tarfs_header;
@@ -94,8 +92,7 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 
 	if(strcmp(fdt->header->typeflag, dirtype) != 0){
 		printf("sys_getdentry: it is not directory\n");
-	}
-	else{
+	} else {
 		for(i=0; i <= fdt->ptr ; i++ ){
 
 			tarfs_header = (struct posix_header_ustar *)address;
@@ -186,12 +183,12 @@ int open_tarfs(const char *pathname, int flags)
 
 	address = (uint64_t)&(_binary_tarfs_start);
 
-	while(1)
+	while(address < (uint64_t)&_binary_tarfs_end)
 	{
 		tarfs_header = (struct posix_header_ustar *)address;
 		if(strcmp(tarfs_header->name, pathname) == 0) {
 #if DEBUG_FS
-			debug_print("FS", "finding %s file\n",pathname);
+			debug_print("FS", "Found %s file\n", pathname);
 #endif
 			start_header = (uint64_t)tarfs_header;
 			break;
@@ -215,6 +212,8 @@ int open_tarfs(const char *pathname, int flags)
 			address += 512;
 
 	}
+	if (address >= (uint64_t)&_binary_tarfs_end)
+		return -1;
 
 	// get file descript
 	fd = get_fd(gp_current_task, (struct posix_header_ustar *)start_header, flags); 
@@ -343,6 +342,7 @@ off_t lseek_tarfs(int fildes, off_t offset, int whence)
 	return fdt->ptr;
 }
 
+
 int close_tarfs(int fd)
 {
 	//struct file_descript *fdt;
@@ -367,62 +367,54 @@ int close_tarfs(int fd)
 	return 0;
 }
 
-void *opendir_tarfs(const char *name)
-{
-
-#if(1)
-	struct posix_header_ustar *tarfs_header;
-
-	int64_t fd = 0;
-	uint64_t start_header = 0;
-	uint64_t offset = 0;
-	uint64_t address = 0;
-
-	address = (uint64_t)&(_binary_tarfs_start);
-
-
-	/* Need checking dir or file by dongju */
-	while(1)
-	{
-		tarfs_header = (struct posix_header_ustar *)address;
-		if(strcmp(tarfs_header->name, name) == 0) {
-#if DEBUG_FS
-			debug_print("FS", "Finding %s dir\n",name);
-#endif
-			start_header = (uint64_t)tarfs_header;
-#if DEBUG_FS
-			debug_print("FS", "%x \n", start_header);
-#endif
-			break;
-		}
-
-		if(tarfs_header->name[0] == '\0')
-		{
-			printf("there is not exist %s file\n");
-			break;
-		}
-		offset = get_file_size(tarfs_header);
-
-#if DEBUG_FS
-		if(offset != 0)
-			debug_print("FS", "Offset is %x\n",offset);
-#endif
-
-		address += sizeof(struct posix_header_ustar);
-		address += (offset >> 9 << 9);
-		if(offset % 512)
-			address += 512;
-	}
-
-	// get file descript
-	fd = get_fd(gp_current_task, (struct posix_header_ustar *)start_header, 0 /*flags*/);
-
-	//return (d *)fd;
-#endif
-
-	return (uint64_t *)fd;
-
-}
+//void *opendir_tarfs(const char *name)
+//{
+//	struct posix_header_ustar *tarfs_header;
+//
+//	int64_t fd = 0;
+//	uint64_t start_header = 0;
+//	uint64_t offset = 0;
+//	uint64_t address = 0;
+//
+//	address = (uint64_t)&(_binary_tarfs_start);
+//
+//	/* Need checking dir or file by dongju */
+//	while(address <  (uint64_t)&(_binary_tarfs_end))
+//	{
+//		tarfs_header = (struct posix_header_ustar *)address;
+//		if(strcmp(tarfs_header->name, name) == 0) {
+//#if DEBUG_FS
+//			debug_print("FS", "Finding %s dir\n", name);
+//#endif
+//			start_header = (uint64_t)tarfs_header;
+//#if DEBUG_FS
+//			debug_print("FS", "%x \n", start_header);
+//#endif
+//			break;
+//		}
+//
+//		if(tarfs_header->name[0] == '\0') {
+//			printf("there is not exist file\n");
+//			break;
+//		}
+//		offset = get_file_size(tarfs_header);
+//
+//#if DEBUG_FS
+//		if(offset != 0)
+//			debug_print("FS", "Offset is %x\n",offset);
+//#endif
+//
+//		address += sizeof(struct posix_header_ustar);
+//		address += (offset >> 9 << 9);
+//		if(offset % 512)
+//			address += 512;
+//	}
+//
+//	// get file descript
+//	fd = get_fd(gp_current_task, (struct posix_header_ustar *)start_header, 0 /*flags*/);
+//
+//	return (uint64_t *)fd;
+//}
 
 int64_t check_dir(char *next_dir, char *parent_dir)
 {

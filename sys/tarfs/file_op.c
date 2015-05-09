@@ -64,7 +64,6 @@ ssize_t sys_read(int fd, void *buf, size_t count)
 	}else
 		ret = read_tarfs(fd, (char *)buf, count);
 
-	
 	//printf("sys_read: ret = %x\n", ret);
 	 return (ssize_t)ret;
 }

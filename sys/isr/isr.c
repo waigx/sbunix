@@ -61,9 +61,22 @@ void debug(uint64_t err_code)
 void pagefault_handler(void)
 {
 	uint64_t vaddr = get_cr2_register();
-	uint64_t pte_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
-	vma_t *belonged_vma;
+
+	pml4e_t pml4e;
+	pdpe_t pdpe;
+	pde_t pde;
 	pte_t pte;
+	pml4e_t *pml4e_p = getpml4ep();
+	pdpe_t *pdpe_p = getpdpep(vaddr);
+	pde_t *pde_p = getpdep(vaddr);
+	pte_t *pte_p = getptep(vaddr);
+
+	uint64_t pml4e_offset = vaddr << VADDR_SIGN_EXTEND >> (VADDR_SIGN_EXTEND + VADDR_PDPE + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
+	uint64_t pdpe_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDE + VADDR_PTE + VADDR_OFFSET);
+	uint64_t pde_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PTE + VADDR_OFFSET);
+	uint64_t pte_offset = vaddr << (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE) >> (VADDR_SIGN_EXTEND + VADDR_PML4E + VADDR_PDPE + VADDR_PDE + VADDR_OFFSET);
+
+	vma_t *belonged_vma;
 
 #if DEBUG_PAGEFAULT
 	debug_print("PagFlt", "Virtual addr: %p\n", vaddr);
@@ -91,10 +104,19 @@ void pagefault_handler(void)
 		return;
 	}
 
-	pte = *(getptep(vaddr) + pte_offset);
-	if ((pte & PTE_WRITEABLE) == FALSE && (pte & PTE_PRESENTS) == TRUE && g_page_frame_pool[physaddr2frameindex(pe2physaddr(pte))] > 0){
-		cow_pagefault_handler(vaddr);
-		return;
+	pml4e = *(pml4e_p + pml4e_offset);
+	if ((pml4e & PTE_PRESENTS) == PTE_PRESENTS) {
+		pdpe = *(pdpe_p + pdpe_offset);
+		if ((pdpe & PTE_PRESENTS) == PTE_PRESENTS) {
+			pde = *(pde_p + pde_offset);
+			if ((pde & PTE_PRESENTS) == PTE_PRESENTS) {
+				pte = *(pte_p + pte_offset);
+				if ((pte & PTE_WRITEABLE) == FALSE && (pte & PTE_PRESENTS) == TRUE && g_page_frame_pool[physaddr2frameindex(pe2physaddr(pte))] > 0){
+					cow_pagefault_handler(vaddr);
+					return;
+				}
+			}
+		}
 	}
 
 	newvaddr(vaddr);
