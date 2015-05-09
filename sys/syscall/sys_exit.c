@@ -37,6 +37,6 @@ sys_exit(uint64_t res)
 	task_t *task = gp_current_task;
 	freevmem(task->pid);
 	unloadtask(task);
-	sys_yield();
+	sys_yield(1);
 	return;
 }

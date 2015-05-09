@@ -33,7 +33,7 @@
 
 
 void
-sys_yield(void)
+sys_yield(uint64_t type)
 {
 	task_t *next_task;
 	task_t *current_task;
@@ -52,7 +52,7 @@ sys_yield(void)
 
 	//load_cr3(cr3e_t cr3)
 	load_cr3(next_task->cr3);
-	if(current_task->pid == 1) {
+	if(current_task->pid == 1 || type == 1) {
 		switch_context((struct regs_struct*)NULL, (struct regs_struct*)next_task->context.regs); 
 	} else {
 		switch_context((struct regs_struct*)current_task->context.regs, (struct regs_struct*)next_task->context.regs);

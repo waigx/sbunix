@@ -31,12 +31,20 @@
 
 int main(int argc, char* argv[], char* envp[]) 
 {
-//	uint64_t i = 0;
+	uint64_t i = 0;
 	//    uint64_t j = 10000;
 
 	while(1)
 	{
-//		printf("I'm user_5 and count = %x\n",i++);
+
+		printf("argc = %x\n", argc);
+		printf("argv[0] = %s\n", argv[0]);
+		printf("argv[2] = %s\n", argv[2]);
+		printf("envp[0] = %s\n", envp[0]);
+                printf("envp[2] = %s\n", envp[2]);
+
+
+		printf("I'm user_5 and count = %x\n",i++);
 		//		  __asm volatile("sti");		
 		//		printfat(10, 10,"I'm user 222 \n");
 		//                while(j--);

@@ -123,7 +123,7 @@ void init_task(task_t *task, uint64_t entry_point, uint64_t *user_stack_base, ui
 void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base )
 {
 	//setmem(task->context, (uint64_t*)((uint64_t)task->context + sizeof(struct regs_struct)), 0x00);
-	setmem((uint64_t *)task->context.regs, (uint64_t *)task->context.regs + sizeof(struct regs_struct), 0x00);
+	setmem((uint64_t *)task->context.regs, (uint64_t *)(task->context.regs + sizeof(struct regs_struct)/sizeof(uint64_t)), 0x00);
 
 	// TODO stack_base will be allocated size or memory menagement by dongju
 	task->context.regs[CONTEXT_RSP_OFFSET] = (uint64_t)stack_base + 4096 -8;
