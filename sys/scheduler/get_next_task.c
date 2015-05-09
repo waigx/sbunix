@@ -36,7 +36,7 @@ task_t *get_next_task(void)
 	uint8_t next_task_runable = FALSE;
 	while (next_task_runable == FALSE){
 		next_task = g_task_start + g_next_task_index;
-		if (next_task->status == PROCESS_READY) {
+		if (next_task->status == PROCESS_READY || next_task->status == PROCESS_RUNNING) {
 			next_task_runable = TRUE;
 		} else {
 			next_task_runable = FALSE;

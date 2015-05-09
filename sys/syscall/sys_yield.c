@@ -41,6 +41,9 @@ sys_yield(void)
 	next_task = get_next_task();
 	current_task = gp_current_task;
 
+	if (current_task == next_task)
+		return;
+
 #if DEBUG_SCHED
 	debug_print("yield", "Current task pid: %d\n", current_task->pid);
 	debug_print("yield", "Next task pid: %d\n", next_task->pid);

@@ -24,6 +24,8 @@
  *  along with sbunix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
+
+
 #include <sys/defs.h>
 #include <sys/tarfs.h>
 #include <sys/tarfs_api.h>
@@ -74,7 +76,7 @@ uint64_t read_terminal(void *buf, size_t count)
 
 	for(i = 0; i < count; i++) {
 		if(start_queue > end_queue) {
-			*((char *)buf+i ) = (char)kb_queue[end_queue++];
+			*((char *)buf + i) = (char)kb_queue[end_queue++];
 			if(start_queue <= end_queue) {
 				start_queue = 0;
 				end_queue = 0;
@@ -87,5 +89,3 @@ uint64_t read_terminal(void *buf, size_t count)
 
 	return (uint64_t)i;
 }
-
-

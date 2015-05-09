@@ -34,11 +34,11 @@ int main(int argc, char* argv[], char* envp[])
 	uint64_t i = 0;
 	//    uint64_t j = 10000;
 
-		printf("I'm user_4 and count = %x\n",i++);
 		//		  __asm volatile("sti");		
 	while(1)
 	{
 
+		printf("I'm user_4 and count = %x\n",i++);
 		//		printfat(10, 10,"I'm user 222 \n");
 		//                while(j--);
 		//              j = 1000000;
