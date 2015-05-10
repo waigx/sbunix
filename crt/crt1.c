@@ -28,24 +28,30 @@
 #include <sys/defs.h>
 
 void _start(void) {
-	void *rsp_ptr;
-	int *argc;
-	char **argv;
-	char **envp;
+	uint64_t rdi;
+	uint64_t rsi;
+	uint64_t rdx;
 	int res;
 
 	__asm__ __volatile__(
-		"movq %%rsp, %0;\n\t"
-		: "=r" (rsp_ptr)
-		:
-		: "rsp");
+			"movq %%rdi, %0;\n\t"
+			: "=r" (rdi)
+			:
+			: "rdi");
 
-	argc = (int *)rsp_ptr + 2;
-	argv = (char **)(argc) + 1;
-	envp = argv + *argc + 1;
+	__asm__ __volatile__(
+			"movq %%rsi, %0;\n\t"
+			: "=r" (rsi)
+			:
+			: "rsi");
 
-	res = main(*argc, argv, envp);
+	__asm__ __volatile__(
+			"movq %%rdx, %0;\n\t"
+			: "=r" (rdx)
+			:
+			: "rdx");
 
+	res = main(rdi,(char **)rsi, (char**)rdx);
 	exit(res);
 
 }

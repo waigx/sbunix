@@ -142,7 +142,7 @@ uint64_t syscall(void)
 			break;
 
 		case SYS_yield:
-			sys_yield();
+			sys_yield((uint64_t)a1);
 			return 0;
 			break;
 

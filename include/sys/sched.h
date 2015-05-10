@@ -76,6 +76,8 @@
 #define MAX_OPEN_FILE_DESCRIPT                  1024
 
 #define SWITCH_TIME_IN_MS                          5
+#define SYS_YIELD_LOAD_ONLY                        1
+
 
 typedef enum 
 {
@@ -123,10 +125,23 @@ typedef struct
 	// ring active
 	uint64_t b_ring;
 
+	//passing args for exec
+	struct args_struct *args;
+	uint64_t entry_point;
+
+
 	// Open file descript, stdin, stdout, and stderr are 0, 1, and 2 //
 	struct file_descript *fd[MAX_OPEN_FILE_DESCRIPT];
 } task_t;
 
+
+struct args_struct
+{
+	uint64_t argc;
+	uint64_t envc;
+	char **argv;
+	char **envp;
+};
 
 extern uint16_t g_next_task_free_index;
 extern task_t *g_task_start;
@@ -150,13 +165,15 @@ uint64_t sys_fork(void);
 uint64_t sys_getpid(void);
 uint64_t sys_getppid(void);
 uint64_t sys_gettask(void *buf, kpid_t pid);
-void sys_yield(void);
+
+void sys_yield(uint64_t type);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 void sys_exit(uint64_t res);
 
 void scheduler(void);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);
 
+void init_task(task_t *task, uint64_t entry_point, uint64_t *user_stack_base, uint64_t *kernel_stack);
 void init_task_context(task_t *task, uint64_t entry_point, uint64_t *stack_base );
 
 #endif
