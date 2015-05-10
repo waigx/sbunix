@@ -20,6 +20,7 @@
 #include <type.h>
 #include <sys/sched.h>
 
+
 char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
 uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
 uint8_t g_page_frame_buf[PAGE_SIZE * 4];
@@ -99,6 +100,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 	while (1);
 
 }
+
 
 #define INITIAL_STACK_SIZE 4096
 char stack[INITIAL_STACK_SIZE];

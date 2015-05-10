@@ -25,55 +25,9 @@
 
 
 #include <stdio.h>
-#include <stdlib.h>
-#include <const.h>
-#include <libstr.h>
-#include <libio.h>
-
-void read_file_test(void);
-void muli_file_test(void);
-void std_input_test(void);
-void dir_read_test(void);
 
 
 int main(int argc, char *argv[], char *envp[]) {
-}
 
-void read_file_test(void)
-{
-	char buf[128];
-	int fd1 = open("etc/SBUsh.SBUshrc", O_RDONLY);
-	int fd3 = open("etc/testfile2.txt", O_RDONLY);
-	while ( readline(buf, fd1) != NULL) {
-		printf("%s\n", buf);
-	}
-	close(fd1);
-	int fd2 = open("etc/testfile1.txt", O_RDONLY);
-	while ( readline(buf, fd2) != NULL) {
-		printf("%s\n", buf);
-	}
-	while ( readline(buf, fd3) != NULL) {
-		printf("%s\n", buf);
-	}
-	close(fd2);
-	close(fd3);
-	return;
-}
-
-
-void dir_read_test(void) {
-	struct dirent *pDirent;
-	DIR *pDir;
-
-	pDir = opendir("lxb/");
-	if (pDir == NULL) {
-		return;
-	}
-
-	while ((pDirent = readdir(pDir)) != NULL) {
-		writeline(pDirent->d_name, STDOUT_FD);
-		writeline("  ", STDOUT_FD);
-	}
-	writeline("\n", STDOUT_FD);
-	return;
+	while (1);
 }

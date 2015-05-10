@@ -38,13 +38,14 @@
 #include <sys/kio.h>
 
 
-#define OFFSET_SIZE_TARFS           (100 + 8 + 8 + 8)
-#define BYTES_SIZE_TARFS                           12
+#define OFFSET_SIZE_TARFS                     (100 + 8 + 8 + 8)
+#define BYTES_SIZE_TARFS                                     12
 
 
 uint64_t get_file_size(struct posix_header_ustar *tarfs_header);
 int64_t get_fd(task_t *cur_task, struct posix_header_ustar *header_addr, int flags);
 int64_t check_dir(char *next_dir, char *parent_dir);
+
 
 ssize_t sys_write(int fd, const void *buf, size_t count)
 {

@@ -24,8 +24,8 @@
  *  along with sbunix.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
-//#include <sys/register.h>
-//#include <syscall.h>
+
+
 #include <sys/sbunix.h>
 #include <string.h>
 #include <sys/elf.h>
@@ -37,7 +37,6 @@
 #include <sys/debug.h>
 
 uint64_t check_ELF_format( Elf64_Ehdr *elf);
-
 
 uint64_t load_elf(task_t *task, const char *task_name)
 {

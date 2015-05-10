@@ -101,19 +101,24 @@ uint64_t syscall(void)
 //#define SYS_wait4      61
 //#define SYS_nanosleep  35
 //#define SYS_alarm      37
-//#define SYS_getcwd     79
-//#define SYS_chdir      80
+
+		case SYS_getcwd:
+			sys_getcwd((char *)a1, (size_t)a2);
+			return get_rax_register();
+			break;
+
+		case SYS_chdir:
+			sys_chdir((const char *)a1);
+			return get_rax_register();
+			break;
 
 		case SYS_open:
-			open_tarfs((const char *)a1, a2);
+			sys_open((const char *)a1, a2);
 			return get_rax_register();
 			break;
 
 		case SYS_read:
-			//read_tarfs((int)a1, (void *)a2, (size_t)a3);
 			sys_read((int)a1, (void *)a2, (size_t)a3);
-		//	  g_diable_scheduler = FALSE;
-
 			return get_rax_register();
 			break;
 
