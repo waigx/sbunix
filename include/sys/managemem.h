@@ -191,8 +191,9 @@ typedef struct {
 
 
 extern uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
-extern uint8_t g_page_frame_buf[PAGE_SIZE];
 extern uint64_t g_next_free_frame_index;
+extern uint8_t g_page_frame_buf[PAGE_SIZE * 4];
+extern uint64_t g_page_frame_buf_ptr;
 extern uint64_t g_frame_bump;
 extern void *g_page_frame_start;
 extern void *g_physbase;

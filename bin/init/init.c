@@ -25,36 +25,55 @@
 
 
 #include <stdio.h>
-#include <syscall.h>
 #include <stdlib.h>
+#include <const.h>
+#include <libstr.h>
+#include <libio.h>
 
-int main(int argc, char* argv[], char* envp[]) 
+void read_file_test(void);
+void muli_file_test(void);
+void std_input_test(void);
+void dir_read_test(void);
+
+
+int main(int argc, char *argv[], char *envp[]) {
+}
+
+void read_file_test(void)
 {
-	int ret = 0;
-	pid_t pid = 0;
-
-	char *temp_argv[4] = {"abcd", "efghi", "jklmnop"};
-	char *temp_envp[4] = {"1234", "5678", "9"};
-	char *file_name = "bin/user_5";
-
-	pid = fork();
-	while(1)
-	{
-
-		if(pid == 0)
-		{
-			ret = execve(file_name, temp_argv, temp_envp);
-			if(ret < 0)
-			{
-				printf("execve Fail\n");
-				while(1);
-			}
-
-			printf("execve success\n");
-
-		} else {
-		printf("I'm the parent\n");
-		}
+	char buf[128];
+	int fd1 = open("etc/SBUsh.SBUshrc", O_RDONLY);
+	int fd3 = open("etc/testfile2.txt", O_RDONLY);
+	while ( readline(buf, fd1) != NULL) {
+		printf("%s\n", buf);
 	}
-	return 0;
+	close(fd1);
+	int fd2 = open("etc/testfile1.txt", O_RDONLY);
+	while ( readline(buf, fd2) != NULL) {
+		printf("%s\n", buf);
+	}
+	while ( readline(buf, fd3) != NULL) {
+		printf("%s\n", buf);
+	}
+	close(fd2);
+	close(fd3);
+	return;
+}
+
+
+void dir_read_test(void) {
+	struct dirent *pDirent;
+	DIR *pDir;
+
+	pDir = opendir("lxb/");
+	if (pDir == NULL) {
+		return;
+	}
+
+	while ((pDirent = readdir(pDir)) != NULL) {
+		writeline(pDirent->d_name, STDOUT_FD);
+		writeline("  ", STDOUT_FD);
+	}
+	writeline("\n", STDOUT_FD);
+	return;
 }

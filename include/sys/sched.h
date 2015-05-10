@@ -94,9 +94,19 @@ typedef enum
 	KERNEL_PROCESS
 } process_type_t;
 
+
 struct regs_struct
 {
 	uint64_t regs[REGISTERS_CONTEXT_SWITCH];
+};
+
+
+struct args_struct
+{
+	uint64_t argc;
+	uint64_t envc;
+	char **argv;
+	char **envp;
 };
 
 
@@ -126,7 +136,7 @@ typedef struct
 	uint64_t b_ring;
 
 	//passing args for exec
-	struct args_struct *args;
+	struct args_struct args;
 	uint64_t entry_point;
 
 
@@ -134,14 +144,6 @@ typedef struct
 	struct file_descript *fd[MAX_OPEN_FILE_DESCRIPT];
 } task_t;
 
-
-struct args_struct
-{
-	uint64_t argc;
-	uint64_t envc;
-	char **argv;
-	char **envp;
-};
 
 extern uint16_t g_next_task_free_index;
 extern task_t *g_task_start;
