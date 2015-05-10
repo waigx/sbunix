@@ -17,12 +17,6 @@ struct file_descript
 	uint64_t mode;
 };
 
-sys_open(const char *pathname, int flags);
-sys_chdir(const char *path);
-sys_getcwd(char *buf, size_t size);
-
-ssize_t sys_write(int fd, const void *buf, size_t count);
-uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size);
 uint64_t find_elf(const char *pathname, int flags);
 int open_tarfs(const char *pathname, int flags);
 ssize_t read_tarfs(int fd, void *buf, size_t count);

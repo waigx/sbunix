@@ -28,6 +28,7 @@
 
 #include <sys/defs.h>
 #include <sys/tarfs.h>
+#include <sys/file_op.h>
 #include <sys/tarfs_api.h>
 #include <string.h>
 #include <sys/debug.h>
@@ -38,8 +39,10 @@
 #include <sys/kio.h>
 
 
-int
+uint64_t
 sys_chdir(const char *path)
 {
+	uint64_t ret;
 
+	return ret;
 }

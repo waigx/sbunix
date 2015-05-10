@@ -25,9 +25,26 @@
 
 
 #include <stdio.h>
+#include <stdlib.h>
+#include <libio.h>
+#include <const.h>
+#include <libio.h>
 
 
 int main(int argc, char *argv[], char *envp[]) {
+	//read init parameters;
+	writeline("Reading configrations ...\n", STDOUT_FD);
+
+	writeline("Done.\n", STDOUT_FD);
+	//set up CWD;
+	writeline("Initializing current working directory ...\n", STDOUT_FD);
+
+	writeline("Done.\n", STDOUT_FD);
+	//set up other envps;
+	writeline("Initializing shell...\n", STDOUT_FD);
+
+	//initialize bash;
+
 
 	while (1);
 }

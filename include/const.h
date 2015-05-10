@@ -41,7 +41,7 @@
 #define DIR_READ_BUF 256
 
 #define MAXLINE 2048
-#define HOSTNAME_FILE "/proc/sys/kernel/hostname"
+#define HOSTNAME_FILE "/proc/hostname"
 
 #define MAX_ARGS 128
 #define MAX_ENVP 128
