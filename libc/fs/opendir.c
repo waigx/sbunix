@@ -38,6 +38,9 @@ void *opendir(const char *name)
 	char *buf = malloc(DIR_READ_BUF);
 	uint64_t sys_call_res;
 
+	if (fd < 0)
+		return NULL;
+
 	sys_call_res = syscall_3(SYS_getdents, (uint64_t)fd, (uint64_t)buf, (uint64_t)DIR_READ_BUF);
 
 	if ((ssize_t)sys_call_res < 0)
