@@ -28,6 +28,7 @@
 
 #include <sys/defs.h>
 #include <sys/tarfs.h>
+#include <sys/file_op.h>
 #include <sys/tarfs_api.h>
 #include <string.h>
 #include <sys/debug.h>
@@ -141,10 +142,17 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 uint64_t find_elf(const char *pathname, int flags)
 {
 	struct posix_header_ustar *tarfs_header;
-	//uint64_t i = 0;
+	char fullpath_buf[MAX_CWD_LEN];
 	uint64_t fd = 0;
 	uint64_t offset = 0;
 	uint64_t address = 0;
+
+	if (pathname[0] == '/') {
+		strcpy(fullpath_buf, pathname);
+	} else {
+		strcpy(fullpath_buf, g_cwd);
+		strcpy(fullpath_buf + strlen(g_cwd), pathname);
+	}
 
 	address = (uint64_t)&(_binary_tarfs_start);
 	//printf("struct size = %x \n",sizeof(struct posix_header_ustar));
@@ -153,9 +161,9 @@ uint64_t find_elf(const char *pathname, int flags)
 #if DEBUG_ELF
 		debug_print("ELF", "ELF name = %s %x\n", tarfs_header->name,tarfs_header);
 #endif
-		if(strcmp(tarfs_header->name, pathname) == 0) {
+		if(strcmp(tarfs_header->name, fullpath_buf + 1) == 0) {
 #if DEBUG_ELF
-			debug_print("ELF", "Finding %s elf\n", pathname);
+			debug_print("ELF", "Finding %s elf\n", fullpath_buf + 1);
 #endif
 			fd = (uint64_t)(tarfs_header) + sizeof(struct posix_header_ustar);
 			return fd;

@@ -25,44 +25,16 @@
  *
  */
 
+
 #include <sys/sched.h>
 #include <sys/sbunix.h>
 #include <sys/debug.h>
-
 #include <sys/managemem.h>
 
 
-void load_test_tasks(void)
+void inituser(void)
 {
-//	task_t *sbu;
-
-//	task_t *task1;
-//	task_t *task2;
-//	task_t *task3;
-//	task_t *task4;
-//	task_t *task5;
-	task_t *task6;
-//	task_t *task7;
-
-
-//	sbu = newtask("bin/SBUsh", USER_PROCESS);
-//	task1 = newtask("bin/user_1", USER_PROCESS);
-//	task2 = newtask("bin/user_2", USER_PROCESS);
-//	task3 = newtask("bin/user_3", USER_PROCESS);
-//	task4 = newtask("bin/user_4", USER_PROCESS);
-//	task5 = newtask("bin/user_5", USER_PROCESS);
-	task6 = newtask("bin/user_6", USER_PROCESS);
-//	task7 = newtask("bin/user_7", USER_PROCESS);
-
-
-//	loadtask(sbu);
-//
-//	loadtask(task1);
-//	loadtask(task2);
-//	loadtask(task3);
-//	loadtask(task4);
-//	loadtask(task5);
-	loadtask(task6);
-//	loadtask(task7);
-
+	task_t *init;
+	init = newtask(INIT_USER_PROCESS, USER_PROCESS);
+	loadtask(init);
 }

@@ -154,6 +154,7 @@ extern task_t *gp_current_task;
 extern uint16_t g_switch_timer;
 
 void load_test_tasks(void);
+void inituser(void);
 
 task_t *gettask(kpid_t pid);
 void loadtask(task_t *task);

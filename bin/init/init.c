@@ -37,8 +37,10 @@
 int main(int argc, char *argv[], char *envp[]) {
 	int envp_index;
 	int fd_rc;
+	int child_pid;
 	char buf[MAXLINE];
 	char *buf_ptr;
+	char *argv_rc[1] = {NULL};
 	char *envp_rc[MAX_ENVP];
 
 	envp_index = 0;
@@ -47,7 +49,7 @@ int main(int argc, char *argv[], char *envp[]) {
 	writeline("Reading configrations ...\n", STDOUT_FD);
 	fd_rc = open(INIT_CONFIG, O_RDONLY);
 	while (readline(buf, fd_rc) != NULL) {
-		buf_ptr = malloc(strlen(buf));
+		buf_ptr = malloc(strlen(buf) + 1);
 		strcpy(buf_ptr, buf);
 		envp_rc[envp_index] = buf_ptr;
 		envp_index += 1;
@@ -58,13 +60,20 @@ int main(int argc, char *argv[], char *envp[]) {
 
 	//set up CWD;
 	writeline("Initializing current working directory ...\n", STDOUT_FD);
-
+	getopt(buf, "PWD", envp_rc);
+	chdir(buf);
+	printf("%s\n", buf);
 	writeline("Done.\n", STDOUT_FD);
+
 	//set up other envps;
 	writeline("Initializing shell...\n", STDOUT_FD);
+	getopt(buf, "SHELL", envp_rc);
 
-	//initialize bash;
+	child_pid = fork();
 
+	if (child_pid == 0){
+		execve(buf, argv_rc, envp_rc);
+	}
 
 	while (1);
 }

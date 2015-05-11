@@ -28,39 +28,19 @@
 #include <syscall.h>
 #include <stdlib.h>
 #include <libsys.h>
-
-void testfun(int i)
-{
-	volatile uint64_t x[100];
-	volatile uint64_t j;
-	for (j = 3; j<100; j++)
-		*(x + j) = j;
-
-	printf("stack %x\n", i);
-}
-
-
+#include <const.h>
 
 int main(int argc, char* argv[], char* envp[]) 
 {
-//	uint64_t i = 0;
-//	volatile uint64_t *test1_ptr = (uint64_t *)0xffffffff7ffec748;
-//	volatile uint64_t *test2_ptr = (uint64_t *)0xffffffff7ffec648;
-//	volatile uint64_t *test3_ptr = (uint64_t *)0xffffffff70000000;
-//	uint64_t *test_ptr = (uint64_t *)0xadeadbeef;
+	char buf[MAXLINE];
+	while (*envp != NULL) {
+		printf("%s\n", *envp);
+		envp++;
+	}
 
-
-	//printf("1");
-
-//	printf("I'm user_1 and count = %x\n",i++);
-//	printf("break: %p\n",sbrk(0));
-//		*test1_ptr = 123;
-//		*test2_ptr = 124;
-//		*test3_ptr = 125;
-//		printf("test1_ptr-> %d\n",*test1_ptr);
-//		printf("test2_ptr-> %d\n",*test2_ptr);
-//	testfun(i);
+	getcwd(buf, MAXLINE);
+	printf("%s\n", buf);
+	
 	while(1);
-	return 0;
 }
 

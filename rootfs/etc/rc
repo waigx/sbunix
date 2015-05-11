@@ -1,4 +1,4 @@
 PWD=/home
 USER=wolfie
 PATH=/bin
-SHELL=/bin/SBUsh
+SHELL=/bin/user_1

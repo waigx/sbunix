@@ -54,7 +54,7 @@ void *kmalloc(uint64_t size)
 }
 
 
-uint64_t _setup_task(const char *filename)
+uint64_t _setup_task()
 {
 	uint64_t entry_point;
 	cr3e_t new_cr3;
@@ -117,7 +117,7 @@ sys_execve(const char *filename, char *const argv[], char *const envp[])
 	task_t *kernel_task = gettask(KERNEL_PID);
 
 	load_cr3(kernel_task->cr3);
-	if (_setup_task(filename) != 0)
+	if (_setup_task() != 0)
 		return -1;
 	load_cr3(cur_task->cr3);
 
@@ -143,9 +143,9 @@ sys_execve(const char *filename, char *const argv[], char *const envp[])
 uint64_t get_argc(char *argv[])
 {
 	uint64_t i = 0;
-
-	while(argv[i++] != 0);
-
+	while(argv[i] != NULL) {
+		i += 1;
+	}
 	return i;
 }
 
