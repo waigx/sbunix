@@ -32,17 +32,14 @@
 #include <sys/tarfs_api.h>
 #include <string.h>
 #include <sys/debug.h>
-#include <sys/sbunix.h>
-#include <sys/sched.h>
-#include <sys/managemem.h>
-#include <sys/mem.h>
-#include <sys/kio.h>
 
 
 uint64_t
 sys_chdir(const char *path)
 {
-	uint64_t ret;
+	uint64_t ret = 0;
+	//TODO need to check the validation of the path
 
+	strcpy(g_cwd, path);
 	return ret;
 }

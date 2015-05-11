@@ -29,20 +29,14 @@
 #include <sys/defs.h>
 #include <sys/tarfs.h>
 #include <sys/file_op.h>
-#include <sys/tarfs_api.h>
 #include <string.h>
 #include <sys/debug.h>
-#include <sys/sbunix.h>
-#include <sys/sched.h>
-#include <sys/managemem.h>
-#include <sys/mem.h>
-#include <sys/kio.h>
 
 
 uint64_t
 sys_getcwd(char *buf, size_t size)
 {
-	uint64_t ret;
-
+	uint64_t ret = 0;
+	strncpy(buf, g_cwd, size);
 	return ret;
 }

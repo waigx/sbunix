@@ -10,18 +10,16 @@
 #include <sys/pic.h>
 #include <sys/timer.h>
 #include <sys/rtc.h>
+#include <sys/sched.h>
 #include <sys/keyboard.h>
 #include <sys/managemem.h>
 #include <sys/general.h>
 #include <sys/debug.h>
-#include <stdarg.h>
-#include <string.h>
-#include <const.h>
-#include <type.h>
-#include <sys/sched.h>
+#include <sys/file_op.h>
 
 
 char g_screenshot[CONSOLE_ROW * CONSOLE_COL * 2];
+char g_cwd[MAX_CWD_LEN];
 uint16_t g_page_frame_pool[MAX_PAGE_FRAME];
 uint8_t g_page_frame_buf[PAGE_SIZE * 4];
 uint64_t g_next_free_frame_index = 0;

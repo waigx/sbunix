@@ -36,18 +36,20 @@
 #define EXIT_FAILURE 1
 
 
-#define PS_MAX_LEN 2048
+#define PS_MAX_LEN 256
 #define DIR_MAX_DEPTH 256
 #define DIR_READ_BUF 256
 
-#define MAXLINE 2048
+#define MAXLINE 512
 #define HOSTNAME_FILE "/proc/hostname"
+
+#define INIT_CONFIG "/etc/rc"
 
 #define MAX_ARGS 128
 #define MAX_ENVP 128
 
 #define UINT64_LEN 21
 
-#define PRINTF_LEN 128 /*512*/
+#define PRINTF_LEN 128
 
 #endif

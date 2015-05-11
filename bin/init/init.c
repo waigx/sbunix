@@ -27,15 +27,35 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <libio.h>
+#include <libcommon.h>
 #include <const.h>
+#include <string.h>
 #include <libio.h>
+#include <libstr.h>
 
 
 int main(int argc, char *argv[], char *envp[]) {
+	int envp_index;
+	int fd_rc;
+	char buf[MAXLINE];
+	char *buf_ptr;
+	char *envp_rc[MAX_ENVP];
+
+	envp_index = 0;
+
 	//read init parameters;
 	writeline("Reading configrations ...\n", STDOUT_FD);
-
+	fd_rc = open(INIT_CONFIG, O_RDONLY);
+	while (readline(buf, fd_rc) != NULL) {
+		buf_ptr = malloc(strlen(buf));
+		strcpy(buf_ptr, buf);
+		envp_rc[envp_index] = buf_ptr;
+		envp_index += 1;
+	}
+	envp_rc[envp_index] = NULL;
+	close(fd_rc);
 	writeline("Done.\n", STDOUT_FD);
+
 	//set up CWD;
 	writeline("Initializing current working directory ...\n", STDOUT_FD);
 

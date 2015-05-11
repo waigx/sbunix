@@ -1,7 +1,14 @@
 #ifndef _FILE_OP_H
 #define _FILE_OP_H
 
+
 #include <sys/defs.h>
+#include <stdlib.h>
+
+
+#define MAX_CWD_LEN                      128
+
+extern char g_cwd[MAX_CWD_LEN];
 
 uint64_t sys_open(const char *pathname, int flags);
 uint64_t sys_chdir(const char *path);

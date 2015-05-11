@@ -73,7 +73,7 @@ void dir_read_test(void) {
 	struct dirent *pDirent;
 	DIR *pDir;
 
-	pDir = opendir("lxb/");
+	pDir = opendir("/");
 	if (pDir == NULL) {
 		return;
 	}
