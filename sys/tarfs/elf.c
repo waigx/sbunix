@@ -96,7 +96,7 @@ uint64_t load_elf(task_t *task, const char *task_name)
 				kmmap(pe2physaddr(task->cr3), page, (uint64_t)vaddr + PAGE_SIZE * j, TRUE, FALSE);
 				copymem((uint64_t *)page,(uint64_t *)(offset+ (uint64_t)elfhdr + PAGE_SIZE * j), temp_size);
 
-				if(temp_size <= PAGE_SIZE)
+				if(temp_size < PAGE_SIZE)
 					break;
 			} 
 		}

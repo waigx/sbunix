@@ -42,7 +42,8 @@
 uint64_t
 sys_open(const char *pathname, int flags)
 {
-	uint64_t ret;
+	int ret;
+	uint64_t pathlen;
 	char fullpath_buf[MAX_CWD_LEN];
 
 	if (pathname[0] == '/') {
@@ -53,6 +54,16 @@ sys_open(const char *pathname, int flags)
 	}
 
 	ret = open_tarfs(fullpath_buf + 1, flags);
+
+	if (ret < 0){
+		pathlen = strlen(fullpath_buf);
+		fullpath_buf[pathlen] = '/';
+		fullpath_buf[pathlen + 1] = '\0';
+		ret = open_tarfs(fullpath_buf + 1, flags);
+		if (ret < 0) {
+			ret -= 1;
+		}
+	}
 
 	return ret;
 }

@@ -84,15 +84,14 @@ char g_path[PS_MAX_LEN];
 char g_root[PS_MAX_LEN];
 
 
-
 int 
 main(int argc, char *argv[], char *envp[]) 
 {
 	char buf[MAXLINE];
 	int script_fd;
 	int i;
-	_update_ps1_path();
 	cpystrarr(g_opt_ptr, envp);
+	_update_ps1_path();
 	_initshell();
 
 	if (argc > 1) {

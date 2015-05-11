@@ -26,6 +26,7 @@
 
 #include <sys/defs.h>
 #include <stdlib.h>
+#include <stdio.h>
 #include <string.h>
 
 
@@ -51,7 +52,6 @@ getopt(char *buf, const char *name, char *opt_ptr[])
 	opt_index = 0;
 	current_opt = opt_ptr[opt_index];
 	name_len = strlen(name);
-
 	i = 0;
 	while (current_opt != NULL) {
 		failure = 0;

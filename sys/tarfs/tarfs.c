@@ -216,7 +216,9 @@ int open_tarfs(const char *pathname, int flags)
 		}
 
 		if(tarfs_header->name[0] == '\0') {
-			printf("File %s does not exist.\n", pathname);
+#if DEBUG_FS
+			debug_print("FS", "File %s does not exist.\n", pathname);
+#endif
 			return -1;
 		}
 

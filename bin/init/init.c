@@ -62,7 +62,6 @@ int main(int argc, char *argv[], char *envp[]) {
 	writeline("Initializing current working directory ...\n", STDOUT_FD);
 	getopt(buf, "PWD", envp_rc);
 	chdir(buf);
-	printf("%s\n", buf);
 	writeline("Done.\n", STDOUT_FD);
 
 	//set up other envps;

@@ -31,10 +31,12 @@
 #include <string.h>
 
 int main (int argc, char* argv[], char* envp[]) {
-	char currentDir[] = ".";
+	char currentDir[MAXLINE];
 	char *target = argv[1];
 	struct dirent *pDirent;
 	DIR *pDir;
+
+	getcwd(currentDir, MAXLINE);
 
 	if (argc < 2) {
 		target = currentDir;
