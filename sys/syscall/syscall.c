@@ -44,7 +44,7 @@ uint64_t syscall(void)
 	uint64_t a1 = 0;
 	uint64_t a2 = 0;
 	uint64_t a3 = 0;
-//	uint64_t a4 = 0;
+	uint64_t a4 = 0;
 //	uint64_t a5 = 0;
 
 	__asm__ __volatile__("movq %%rax, %0"
@@ -58,7 +58,7 @@ uint64_t syscall(void)
 	a1 = get_rdi_register();
 	a2 = get_rsi_register();
 	a3 = get_rdx_register();
-//	a4 = get_r10_register();
+	a4 = get_r10_register();
 //	a5 = get_rsi_register();
 
 	switch(syscall_num) {
@@ -97,6 +97,13 @@ uint64_t syscall(void)
 			ret = get_rax_register();
 			return ret;
 			break;
+
+		case SYS_wait4:
+			sys_wait4((int)a1, (int *)a2, (int)a3, (struct rusage *)a4);
+			ret = get_rax_register();
+			return ret;
+			break;
+
 
 //#define SYS_wait4      61
 //#define SYS_nanosleep  35

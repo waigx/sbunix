@@ -25,28 +25,41 @@
  *
  */
 
+
+#include <sys/defs.h>
 #include <sys/sched.h>
 #include <sys/managemem.h>
 #include <sys/debug.h>
 
-
-task_t *get_next_task(void)
+kpid_t
+sys_wait4(int pid, int *status, int options, struct rusage *rusage)
 {
-	task_t *next_task;
-	uint8_t next_task_runable = FALSE;
-	while (next_task_runable == FALSE){
-		next_task = g_task_start + g_next_task_index;
-		if (next_task->status == PROCESS_READY || next_task->status == PROCESS_RUNNING
-			|| next_task->status == PROCESS_SLEEPING) {
-			next_task_runable = TRUE;
-		} else {
-			next_task_runable = FALSE;
-			g_next_task_index++;
-		}
-		if (g_next_task_index > g_task_bump)
-			g_next_task_index = KERNEL_PID + 1;
-	}
-	g_next_task_index++;
+	task_t *temptask_ptr;
+	uint8_t end_sleeping;
 
-	return next_task;
+	gp_current_task->status = PROCESS_SLEEPING;
+	end_sleeping = FALSE;
+
+	__asm volatile("sti");
+
+	if (pid > KERNEL_PID){
+		temptask_ptr = g_task_start + pid;
+		while(end_sleeping == FALSE){
+			if (temptask_ptr->status == PROCESS_TERMINATED)
+				end_sleeping = TRUE;
+		}
+	} else {
+		while(end_sleeping == FALSE){
+			end_sleeping = TRUE;
+			for (temptask_ptr = g_task_start + KERNEL_PID + 1; temptask_ptr <= g_task_start + g_task_bump; temptask_ptr++){
+				if (temptask_ptr->parent == gp_current_task->pid && temptask_ptr->status != PROCESS_TERMINATED)
+					end_sleeping = FALSE;
+			}
+		}
+	}
+
+	gp_current_task->status = PROCESS_READY;
+	*status = gp_current_task->child_status;
+
+	return gp_current_task->pid;
 }

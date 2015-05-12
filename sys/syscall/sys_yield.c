@@ -50,9 +50,10 @@ sys_yield(uint64_t type)
 		return;
 
 	// switch context
-	if (current_task->status != PROCESS_TERMINATED)
+	if (current_task->status != PROCESS_TERMINATED && current_task->status != PROCESS_SLEEPING)
 		current_task->status = PROCESS_READY;
-	next_task->status = PROCESS_RUNNING;
+	if (current_task->status != PROCESS_SLEEPING)
+		next_task->status = PROCESS_RUNNING;
 
 	gp_current_task = next_task;
 	//if(current_task != NULL)

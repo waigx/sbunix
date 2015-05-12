@@ -32,6 +32,7 @@
 #include <sys/defs.h>
 #include <sys/tarfs_api.h>
 #include <sys/gdt.h>
+#include <sys/resource.h>
 
 // SS, RSP, RFLAGS, CS, RIP + registers as ISR //
 
@@ -86,6 +87,7 @@ typedef enum
 	PROCESS_READY,
 	PROCESS_RUNNING,
 	PROCESS_WAITING,
+	PROCESS_SLEEPING,
 	PROCESS_TERMINATED
 } process_status_t;
 
@@ -143,6 +145,9 @@ typedef struct
 
 	// Open file descript, stdin, stdout, and stderr are 0, 1, and 2 //
 	struct file_descript *fd[MAX_OPEN_FILE_DESCRIPT];
+
+	// Child status;
+	int child_status;
 } task_t;
 
 
@@ -169,6 +174,9 @@ uint64_t sys_fork(void);
 uint64_t sys_getpid(void);
 uint64_t sys_getppid(void);
 uint64_t sys_gettask(void *buf, kpid_t pid);
+
+
+kpid_t sys_wait4(int pid, int *status, int options, struct rusage *rusage);
 
 void sys_yield(uint64_t type);
 void switch_context(struct regs_struct *current_regs, struct regs_struct *next_regs);

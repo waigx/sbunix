@@ -35,6 +35,9 @@ void
 sys_exit(uint64_t res)
 {
 	task_t *task = gp_current_task;
+
+	(g_task_start + (gp_current_task->parent))->child_status = res;
+
 	freevmem(task->pid);
 	unloadtask(task);
 
