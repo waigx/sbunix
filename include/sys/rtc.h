@@ -16,6 +16,7 @@
 #define TIMEZONE_KST {.is_nag = 0, .hour = 9, .min = 0, .sec = 0}
 #define TIMEZONE_UTC {.is_nag = 0, .hour = 0, .min = 0, .sec = 0}
 
+#define TIMEZONE_EST_S {.is_nag = 1, .hour = 4, .min = 0, .sec = 0}
 
 struct rtc_t{
 	uint8_t is_nag;

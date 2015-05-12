@@ -392,6 +392,8 @@ parse_dir(char *buf, char *cd_arg)
 	}
 
 	cwd_lst = splitstr(cwd, "/");
+	if (strcmp(cwd, "/") == 0)
+		cwd_lst[1] = NULL;
 
 	if (strlen(cd_lst[0]) != 0) {
 		for (; cwd_lst[cwd_lst_index] != NULL; cwd_lst_index++) {
@@ -416,6 +418,8 @@ parse_dir(char *buf, char *cd_arg)
 
 	path_lst[path_lst_index] = NULL;
 	joinstrlst(buf, path_lst, "/");
+	if (strlen(buf) == 0)
+		strcpy(buf, "/");
 
 	freestrarr(cwd_lst, FREE_ALL);
 	freestrarr(cd_lst, FREE_ALL);

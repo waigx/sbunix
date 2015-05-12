@@ -33,7 +33,7 @@
 
 void echotime(void)
 {
-	struct rtc_t timezone = TIMEZONE_EST;
+	struct rtc_t timezone = TIMEZONE_EST_S;
 	struct rtc_t timenow;
 
 	if (g_timer_count == 999) {

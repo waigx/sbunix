@@ -35,7 +35,7 @@
 uint64_t
 sys_gettask(void *buf, kpid_t pid)
 {
-	if (pid > g_task_bump)
+	if (gettask(pid)->pid == 0)
 		return -1;
 	copymem(buf, (void *)(gettask(pid)), sizeof(task_t));
 	return 0;

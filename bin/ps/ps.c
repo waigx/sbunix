@@ -102,6 +102,5 @@ int main(int argc, char* argv[], char* envp[]) {
 	for (pid = 1; pid < 5; pid++) {
 		_tracetask(pid);
 	}
-	while (1);
 	return 0;
 }

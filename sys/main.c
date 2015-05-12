@@ -51,7 +51,6 @@ uint64_t start_queue = 0;
 uint64_t end_queue = 0;
 
 
-
 void start(uint32_t* modulep, void* physbase, void* physfree)
 {
 	void *phystop = 0;
