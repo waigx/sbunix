@@ -38,8 +38,6 @@ void dir_read_test(void);
 
 int main(int argc, char *argv[], char *envp[])
 {
-	writeline("---Start of read file test---\n", STDOUT_FD);
-//	read_file_test();
 	writeline("---Start of read dir test---\n", STDOUT_FD);
 	dir_read_test();
 	writeline("---Start of read file test---\n", STDOUT_FD);
@@ -73,8 +71,9 @@ void dir_read_test(void) {
 	struct dirent *pDirent;
 	DIR *pDir;
 
-	pDir = opendir("/");
+	pDir = opendir("/bin");
 	if (pDir == NULL) {
+		printf("NULL returned\n");
 		return;
 	}
 

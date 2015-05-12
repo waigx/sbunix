@@ -97,6 +97,7 @@ uint64_t sys_getdentry(uint64_t fd, uint64_t *buf, uint64_t max_buf_size)
 
 	if( strcmp(fdt->header->typeflag, dirtype) != 0){
 		printf("sys_getdentry: it is not directory\n");
+		return -1;
 	} else {
 		for(i=0; i <= fdt->ptr ; i++ ){
 

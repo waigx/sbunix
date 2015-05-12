@@ -176,7 +176,7 @@ _execute_1(char *line, int pfd_in, int *pfd_out)
 	char **argv_ptr = argv;
 	char exe_path[NAME_MAX + 1];
 	int child_pid;
-	int child_status;
+//	int child_status;
 	int execute_status = 1;
 
 	argv[0] = NULL;
@@ -250,13 +250,13 @@ _execute_1(char *line, int pfd_in, int *pfd_out)
 		if (pfd_out[1] != STDOUT_FD) {
 			close(pfd_out[1]);
 		}
-		waitpid(-1, &child_status, 0);
-		if (child_status == EXIT_SUCCESS) {
-			execute_status = 0;
-		} else {
-			echoerr(SHELL_NAME, exe_path, "execute command error");
-			execute_status = 2;
-		}
+//		waitpid(-1, &child_status, 0);
+//		if (child_status == EXIT_SUCCESS) {
+//			execute_status = 0;
+//		} else {
+//			echoerr(SHELL_NAME, exe_path, "execute command error");
+//			execute_status = 2;
+//		}
 	}
 
 end:
@@ -289,7 +289,6 @@ _parse_command_path(char *buf, char *command)
 	if (pathtype(parse_dir(buf, command)) == PATH_TYPE_FIL) {
 		return buf;
 	}
-
 	strcpy(tempbuf, g_root);
 	
 	path_lst = splitstr(g_path, ":");
