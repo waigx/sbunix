@@ -3,3 +3,5 @@ HOME=/home
 USER=wolfie
 PATH=/bin
 SHELL=/bin/SBUsh
+ROOT=
+PS1=\s$
