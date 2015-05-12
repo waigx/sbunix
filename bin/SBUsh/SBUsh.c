@@ -402,7 +402,6 @@ parse_dir(char *buf, char *cd_arg)
 			path_lst_index += 1;
 		}
 	}
-
 	for (; cd_lst[cd_lst_index] != NULL; cd_lst_index++) {
 		if (strcmp(cd_lst[cd_lst_index], ".") == 0)
 			continue;

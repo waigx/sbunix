@@ -26,6 +26,7 @@
 
 #include <sys/defs.h>
 #include <string.h>
+#include <stdio.h>
 
 
 /**
@@ -42,7 +43,7 @@ joinstrlst(char *buf, char **str_ptr, const char *salt)
 	char *buf_ptr = buf;
 	int salt_len = strlen(salt);
 
-	if (str_ptr == NULL) {
+	if (str_ptr[0] == NULL) {
 		buf[0] = '\0';
 		return buf;
 	}
