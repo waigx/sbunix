@@ -36,28 +36,23 @@
 int
 sys_nanosleep(const struct timespec *req, struct timespec *rem)
 {
-	volatile uint64_t tv_sec_offset;
-	volatile uint64_t tv_nsec_offset;
-	volatile uint32_t timecount_snapshot = g_timer_count;
-
+	struct rtc_t timezone = TIMEZONE_EST_S;
+	struct rtc_t timenow;
+	int init_time;
+	int current_time;
+	get_rtc_time(&timenow, &timezone);
+	init_time = (timenow.hour * 24 + timenow.min) * 60 + timenow.sec;
+	current_time = (timenow.hour * 24 + timenow.min) * 60 + timenow.sec;
 	gp_current_task->status = PROCESS_SLEEPING;
-	rem->tv_sec = req->tv_sec; 
-	rem->tv_nsec = req->tv_nsec; 
 
 	while (1){
-		__asm volatile("sti");
-		tv_sec_offset = (g_timer_count - timecount_snapshot)/TIME_FREQ;
-		tv_nsec_offset = ((1000000000/TIME_FREQ) * (g_timer_count - timecount_snapshot))%1000000000;
-		if ((rem->tv_nsec - tv_nsec_offset) < 0) {
-			rem->tv_nsec -= tv_nsec_offset + 1000000000;
-			rem->tv_sec -= 1;
-		}
-		rem->tv_sec -= tv_sec_offset;
-		if (rem->tv_sec <= 0) {
+		get_rtc_time(&timenow, &timezone);
+		current_time = (timenow.hour * 24 + timenow.min) * 60 + timenow.sec;
+		if (current_time - init_time < req->tv_sec){
+			sys_yield(0);
+		} else {
 			break;
 		}
-		if (timecount_snapshot != g_timer_count)
-			timecount_snapshot = g_timer_count;
 	}
 
 	gp_current_task->status = PROCESS_READY;

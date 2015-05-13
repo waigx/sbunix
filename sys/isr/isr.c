@@ -129,7 +129,7 @@ void timer_handler(void)
 {
 	 __asm volatile("cli");
 
-	if (g_timer_count > 0xefffffff)
+	if (g_timer_count > 0xfffffff)
 		g_timer_count = 0;
 	else
 		g_timer_count += 1;

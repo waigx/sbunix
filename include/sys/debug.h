@@ -36,7 +36,7 @@
 #define DEBUG_FS                             0
 #define DEBUG_MEM                            0
 #define DEBUG_ELF                            0
-#define DEBUG_PAGEFAULT                      1
+#define DEBUG_PAGEFAULT                      0
 #define DEBUG_SCHED                          0
 #define DEBUG_FATAL                          1
 

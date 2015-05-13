@@ -84,15 +84,6 @@ char g_path[PS_MAX_LEN];
 char g_root[PS_MAX_LEN];
 
 
-void testenvp()
-{
-	uint8_t i = 0;
-	while (g_opt_ptr[i] != NULL) {
-		printf("%s\n", g_opt_ptr[i]);
-		i += 1;
-	}
-}
-
 int 
 main(int argc, char *argv[], char *envp[]) 
 {

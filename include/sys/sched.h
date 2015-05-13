@@ -76,7 +76,7 @@
 
 #define MAX_OPEN_FILE_DESCRIPT                  1024
 
-#define SWITCH_TIME_IN_MS                          5
+#define SWITCH_TIME_IN_MS                          3
 #define SYS_YIELD_LOAD_ONLY                        1
 #define INIT_USER_PROCESS                "/bin/init"
 
