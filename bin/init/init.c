@@ -32,7 +32,13 @@
 #include <string.h>
 #include <libio.h>
 #include <libstr.h>
+#include <syscall.h>
+#include <sys/syscall.h>
 
+void _yield(uint64_t user)
+{
+	syscall_1(SYS_yield,user);
+}
 
 int main(int argc, char *argv[], char *envp[]) {
 	int envp_index;
@@ -74,5 +80,7 @@ int main(int argc, char *argv[], char *envp[]) {
 		execve(buf, argv_rc, envp_rc);
 	}
 
-	while (1);
+	while(1);
+
+	return 0;
 }
