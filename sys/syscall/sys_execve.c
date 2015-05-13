@@ -32,12 +32,16 @@
 #include <string.h>
 #include <sys/mem.h>
 #include <sys/elf.h>
+#include <sys/file_op.h>
 #include <sys/register.h>
 
 
+uint8_t is_shell_file = FALSE;
 uint64_t get_argc(char *argv[]);
 struct args_struct *copy_argument_kmem(char **argv, char **envp);
 struct args_struct *copy_argument_ustack(char **argv, char **envp, char *user_stack);
+uint8_t check_SH_format(char *execpath, const char *filepath);
+char *readline(char *buf, int fd);
 
 
 void *kmalloc(uint64_t size)
@@ -56,12 +60,20 @@ void *kmalloc(uint64_t size)
 
 uint64_t _setup_task()
 {
+	char execpath[MAX_CWD_LEN];
 	uint64_t entry_point;
 	cr3e_t new_cr3;
 	uint64_t *phy_stack_base;
 	uint64_t i = 0;
 	uint64_t *physpage;
 	task_t *cur_task = gp_current_task;
+
+	if (check_SH_format(execpath, cur_task->name) == TRUE){
+		strcpy(cur_task->name, execpath);
+		is_shell_file = TRUE;
+	} else {
+		is_shell_file = FALSE;
+	}
 
 	new_cr3 = newvmem();
 
@@ -91,11 +103,11 @@ uint64_t _setup_task()
 	kmmap(pe2physaddr(new_cr3), (uint64_t)phy_stack_base, KERNEL_STACK_START, FALSE, TRUE);
 
 	entry_point = load_elf(cur_task, cur_task->name);
-	cur_task->entry_point = entry_point;
 	if(entry_point == -1){
 		// load fail
 		return -1;
 	}
+	cur_task->entry_point = entry_point;
 
 	// Init User heap VMA
 	newvma(g_vma_phy_start + 1, (void *)(USER_HEAP_START), (void *)(USER_HEAP_START), VMA_HEAP_NAME, VMA_READABLE | VMA_WRITEABLE);
@@ -156,12 +168,18 @@ struct args_struct *copy_argument_ustack(char **argv, char **envp, char *user_st
 	uint64_t envc = 0;
 	uint64_t len = 0;
 	uint64_t i = 0;
+	uint64_t offset = 0;
 	struct args_struct *args = NULL;
 	char *ptr;
 
 	args = (struct args_struct *)user_stack; 
 	ptr = (char *)user_stack;
 	args->argc = get_argc(argv);
+
+	if (is_shell_file == TRUE){
+		args->argc += 1;
+	}
+
 	args->envc = get_argc(envp);
 	argc = args->argc;
 	envc = args->envc;
@@ -172,11 +190,21 @@ struct args_struct *copy_argument_ustack(char **argv, char **envp, char *user_st
 
 	ptr += (argc + 1) * sizeof(char *);
 
-	for(i=0; i < argc; i++)
+	i = 0;
+	if (is_shell_file == TRUE){
+		args->argv[i] = ptr;
+		len = strlen(gp_current_task->name);
+		copymem(ptr, gp_current_task->name, len + 1);
+		ptr += (len + 1);
+		i += 1;
+		offset = 1;
+	} 
+
+	for(; i < argc; i++)
 	{
 		args->argv[i] = ptr;
-		len = strlen(argv[i]);
-		copymem(ptr, argv[i], len + 1);
+		len = strlen(argv[i - offset]);
+		copymem(ptr, argv[i - offset], len + 1);
 		ptr += (len + 1);
 	}
 	argv[i] = NULL;
@@ -237,3 +265,41 @@ struct args_struct *copy_argument_kmem(char **argv, char **envp)
 	return args;
 }
 
+
+uint8_t check_SH_format(char *execpath, const char *filepath)
+{
+	int fd;
+	uint64_t i;
+	char buf[3];
+	char rawexecpath[MAX_CWD_LEN];
+	fd = sys_open(filepath, O_RDONLY);
+	sys_read(fd, buf, 2);
+	buf[2] = '\0';
+	if (strcmp(buf, "#!") != 0){
+		return FALSE;
+	}
+	readline(rawexecpath, fd);
+	close_tarfs(fd);
+
+	for (i = 0; rawexecpath[i] == ' '; i++);
+	strcpy(execpath, (char *)(rawexecpath + i));
+
+	return TRUE;
+}
+
+
+char *readline(char *buf, int fd)
+{
+	int n;
+	int buf_index = 0;
+
+	while ((n = sys_read(fd, buf + buf_index, 1)) != 0) {
+		if ( buf[buf_index] == 0 || buf[buf_index] == 10 || buf[buf_index] == 13) {
+			buf[buf_index] = '\0';
+			return buf;
+		}
+		buf_index += 1;
+	}
+
+	return NULL;
+}

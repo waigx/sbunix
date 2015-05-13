@@ -44,13 +44,18 @@ sys_open(const char *pathname, int flags)
 {
 	int ret;
 	uint64_t pathlen;
+	uint64_t cwdlen;
 	char fullpath_buf[MAX_CWD_LEN];
+
+	cwdlen = strlen(g_cwd);
 
 	if (pathname[0] == '/') {
 		strcpy(fullpath_buf, pathname);
 	} else {
 		strcpy(fullpath_buf, g_cwd);
-		strcpy(fullpath_buf + strlen(g_cwd), pathname);
+		if (g_cwd[cwdlen] != '/' && cwdlen != 1)
+			strcpy(fullpath_buf + cwdlen, "/");
+		strcpy(fullpath_buf + strlen(fullpath_buf), pathname);
 	}
 
 	ret = open_tarfs(fullpath_buf + 1, flags);

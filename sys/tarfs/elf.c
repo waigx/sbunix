@@ -63,7 +63,7 @@ uint64_t load_elf(task_t *task, const char *task_name)
 #if DEBUG_ELF
 		debug_print("ELF", "Error, the file is not ELF file.\n");
 #endif
-		return 0;
+		return -1;
 	}
 	ph_start = ( Elf64_Phdr *)((uint8_t *)elfhdr + elfhdr->e_phoff);
 	ph_num = (uint64_t)elfhdr->e_phnum;
