@@ -103,6 +103,12 @@ uint64_t syscall(void)
 			return ret;
 			break;
 
+		case SYS_kill:
+			sys_kill((int)a1, (int)a2);
+			ret = get_rax_register();
+			return ret;
+			break;
+
 //#define SYS_nanosleep  35
 //#define SYS_alarm      37
 
@@ -162,7 +168,6 @@ uint64_t syscall(void)
 
 		default:
 			printf("Invalid system call number: %d\n", syscall_num);
-			//printf("a1=%x, a2=%x, a3=%x, a4=%x\n",a1, a2, a3, a4);
 	} 
 
 	return 0;

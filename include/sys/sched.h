@@ -170,6 +170,7 @@ task_t *get_next_task(void);
 task_t *newtask(const char *task_name, process_type_t type);
 uint64_t sys_execve(const char *filename, char *const argv[], char *const envp[]);
 uint64_t sys_fork(void);
+uint64_t sys_kill(kpid_t pid, int sig);
 
 uint64_t sys_getpid(void);
 uint64_t sys_getppid(void);

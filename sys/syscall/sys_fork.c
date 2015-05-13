@@ -158,7 +158,7 @@ sys_fork()
 	/*
 	 * Allocate new pid
 	 */
-	while ((g_task_start + g_next_task_free_index)->pid != 0) {
+	while ((g_task_start + g_next_task_free_index)->pid != 0 && (g_task_start + g_next_task_free_index)->status != PROCESS_TERMINATED) {
 		g_next_task_free_index += 1;
 		if (g_next_task_free_index > g_task_bump)
 			g_task_bump++;

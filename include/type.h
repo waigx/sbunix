@@ -27,6 +27,10 @@
 #ifndef _TYPE_H
 #define _TYPE_H
 
+
+#include <sys/defs.h>
+
+
 #define CHAR_ZERO '0'
 #define CONV_BASE 10
 
@@ -34,5 +38,6 @@
 char *itoa(char *buf, int64_t num, uint8_t base);
 char *utoa(char *buf, uint64_t num, uint8_t base);
 char itoc(int i);
+uint64_t atou(const char *num, uint8_t base);
 
 #endif

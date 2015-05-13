@@ -25,26 +25,33 @@
 
 
 #include <stdio.h>
-#include <syscall.h>
+#include <const.h>
+#include <libio.h>
+#include <type.h>
 #include <stdlib.h>
+#include <string.h>
+#include <syscall.h>
 
-int main(int argc, char* argv[], char* envp[]) 
-{
-	int x[10];
-	int i = 0;
+
+int main (int argc, char* argv[], char* envp[]) {
 	pid_t pid;
-	for (; i<10; i++){
-		x[i] = i + 3;
+	if (argc < 2) {
+		printf("kill: miss parameters\n");
+		return -1;
 	}
-	pid = fork();
 
-	if (pid == 0) {
-		for (i = 0; i<10; i++)
-			printf("Child: %d\n", x[i]);
-		return 0;
-	} 
-	for (i = 0; i<10; i++)
-		printf("parent: %d\n", x[i]);
+	if (argc < 3)
+		pid = atou(argv[1], CONV_BASE);
+	else {
+		if (strcmp(argv[1], "-9") != 0){
+			printf("kill: %s: invalid option, only -9 supported\n", argv[1]);
+			return -1;
+		}
+		pid = atou(argv[2], CONV_BASE);
+	}
 
+	if (syscall_2(SYS_kill, pid, 0) == -1) {
+		return -1;
+	}
 	return 0;
 }

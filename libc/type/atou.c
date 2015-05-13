@@ -24,11 +24,30 @@
  */
 
 
-#include <sys/sched.h>
+#include <const.h>
+#include <string.h>
+#include <type.h>
+#include <stdio.h>
 
-void unloadtask(task_t *task)
+int
+ctou(char ch, uint8_t base)
 {
-	g_next_task_free_index = task->pid;
-	task->status = PROCESS_TERMINATED;
-	return;
+	uint8_t ret = ch - '0';
+	if (ret < 0 || ret >= base)
+		return -1;
+	return ret;
+}
+
+uint64_t
+atou(const char *num, uint8_t base)
+{
+	uint64_t ret = 0;
+	char *temp_ptr = (char *)num;
+
+	for (; *temp_ptr != '\0'; temp_ptr++) {
+		if (ctou(*temp_ptr, base) < 0)
+			return -1;
+		ret += ret * base + ctou(*temp_ptr, base);
+	}
+	return ret;
 }

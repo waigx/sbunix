@@ -31,6 +31,7 @@
 #include <const.h>
 #include <syscall.h>
 #include <sys/syscall.h>
+#include <sys/sched.h>
 
 
 #define BUFSIZE                       128
@@ -40,14 +41,14 @@
 #define NAME_POS                       28
 
 
-void _tracetask(pid_t pid)
+int _tracetask(pid_t pid)
 {
 	task_t target_task;
 	char buf[BUFSIZE];
 	int i = obtaintask(&target_task, pid);
 
 	if (i < 0)
-		return;
+		return -1;
 	for (i = 0; i < BUFSIZE; i++)
 		buf[i] = ' ';
 
@@ -77,7 +78,7 @@ void _tracetask(pid_t pid)
 	buf[STATUS_POS + i] = ' ';
 	i = sprintf(buf + NAME_POS, "%s\n", target_task.name);
 	writeline(buf, STDOUT_FD);
-	return;
+	return 0;
 }
 
 
@@ -99,8 +100,9 @@ int main(int argc, char* argv[], char* envp[]) {
 	writeline(buf, STDOUT_FD);
 	writeline("\n", STDOUT_FD);
 
-	for (pid = 1; pid < 5; pid++) {
-		_tracetask(pid);
+	for (pid = 1; pid < MAX_PROC_NUM; pid++) {
+		if (_tracetask(pid) == -1)
+			break;
 	}
 	return 0;
 }

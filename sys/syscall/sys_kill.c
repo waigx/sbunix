@@ -5,6 +5,8 @@
  *  an academic project of CSE506 of Stony Brook University in Spring 
  *  2015. For more details, please refer to README.md.
  *
+ *  Copyright (C) 2015 Dongju Ok   <dongju@stonybrook.edu,
+ *                                  yardbirds79@gmail.com>
  *  Copyright (C) 2015 Yigong Wang <yigwang@cs.stonybrook.edu>
  * 
  *
@@ -25,10 +27,19 @@
 
 
 #include <sys/sched.h>
+#include <sys/managemem.h>
+#include <sys/debug.h>
 
-void unloadtask(task_t *task)
+
+uint64_t
+sys_kill(kpid_t pid, int sig)
 {
-	g_next_task_free_index = task->pid;
-	task->status = PROCESS_TERMINATED;
-	return;
+	if (pid <= KERNEL_PID)
+		return -1;
+	task_t *task = g_task_start + pid;
+	(g_task_start + (task->parent))->child_status = -9;
+	freevmem(task->pid);
+	unloadtask(task);
+
+	return 0;
 }
