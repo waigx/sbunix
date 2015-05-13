@@ -36,7 +36,6 @@
 #include <sys/debug.h>
 #include <sys/file_op.h>
 
-extern uint64_t   g_diable_scheduler;
 uint64_t syscall(void)
 {
 	uint64_t ret = 0;
@@ -104,8 +103,6 @@ uint64_t syscall(void)
 			return ret;
 			break;
 
-
-//#define SYS_wait4      61
 //#define SYS_nanosleep  35
 //#define SYS_alarm      37
 

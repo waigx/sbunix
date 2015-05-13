@@ -84,6 +84,15 @@ char g_path[PS_MAX_LEN];
 char g_root[PS_MAX_LEN];
 
 
+void testenvp()
+{
+	uint8_t i = 0;
+	while (g_opt_ptr[i] != NULL) {
+		printf("%s\n", g_opt_ptr[i]);
+		i += 1;
+	}
+}
+
 int 
 main(int argc, char *argv[], char *envp[]) 
 {
@@ -170,14 +179,27 @@ execute(char *line)
 int
 _execute_1(char *line, int pfd_in, int *pfd_out)
 {
-	char **raw_argv = splitstr(line, " ");
-	char **argv = malloc(sizeof(char *) * (1 + lenstrarr(raw_argv)));
-	char **raw_argv_ptr = raw_argv;
-	char **argv_ptr = argv;
+	char **raw_argv;
+	char **argv;
+	char **raw_argv_ptr;
+	char **argv_ptr;
 	char exe_path[NAME_MAX + 1];
 	int child_pid;
 	int child_status;
 	int execute_status = 1;
+	int is_wait;
+
+	if (line[strlen(line) - 1] == '&') {
+		is_wait = FALSE;
+		line[strlen(line) - 1] = '\0';
+	} else {
+		is_wait = TRUE;
+	}
+
+	raw_argv = splitstr(line, " ");
+	argv = malloc(sizeof(char *) * (1 + lenstrarr(raw_argv)));
+	raw_argv_ptr = raw_argv;
+	argv_ptr = argv;
 
 	argv[0] = NULL;
 	while (*raw_argv_ptr != NULL) {
@@ -250,12 +272,14 @@ _execute_1(char *line, int pfd_in, int *pfd_out)
 		if (pfd_out[1] != STDOUT_FD) {
 			close(pfd_out[1]);
 		}
-		waitpid(-1, &child_status, 0);
-		if (child_status == EXIT_SUCCESS) {
-			execute_status = 0;
-		} else {
-			echoerr(SHELL_NAME, exe_path, "execute command error");
-			execute_status = 2;
+		if (is_wait == TRUE) {
+			waitpid(child_pid, &child_status, 0);
+			if (child_status == EXIT_SUCCESS) {
+				execute_status = 0;
+			} else {
+				echoerr(SHELL_NAME, exe_path, "execute command error");
+				execute_status = 2;
+			}
 		}
 	}
 

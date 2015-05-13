@@ -26,36 +26,19 @@
  */
 
 
-#include <sys/defs.h>
 #include <sys/sched.h>
 #include <sys/managemem.h>
 #include <sys/debug.h>
 
-kpid_t
-sys_wait4(int pid, int *status, int options, struct rusage *rusage)
+
+uint64_t
+sys_nanosleep(uint64_t end_data_segment)
 {
-	task_t *temptask_ptr;
-	uint8_t end_sleeping;
-	volatile task_t *child_task = g_task_start + pid;
-	gp_current_task->status = PROCESS_SLEEPING;
-	end_sleeping = FALSE;
-
-	__asm volatile("sti");
-
-	if (pid > KERNEL_PID){
-		while(child_task->status != PROCESS_TERMINATED);
-	} else {
-		while(end_sleeping == FALSE){
-			end_sleeping = TRUE;
-			for (temptask_ptr = g_task_start + KERNEL_PID + 1; temptask_ptr <= g_task_start + g_task_bump; temptask_ptr++){
-				if (temptask_ptr->parent == gp_current_task->pid && temptask_ptr->status != PROCESS_TERMINATED)
-					end_sleeping = FALSE;
-			}
-		}
-	}
-
-	gp_current_task->status = PROCESS_READY;
-	*status = gp_current_task->child_status;
-
-	return gp_current_task->pid;
+	vma_t *heap_vma = lookupvmabyname(VMA_HEAP_NAME);
+	if (end_data_segment == 0)
+		return (uint64_t)(heap_vma->vaddr_end);
+	if (end_data_segment < (uint64_t)(heap_vma->vaddr_start))
+		return -1;
+	heap_vma->vaddr_end = (void *)end_data_segment;
+	return 0;
 }

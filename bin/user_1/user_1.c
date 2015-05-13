@@ -32,15 +32,6 @@
 
 int main(int argc, char* argv[], char* envp[]) 
 {
-	char buf[MAXLINE];
-	while (*envp != NULL) {
-		printf("%s\n", *envp);
-		envp++;
-	}
-
-	getcwd(buf, MAXLINE);
-	printf("%s\n", buf);
-	
 	while(1);
 }
 
