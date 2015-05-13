@@ -1,58 +1,86 @@
-# sbunix/sblibc/SBUsh
+# sbunix (with SBUsh and sblibc)
 
 ## Intro
 
-sbunix is a simple Unix implementation, sblibc is a simple libc implementation and SBUsh is a simple shell implementation. They are licensed under [GPLv3](http://www.gnu.org/copyleft/gpl.html). 
+sbunix is a simple Unix implementation, SBUsh and sblibc are built-in [shell](http://en.wikipedia.org/wiki/Unix_shell) and [libc](http://www.gnu.org/software/libc/) implementation. They are licensed under [GPLv3](http://www.gnu.org/copyleft/gpl.html). 
 
 
 ## Source Codes and Compile
 
 - The source code is avaliable on [GitHub](https://github.com/waigx/sbunix).
  
-- For sbunix
-  * To compile the code, run
+- To compile the code, run
 
    ```
    $ make
    ```
-- For sblibc and SBUsh
-  * An etc/ file was already in rootfs/, which included initial configuration file(s).  
-  * For testing purpose, bin/SBUsh/SBUsh.c:45 defined a root path: 
-  
-    ```
-    #define ROOT_PATH "/PATH/TO/ROOTFS"
-    ```    
-    This line is designed for finding configure file SBUsh.SBUshrc AND **PREFIX BEFORE PATH EVERY TIME WHEN SEARCHING COMMAND IN PATHES**. If not properly set, SBUsh will not find external executable files.
-    
-    Left it blank if you not sure, or, set ROOT environment in SBUsh variable with
-    
-    ```
-    $ export ROOT=[PATH/TO/ROOT]
-    ```
-  * Sometime the $PATH or other variable is much longer than expect, alter constants in include/const.h if error occurs.
-
-
-## About sbunix - warmup 2
 - To run the **sbunix**, use
 
    ```
    qemu-system-x86_64 -curses -cdrom $USER.iso -drive id=disk,file=$USER.img,if=none -device ahci,id=ahci -device ide-drive,drive=disk,bus=ahci.0 -net nic -net user,hostfwd=tcp::10080-:80 -net user,hostfwd=tcp::10023-:23 --no-reboot -gdb tcp::9998
    ```
 
-- Plase note the **qemu** in curses mode will not sent some combination keys like **ctrl-M** as press sequences to the program, instead, it just sent a **CR**.
+## About sbunix
 
-- With RTC support, the default timezone is **TIMEZONE_EST** (-5), change default timezone in **main.c**, add new timezone in **rtc.h**.
+- With RTC support, the default timezone is **TIMEZONE_EST_S** (-4), change default timezone in **sys/time/echotime.c**, add new timezone in **rtc.h**.
 
-- Display limited key press on the bottom of the screen.
+- Initialization system setting (environment variables) in **/etc/rc**;
 
-- With workable kernel printf.
+- Preemptive Operating System;
 
+- Simple file system implementation: TARFS;
+
+- With virtual memory, user ring3 processes, COW fork(), auto-growing stack;
+
+- With Shell Script files support;
+
+- Provided binaries
+
+  ```
+  - cd [Note: Built-in SBUsh]
+  - cat
+  - echo
+  - hello
+  - init
+  - kill
+  - ls
+  - printenv
+  - ps
+  - pwd
+  - sleep
+  ```
+  
+- Implemented **syscalls**
+  
+  ```
+  - sys_exit
+  - sys_brk
+  - sys_fork
+  - sys_getpid
+  - sys_getppid
+  - sys_execve
+  - sys_wait4
+  - sys_kill [Note: Only **kill -9** supported]
+  - sys_nanosleep
+  - sys_getcwd
+  - sys_chdir
+  - sys_open
+  - sys_read
+  - sys_write [Note: Only Standard Output supported]
+  - sys_lseek
+  - sys_close
+  - sys_getdents
+  - sys_yield
+  - sys_gettask
+  ```
+  
 
 ## About SBUsh
 
 - **Not** supported export/setenv with variable($) and quotation mark currently.
 
 - **Not** supported escape sequence and quotation mark yet.
+ 
 
 - Supported escape sequences of PS1 variable:
   * \b a space character
@@ -73,19 +101,19 @@ sbunix is a simple Unix implementation, sblibc is a simple libc implementation a
   ```
   $ setenv PATH /bin:/usr/bin:/usr/local/bin
   ```  
-- cd command, execute scripts and pipeline should work as expected, examples:
+- cd command, execute scripts should work as expected, examples:
 
   ```
-  $ cd ../../
+  $ cd ../../  
+ 
   ```
-  ```
-  $ ls | wc | wc
-  ```
-- Quit SBUsh by exit command:
+- & suffix to set process to background, example:
 
   ```
-  $ exit
-  ```
+  $ ls&
+ 
+  ```  
+
 
 ## About sblibc
 
