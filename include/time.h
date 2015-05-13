@@ -29,19 +29,9 @@
 
 
 #include <sys/defs.h>
+#include <sys/timer.h>
 
 typedef int64_t time_t;
-
-struct timespec {
-	time_t tv_sec;
-	int64_t tv_nsec;
-};
-
-struct timeval {
-	time_t tv_sec;
-	int64_t tv_usec;
-};
-
 
 int nanosleep(const struct timespec *req, struct timespec *rem);
 

@@ -36,23 +36,22 @@ void echotime(void)
 	struct rtc_t timezone = TIMEZONE_EST_S;
 	struct rtc_t timenow;
 
-	if (g_timer_count == 999) {
-		g_timer_count = 0;
+	g_time_boot.nano += 1000000000/TIME_FREQ;
+	if (g_time_boot.nano >= 1000000000) {
+		g_time_boot.nano = 0;
 		g_time_boot.sec += 1;
-		if (g_time_boot.sec == 60) {
-			g_time_boot.sec = 0;
-			g_time_boot.min += 1;
-		}
-		if (g_time_boot.min == 60) {
-			g_time_boot.min = 0;
-			g_time_boot.hour += 1;
-		}
-		if (g_time_boot.hour == 24)
-			g_time_boot.hour = 0;
 	}
-	else {
-		g_timer_count += 1;
+	if (g_time_boot.sec == 60) {
+		g_time_boot.sec = 0;
+		g_time_boot.min += 1;
 	}
+	if (g_time_boot.min == 60) {
+		g_time_boot.min = 0;
+		g_time_boot.hour += 1;
+	}
+	if (g_time_boot.hour == 24)
+		g_time_boot.hour = 0;
+
 	printfat(CONSOLE_ROW - 1, CONSOLE_COL - 10, "%d:%d:%d   ", g_time_boot.hour, g_time_boot.min, g_time_boot.sec);
 
 	get_rtc_time(&timenow, &timezone);

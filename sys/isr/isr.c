@@ -37,6 +37,7 @@
 #include <sys/debug.h>
 #include <sys/sched.h>
 
+
 uint64_t g_keyboard_buf;
 uint64_t g_valid_keyboard= FALSE;
 uint64_t  g_diable_scheduler = 0;
@@ -127,6 +128,12 @@ void pagefault_handler(void)
 void timer_handler(void)
 {
 	 __asm volatile("cli");
+
+	if (g_timer_count > 0xefffffff)
+		g_timer_count = 0;
+	else
+		g_timer_count += 1;
+
 	echotime();
 	send_eoi(TIMER_IRQ_NUMBER);
 	scheduler();

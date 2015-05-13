@@ -28,17 +28,38 @@
 
 #include <sys/sched.h>
 #include <sys/managemem.h>
+#include <sys/timer.h>
+#include <sys/rtc.h>
 #include <sys/debug.h>
 
 
-uint64_t
-sys_nanosleep(uint64_t end_data_segment)
+int
+sys_nanosleep(const struct timespec *req, struct timespec *rem)
 {
-	vma_t *heap_vma = lookupvmabyname(VMA_HEAP_NAME);
-	if (end_data_segment == 0)
-		return (uint64_t)(heap_vma->vaddr_end);
-	if (end_data_segment < (uint64_t)(heap_vma->vaddr_start))
-		return -1;
-	heap_vma->vaddr_end = (void *)end_data_segment;
+	uint64_t tv_sec_offset;
+	uint64_t tv_nsec_offset;
+	uint64_t timecount_snapshot = g_timer_count;
+
+	gp_current_task->status = PROCESS_SLEEPING;
+	rem->tv_sec = req->tv_sec; 
+	rem->tv_nsec = req->tv_nsec; 
+
+	__asm volatile("sti");
+
+	while (1){
+		tv_sec_offset = (g_timer_count - timecount_snapshot)/TIME_FREQ;
+		tv_nsec_offset = (1000000000/TIME_FREQ) * (g_timer_count - timecount_snapshot);
+		if ((rem->tv_nsec - tv_nsec_offset) < 0) {
+			rem->tv_nsec -= tv_nsec_offset + 1000000000;
+			rem->tv_sec -= 1;
+		}
+		rem->tv_sec -= tv_sec_offset;
+		if (rem->tv_sec < 0) {
+			break;
+		}
+		timecount_snapshot = g_timer_count;
+	}
+
+	gp_current_task->status = PROCESS_READY;
 	return 0;
 }

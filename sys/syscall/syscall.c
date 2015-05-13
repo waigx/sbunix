@@ -34,6 +34,7 @@
 #include <sys/sched.h>
 #include <sys/tarfs_api.h>
 #include <sys/debug.h>
+#include <sys/timer.h>
 #include <sys/file_op.h>
 
 uint64_t syscall(void)
@@ -109,7 +110,11 @@ uint64_t syscall(void)
 			return ret;
 			break;
 
-//#define SYS_nanosleep  35
+		case SYS_nanosleep:
+			sys_nanosleep((const struct timespec *)a1, (struct timespec *)a2);
+			ret = get_rax_register();
+			return ret;
+			break;
 //#define SYS_alarm      37
 
 		case SYS_getcwd:

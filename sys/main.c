@@ -42,7 +42,7 @@ uint32_t g_current_pos = 2 * 21 * CONSOLE_COL;
 uint8_t g_default_color = CONSOLE_WHITE_DARK;
 uint8_t is_shifted = 0;
 uint8_t is_ctrled = 0;
-uint16_t g_timer_count = 0;
+uint32_t g_timer_count = 0;
 uint16_t g_switch_timer = 0;
 uint8_t g_debug_mode = 0;
 struct rtc_t g_time_boot = TIMEZONE_UTC;
@@ -92,7 +92,7 @@ void start(uint32_t* modulep, void* physbase, void* physfree)
 
 //	load_test_tasks();
 	inituser();
-	set_timer(1000);
+	set_timer(TIME_FREQ);
 	__asm volatile("sti");// enable interupt("asm sti") should be executed after setting all interrupt info.
 //	yield(1);
 	while (1);
