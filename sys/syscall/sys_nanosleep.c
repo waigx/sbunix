@@ -36,28 +36,28 @@
 int
 sys_nanosleep(const struct timespec *req, struct timespec *rem)
 {
-	uint64_t tv_sec_offset;
-	uint64_t tv_nsec_offset;
-	uint64_t timecount_snapshot = g_timer_count;
+	volatile uint64_t tv_sec_offset;
+	volatile uint64_t tv_nsec_offset;
+	volatile uint32_t timecount_snapshot = g_timer_count;
 
 	gp_current_task->status = PROCESS_SLEEPING;
 	rem->tv_sec = req->tv_sec; 
 	rem->tv_nsec = req->tv_nsec; 
 
-	__asm volatile("sti");
-
 	while (1){
+		__asm volatile("sti");
 		tv_sec_offset = (g_timer_count - timecount_snapshot)/TIME_FREQ;
-		tv_nsec_offset = (1000000000/TIME_FREQ) * (g_timer_count - timecount_snapshot);
+		tv_nsec_offset = ((1000000000/TIME_FREQ) * (g_timer_count - timecount_snapshot))%1000000000;
 		if ((rem->tv_nsec - tv_nsec_offset) < 0) {
 			rem->tv_nsec -= tv_nsec_offset + 1000000000;
 			rem->tv_sec -= 1;
 		}
 		rem->tv_sec -= tv_sec_offset;
-		if (rem->tv_sec < 0) {
+		if (rem->tv_sec <= 0) {
 			break;
 		}
-		timecount_snapshot = g_timer_count;
+		if (timecount_snapshot != g_timer_count)
+			timecount_snapshot = g_timer_count;
 	}
 
 	gp_current_task->status = PROCESS_READY;
